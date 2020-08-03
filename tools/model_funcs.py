@@ -1,7 +1,7 @@
 import torch
 import time
 import numpy as np
-from MLP import MLP
+from architectures.SDNs.MLP import MLP
 import tools.aux_funcs as af
 import data
 from torch.nn import BCELoss

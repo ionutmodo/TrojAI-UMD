@@ -29,7 +29,7 @@ from numpy.linalg import norm
 
 import tools.network_architectures as arcs
 
-from tools.data import CIFAR10, CIFAR100, TinyImagenet, TrojAI
+from tools.data import CIFAR10, CIFAR100, TinyImagenet
 
 # from architectures.CNNs.resnet import ResNet50
 # from architectures.CNNs.wideresnet import WideResNet

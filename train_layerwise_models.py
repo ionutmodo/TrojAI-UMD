@@ -5,7 +5,7 @@ import tools.network_architectures as arcs
 import tools.model_funcs as mf
 from SDNDenseNet121 import SDNDenseNet121
 from data import TrojAI
-from MLP import LayerwiseClassifiers
+from architectures.SDNs.MLP import LayerwiseClassifiers
 
 def train_wrapper(model, path, model_name, images_folder_name, task, device):
     print(f'training layerwise models: {path}, {model_name}, {task}')
