@@ -140,7 +140,7 @@ def train_layerwise_classifiers(layerwise_classifiers, data, epochs, optimizer, 
             layerwise_classifiers.train()
             layerwise_classifiers_training_step(layerwise_classifiers, optimizer, batch, device)
 
-        if epoch == 1 or epoch % 3 == 0:
+        if epoch == 1 or epoch % 2 == 0:
             layerwise_ics_test_accs = layerwise_classifiers_test(layerwise_classifiers, data.test_loader, device)
             print('Layerwise ICs Test Accs: {}\n'.format(layerwise_ics_test_accs))
 
