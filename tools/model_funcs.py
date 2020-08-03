@@ -3,7 +3,7 @@ import time
 import numpy as np
 from architectures.SDNs.MLP import MLP
 import tools.aux_funcs as af
-import data
+import tools.data as data_module
 from torch.nn import BCELoss
 
 def cnn_training_step(model, optimizer, data, labels, device='cpu'):
@@ -61,8 +61,8 @@ def cnn_train(model, data, epochs, optimizer, scheduler, device='cpu'):
 
 def cnn_test(model, loader, device='cpu'):
     model.eval()
-    top1 = data.AverageMeter()
-    top5 = data.AverageMeter()
+    top1 = data_module.AverageMeter()
+    top5 = data_module.AverageMeter()
 
     with torch.no_grad():
         for batch in loader:
@@ -71,9 +71,9 @@ def cnn_test(model, loader, device='cpu'):
 
             output = model(b_x)
             if model.num_classes < 5:
-                prec1 = data.accuracy(output, b_y, topk=(1, ))
+                prec1 = data_module.accuracy(output, b_y, topk=(1, ))
             else:
-                prec1, prec5 = data.accuracy(output, b_y, topk=(1, 5))
+                prec1, prec5 = data_module.accuracy(output, b_y, topk=(1, 5))
                 top5.update(prec5[0], b_x.size(0))
 
             top1.update(prec1[0], b_x.size(0))
