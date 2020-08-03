@@ -5,9 +5,9 @@ import os
 
 import os.path
 
-from architectures.CNNs.VGG import VGG
-from architectures.CNNs.resnet import ResNet50
-from architectures.CNNs.wideresnet import WideResNet
+# from architectures.CNNs.VGG import VGG
+# from architectures.CNNs.resnet import ResNet50
+# from architectures.CNNs.wideresnet import WideResNet
 
 # from encoder import LayerwiseAutoencoders
 # from MLP import LayerwiseClassifiers
