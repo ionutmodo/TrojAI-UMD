@@ -15,6 +15,8 @@ class LayerwiseClassifiers(nn.Module):
             hidden_sizes = af.get_network_structure(reduced_input_size, num_layers, structure_params)
             cur_ic = MLP(reduced_input_size, num_classes, hidden_sizes)
             mlps.append(cur_ic)
+            print('LayerwiseClassifiers::init - train only one IC')
+            break
 
         self.mlps = nn.Sequential(*mlps)
         self.model = None

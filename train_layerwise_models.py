@@ -1,4 +1,6 @@
 import os
+import sys
+
 import torch
 import tools.aux_funcs as af
 import tools.network_architectures as arcs
@@ -6,6 +8,7 @@ import tools.model_funcs as mf
 from architectures.SDNs.SDNDenseNet121 import SDNDenseNet121
 from tools.data import TrojAI
 from architectures.SDNs.MLP import LayerwiseClassifiers
+import socket
 
 def train_wrapper(model, path, model_name, images_folder_name, task, device):
     print(f'training layerwise models: {path}, {model_name}, {task}')
@@ -42,8 +45,12 @@ if __name__ == "__main__":
 
     device = af.get_pytorch_device()
 
+    if socket.gethostname() == 'ubuntu20':
+        path = '/mnt/storage/Cloud/MEGA/TrojAI/data/trojai-round0-dataset/id-00000005/'
+    else:
+        path = '/fs/sdsatumd/ionmodo/TrojAI-data/trojai-round0-dataset/id-00000005/'
+
     task = 'trojai'
-    path = '/mnt/storage/Cloud/MEGA/TrojAI/data/trojai-round0-dataset/id-00000005/'
     model_name = 'model.pt'
     images_folder_name = 'example_data'
 
