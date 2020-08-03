@@ -1,8 +1,5 @@
 import torch
 import time
-import torchvision
-
-import torch.nn as nn
 
 import numpy as np
 
@@ -11,8 +8,7 @@ from MLP import MLP
 import aux_funcs as af
 import data
 
-from torch.nn import BCELoss 
-from GPUtil import showUtilization as gpu_usage
+from torch.nn import BCELoss
 
 def cnn_training_step(model, optimizer, data, labels, device='cpu'):
     b_x = data.to(device, dtype=torch.float)   # batch x
