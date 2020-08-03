@@ -1,8 +1,6 @@
 import torch
-
 import pickle
 import os
-
 import os.path
 
 # from architectures.CNNs.VGG import VGG

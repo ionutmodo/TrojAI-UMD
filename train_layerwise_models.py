@@ -3,7 +3,7 @@ import torch
 import tools.aux_funcs as af
 import tools.network_architectures as arcs
 import tools.model_funcs as mf
-from SDNDenseNet121 import SDNDenseNet121
+from architectures.SDNs.SDNDenseNet121 import SDNDenseNet121
 from tools.data import TrojAI
 from architectures.SDNs.MLP import LayerwiseClassifiers
 
