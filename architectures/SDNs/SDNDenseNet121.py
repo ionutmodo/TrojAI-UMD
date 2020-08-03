@@ -1,10 +1,9 @@
-import sys
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision.models import densenet
 from torch.nn.modules import conv, batchnorm, activation, pooling
-from tools import aux_funcs as af
+import tools.aux_funcs as af
 from architectures.SDNs.SDNConfig import SDNConfig
 
 

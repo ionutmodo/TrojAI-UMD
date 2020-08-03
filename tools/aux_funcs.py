@@ -5,39 +5,34 @@ import torch.nn.functional as F
 import os
 import random
 import os.path
-import copy
 import sys
 import pickle
 import dill
 import math
-import itertools as it
 
 import matplotlib
 matplotlib.use('Agg')
 
 import matplotlib.pyplot as plt
-from matplotlib.ticker import FormatStrFormatter
 plt.rcParams.update({'font.size': 13})
 plt.rcParams.update({'figure.autolayout': True})
 
 from bisect import bisect_right
 from torch.optim import SGD, Adam
 from torch.optim.lr_scheduler import _LRScheduler
-from torch.nn import CrossEntropyLoss, BCELoss, MSELoss, L1Loss
+from torch.nn import CrossEntropyLoss, BCELoss, MSELoss
 from torch.autograd import Variable
 from pathlib import Path
 from random import sample 
 from ast import literal_eval
 from numpy.linalg import norm
 
-import model_funcs as mf
-import network_architectures as arcs
+import tools.network_architectures as arcs
 
-from data import CIFAR10, CIFAR100, TinyImagenet, ManualDataset, TrojAI
+from data import CIFAR10, CIFAR100, TinyImagenet
 
-from architectures.CNNs.resnet import ResNet50
-from architectures.CNNs.wideresnet import WideResNet
-
+# from architectures.CNNs.resnet import ResNet50
+# from architectures.CNNs.wideresnet import WideResNet
 # from robustness.attacker import AttackerModel
 # from robustness.datasets import CIFAR
 

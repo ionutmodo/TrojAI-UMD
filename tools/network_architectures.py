@@ -4,9 +4,6 @@ import pickle
 import os
 
 import os.path
-from tools import aux_funcs as af
-import numpy as np
-
 
 from architectures.CNNs.VGG import VGG
 from architectures.CNNs.resnet import ResNet50

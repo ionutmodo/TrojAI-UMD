@@ -2,7 +2,7 @@ import torch
 import os 
 
 import numpy as np
-import aux_funcs as af
+import tools.aux_funcs as af
 
 from torchvision import datasets, transforms
 from torch.utils.data import sampler, random_split

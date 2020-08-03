@@ -1,14 +1,10 @@
 import os
-
 import torch
-
-import aux_funcs as af
-import network_architectures as arcs
-import model_funcs as mf
+import tools.aux_funcs as af
+import tools.network_architectures as arcs
+import tools.model_funcs as mf
 from SDNDenseNet121 import SDNDenseNet121
-
-from data import ManualDataset, TrojAI
-
+from data import TrojAI
 from MLP import LayerwiseClassifiers
 
 def train_wrapper(model, path, model_name, images_folder_name, task, device):

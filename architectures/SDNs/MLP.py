@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
-
-import aux_funcs as af
+import tools.aux_funcs as af
 
 
 class LayerwiseClassifiers(nn.Module):

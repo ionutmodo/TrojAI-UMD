@@ -1,13 +1,9 @@
 import torch
 import time
-
 import numpy as np
-
 from MLP import MLP
-
-import aux_funcs as af
+import tools.aux_funcs as af
 import data
-
 from torch.nn import BCELoss
 
 def cnn_training_step(model, optimizer, data, labels, device='cpu'):
