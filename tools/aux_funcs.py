@@ -33,8 +33,7 @@ from numpy.linalg import norm
 import model_funcs as mf
 import network_architectures as arcs
 
-from data import CIFAR10, CIFAR100, TinyImagenet, ManualDataset
-
+from data import CIFAR10, CIFAR100, TinyImagenet, ManualDataset, TrojAI
 
 from architectures.CNNs.resnet import ResNet50
 from architectures.CNNs.wideresnet import WideResNet

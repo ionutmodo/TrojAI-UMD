@@ -8,6 +8,55 @@ from torchvision import datasets, transforms, utils
 from torch.utils.data import sampler, random_split
 from PIL import Image
 from sklearn.model_selection import train_test_split
+import skimage.io
+
+
+class TrojAI:
+    def __init__(self, folder, batch_size=128, num_classes=5, num_holdout=0, opencv_format=True, img_format='png', device='cuda'):
+        """opencv_format will be True for rounds 0 and 1 and False for all others"""
+        self.batch_size = batch_size
+        self.num_classes = num_classes
+        self.num_holdout = num_holdout
+
+        num_workers = 4 if device == 'cpu' else 0
+
+        images, labels = self._get_images(folder, opencv_format, img_format)
+
+        self.dataset = ManualData(images, labels, device)
+        self.train_loader = torch.utils.data.DataLoader(self.dataset, batch_size=self.batch_size, shuffle=True, num_workers=num_workers)
+
+    def _get_images(self, folder, opencv_format, img_format):
+        array_images, array_labels = [], []
+        for f in os.listdir(folder):
+            if f.endswith(img_format):
+                image = self._get_single_image(os.path.join(folder, f), opencv_format)
+                label = int(f.split('_')[1])
+                array_images.append(image)
+                array_labels.append(label)
+
+        array_images = np.asarray(array_images)
+        array_labels = np.asarray(array_labels)
+
+        return array_images, array_labels
+
+    def _get_single_image(self, path, opencv_format):
+        # convert to BGR (training codebase uses cv2 to load images which uses bgr format)
+        img = skimage.io.imread(path)
+        if opencv_format:
+            r = img[:, :, 0]
+            g = img[:, :, 1]
+            b = img[:, :, 2]
+            img = np.stack((b, g, r), axis=2)
+
+        # perform tensor formatting and normalization explicitly
+        # convert to CHW dimension ordering
+        img = np.transpose(img, (2, 0, 1))
+        # convert to NCHW dimension ordering
+        # img = np.expand_dims(img, 0) # !!! comment this to avoid having dataset of size (500, 1, 3, 224, 224)
+        # normalize the image
+        img = img - np.min(img)
+        img = img / np.max(img)
+        return img
 
 
 class CIFAR10:
@@ -41,7 +90,7 @@ class CIFAR10:
 
         self.train_loader = torch.utils.data.DataLoader(self.trainset, batch_size=batch_size, shuffle=True, num_workers=4)
 
-        self.testset =  datasets.CIFAR10(root='./data', train=False, download=True, transform=self.no_aug)
+        self.testset = datasets.CIFAR10(root='./data', train=False, download=True, transform=self.no_aug)
         self.test_loader = torch.utils.data.DataLoader(self.testset, batch_size=batch_size, shuffle=False, num_workers=4)
         self.test_loader_shuffle = torch.utils.data.DataLoader(self.testset, batch_size=batch_size, shuffle=True, num_workers=4)
 
@@ -222,7 +271,7 @@ class ManualDataAE(torch.utils.data.Dataset):
             return (self.data[idx], self.data[idx])
 
 
-class ManualDatasetAE():
+class ManualDatasetAE:
     def __init__(self, train_data, batch_size=64, get_indices=False, device='cpu'):
         self.batch_size = batch_size
 
@@ -239,7 +288,7 @@ class ManualDatasetAE():
 class ManualData(torch.utils.data.Dataset):
     def __init__(self, data, labels, device='cpu'):
         self.data = torch.from_numpy(data).to(device, dtype=torch.float)
-        self.device= device
+        self.device = device
         self.labels = torch.from_numpy(labels).to(device, dtype=torch.long)
 
     def __len__(self):
@@ -248,7 +297,7 @@ class ManualData(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         return (self.data[idx], self.labels[idx])
 
-class ManualDataset():
+class ManualDataset:
     def __init__(self, train_data, train_labels, test_data=None, test_labels=None, batch_size=64, device='cpu'):
         self.batch_size = batch_size
 
@@ -257,7 +306,6 @@ class ManualDataset():
         else:
             num_workers = 0
 
-            
         if test_data is not None:
             self.train_data = ManualData(train_data, train_labels, device)
             self.train_loader = torch.utils.data.DataLoader(self.train_data, batch_size=self.batch_size, shuffle=True, num_workers=num_workers)
