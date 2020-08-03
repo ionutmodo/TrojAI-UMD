@@ -55,6 +55,6 @@ if __name__ == "__main__":
     images_folder_name = 'example_data'
 
     model = torch.load(os.path.join(path, model_name)).to(device).eval()
-    model = SDNDenseNet121(model, input_size=(1, 3, 224, 224), num_classes=5, sdn_type=0, device=device)
+    model = SDNDenseNet121(model, input_size=(1, 3, 224, 224), num_classes=5, sdn_type=1, device=device)
     train_wrapper(model, path, model_name, images_folder_name, task, device)
     print('script ended')
