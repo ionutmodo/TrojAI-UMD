@@ -23,6 +23,9 @@ class TrojAI:
 
         self.dataset = ManualData(images, labels, device)
         self.train_loader = torch.utils.data.DataLoader(self.dataset, batch_size=self.batch_size, shuffle=True, num_workers=num_workers)
+        self.test_loader = torch.utils.data.DataLoader(self.dataset, batch_size=self.batch_size, shuffle=True, num_workers=num_workers)
+        print('TrojAI:init - test_loader IS THE SAME AS train_loader (it is used like this just for debugging purposes)')
+
 
     def _get_images(self, folder, opencv_format, img_format):
         array_images, array_labels = [], []
