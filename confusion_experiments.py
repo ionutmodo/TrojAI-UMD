@@ -11,7 +11,7 @@ from data import TrojAI
 
 
 def model_confusion_experiment(models_path, model_id, sdn_type, device='cpu'):
-    sdn_name = 'model_layerwise_classifiers'
+    sdn_name = 'ics'
     cnn_name = 'densenet121'
 
     sdn_model, sdn_params = arcs.load_model(models_path, sdn_name, epoch=-1)
