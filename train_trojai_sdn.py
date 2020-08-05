@@ -29,7 +29,6 @@ def train_trojai_sdn(dataset, model, model_root_path, device):
     lr_params = (0.001, 0.00001)
     stepsize_params = ([10], [0.1])
 
-    print('creating LayerwiseClassifiers')
     sys.stdout.flush()
     ics = LayerwiseClassifiers(output_params, architecture_params).to(device)
     ics.set_model(model)
@@ -43,7 +42,6 @@ def train_trojai_sdn(dataset, model, model_root_path, device):
 
 
 def main():
-    print('setting seeds and device')
     sys.stdout.flush()
     random_seed = af.get_random_seed()
     af.set_random_seeds()
@@ -76,13 +74,8 @@ def main():
     model_id = 'id-00000007'
     model_root = os.path.join(root_path, 'models', model_id)  # the folder where model, example_data and ground_truth.csv are stored
 
-
-    print('reading model directory')
-    sys.stdout.flush()
     dataset, model_label, model = read_model_directory(model_root, num_classes, sdn_type, device)
 
-    print('training trojai sdn')
-    sys.stdout.flush()
     train_trojai_sdn(dataset, model, model_root, device)
     # break
     print('script ended')

@@ -1,3 +1,5 @@
+import sys
+
 import torch
 import time
 import numpy as np
@@ -146,7 +148,7 @@ def train_layerwise_classifiers(layerwise_classifiers, data, epochs, optimizer, 
 
             layerwise_ics_train_accs = layerwise_classifiers_test(layerwise_classifiers, data.train_loader, device)
             print('Layerwise ICs Train Accs: {}\n'.format(layerwise_ics_train_accs))
-        sys.stdout.flush()
+            sys.stdout.flush()
 
         scheduler.step()
 
