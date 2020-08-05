@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
     hostname_root_dict = {
         'ubuntu20': '/mnt/storage/Cloud/MEGA', # the name of ionut's machine
-        'opensub03.umiacs.umd.edu': '/fs/sdsatumd/ionmodo'
+        'openlab': '/fs/sdsatumd/ionmodo'
     }
     root_path = os.path.join(hostname_root_dict[hostname], 'TrojAI-data', 'round1-dataset-train')
 
