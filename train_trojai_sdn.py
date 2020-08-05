@@ -68,13 +68,14 @@ def main():
     model_ids = metadata[metadata['model_architecture'] == 'densenet121']['model_name'].tolist()
 
     num_classes = 5
+    batch_size = 25
     sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
 
     for _id in [1, 7]:
         model_id = f'id-{_id:08d}'
         model_root = os.path.join(root_path, 'models', model_id)  # the folder where model, example_data and ground_truth.csv are stored
 
-        dataset, model_label, model = read_model_directory(model_root, num_classes, sdn_type, device)
+        dataset, model_label, model = read_model_directory(model_root, num_classes, batch_size, sdn_type, device)
 
         train_trojai_sdn(dataset, model, model_root, device)
         break
