@@ -29,7 +29,7 @@ class TrojAI:
         self.train_dataset = ManualData(X_train, y_train, device)
         self.test_dataset = ManualData(X_test, y_test, device)
         self.train_loader = torch.utils.data.DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True, num_workers=num_workers)
-        self.test_loader = torch.utils.data.DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=True, num_workers=num_workers)
+        self.test_loader = torch.utils.data.DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=False, num_workers=num_workers)
         print('TrojAI:init - test_loader IS THE SAME AS train_loader (it is used like this just for debugging purposes)')
 
 
