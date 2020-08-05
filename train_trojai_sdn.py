@@ -29,12 +29,15 @@ def train_trojai_sdn(dataset, model, model_root_path, device):
     lr_params = (0.001, 0.00001)
     stepsize_params = ([10], [0.1])
 
+    print('creating LayerwiseClassifiers')
+    sys.stdout.flush()
     ics = LayerwiseClassifiers(output_params, architecture_params).to(device)
     ics.set_model(model)
 
     optimizer, scheduler = af.get_optimizer(ics, lr_params, stepsize_params, optimizer='adam')
 
     print(f'Training SDN version for model {os.path.basename(model_root_path)}')
+    sys.stdout.flush()
     mf.train_layerwise_classifiers(ics, dataset, epochs, optimizer, scheduler, device)
     arcs.save_model(ics, params, model_root_path, 'model_layerwise_classifiers', epoch=-1)
 
