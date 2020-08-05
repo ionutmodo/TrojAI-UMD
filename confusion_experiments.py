@@ -13,14 +13,15 @@ from tools.data import TrojAI
 
 
 def model_confusion_experiment(models_path, model_id, sdn_type, device='cpu'):
-    sdn_name = 'ics_train80_test20_bs25'
+    suffix = 'train60_test40_bs25'
+    sdn_name = f'ics'
     cnn_name = 'densenet121'
 
     sdn_model, sdn_params = arcs.load_model(models_path, sdn_name, epoch=-1)
     sdn_model = sdn_model.to(device)
 
-    sdn_images = f'confusion_images/{model_id}_{sdn_name}'
-    cnn_images = f'confusion_images/{model_id}_{cnn_name}'
+    sdn_images = f'confusion_images/{model_id}_{sdn_name}_{suffix}'
+    cnn_images = f'confusion_images/{model_id}_{cnn_name}_{suffix}'
 
     cnn_model = torch.load(os.path.join(models_path, 'model.pt')).to(device)
     cnn_model = SDNDenseNet121(cnn_model, (1, 3, 224, 224), 5, sdn_type, device)
