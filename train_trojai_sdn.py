@@ -42,6 +42,7 @@ if __name__ == "__main__":
     # device = af.get_pytorch_device()
     device = 'cpu'
     hostname = socket.gethostname()
+    hostname = 'openlab' if hostname.startswith('openlab') else hostname
 
     print('Random Seed: {}'.format(random_seed))
     print(f'Running on machine "{hostname}"')
