@@ -17,7 +17,7 @@ def model_confusion_experiment(models_path, model_id, sdn_type, device='cpu'):
     sdn_name = f'ics'
     cnn_name = 'densenet121'
 
-    sdn_model, sdn_params = arcs.load_model(models_path, sdn_name, epoch=-1)
+    sdn_model, sdn_params = arcs.load_model(models_path, f'sdn_name_{suffix}', epoch=-1)
     sdn_model = sdn_model.to(device)
 
     sdn_images = f'confusion_images/{model_id}_{sdn_name}_{suffix}'
@@ -129,3 +129,4 @@ if __name__ == '__main__':
         print(f'----------{model_id} ({_label})----------')
         model_path = os.path.join(root_path, model_id)
         model_confusion_experiment(model_path, model_id, SDNConfig.DenseNet_attach_to_DenseBlocks, device)
+    print('script ended')
