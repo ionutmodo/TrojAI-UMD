@@ -1,3 +1,5 @@
+import sys
+
 import torch
 import pickle
 import os
@@ -8,7 +10,7 @@ import os.path
 # from architectures.CNNs.wideresnet import WideResNet
 
 # from encoder import LayerwiseAutoencoders
-# from MLP import LayerwiseClassifiers
+from architectures.SDNs.MLP import LayerwiseClassifiers
 
 
 def save_networks(model_name, model_params, models_path):
@@ -176,6 +178,8 @@ def save_model(model, model_params, models_path, model_name, epoch=-1):
         params_path = os.path.join(network_path, f'parameters_{epoch}')
 
     torch.save(model.state_dict(), path)
+    print(f'Saved model to {path}')
+    sys.stdout.flush()
 
     if model_params is not None:
         with open(params_path, 'wb') as f:
@@ -212,11 +216,11 @@ def load_model(models_path, model_name, epoch=0):
     network_path = models_path + '/' + model_name
 
     if epoch == 0: # untrained model
-        load_path = network_path + '/untrained'
+        load_path = os.path.join(network_path, 'untrained')
     elif epoch == -1: # last model
-        load_path = network_path + '/last'
+        load_path = os.path.join(network_path, 'last')
     else:
-        load_path = network_path + '/' + str(epoch)
+        load_path = os.path.join(network_path, str(epoch))
 
     model.load_state_dict(torch.load(load_path), strict=False)
 
