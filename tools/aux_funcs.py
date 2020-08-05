@@ -209,7 +209,7 @@ def single_histogram(save_path, save_name, hist_values, label, log_scale=False):
     plt.close()
 
 def overlay_two_histograms(save_path, save_name, hist_first_values, hist_second_values, first_label, second_label, title):
-    plt.hist([hist_first_values, hist_second_values], bins=50, label=[first_label, second_label])
+    plt.hist([hist_first_values, hist_second_values], bins=50, label=[first_label, second_label], color=['blue', 'red'])
     plt.axvline(np.mean(hist_first_values), color='k', linestyle='-', linewidth=3)
     plt.axvline(np.mean(hist_second_values), color='b', linestyle='--', linewidth=3)
     plt.xlabel(title)
