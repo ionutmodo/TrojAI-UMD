@@ -41,8 +41,8 @@ def main():
     random_seed = af.get_random_seed()
     af.set_random_seeds()
 
-    # device = af.get_pytorch_device()
-    device = 'cpu'
+    device = af.get_pytorch_device()
+    # device = 'cpu'
 
     hostname = socket.gethostname()
     hostname = 'openlab' if hostname.startswith('openlab') else hostname
