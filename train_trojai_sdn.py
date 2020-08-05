@@ -78,7 +78,6 @@ def main():
         dataset, model_label, model = read_model_directory(model_root, num_classes, batch_size, sdn_type, device)
 
         train_trojai_sdn(dataset, model, model_root, device)
-        break
     print('script ended')
 
 
