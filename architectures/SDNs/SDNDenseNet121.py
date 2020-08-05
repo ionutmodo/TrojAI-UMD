@@ -1,12 +1,8 @@
-from typing import Any
-
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 from torchvision.models import densenet
-from torch.nn.modules import conv, batchnorm, activation, pooling
 import tools.aux_funcs as af
-from SDNTrojAI import SDNTrojAI
+from architectures.SDNs.SDNTrojAI import SDNTrojAI
 from architectures.SDNs.SDNConfig import SDNConfig
 
 
