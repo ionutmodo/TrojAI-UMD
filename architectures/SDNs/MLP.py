@@ -20,6 +20,7 @@ class LayerwiseClassifiers(nn.Module):
             #     print('LayerwiseClassifiers::init - the number of ICs to train is limited for debugging!')
             #     break
 
+        self.num_output = len(mlps)
         self.mlps = nn.Sequential(*mlps)
         self.model = None
         self.architecture_params = architecture_params
