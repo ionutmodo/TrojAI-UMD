@@ -15,7 +15,7 @@ def read_model_directory(model_root, num_classes, sdn_type, device):
     model_path = os.path.join(model_root, 'model.pt')
 
     print('logistics:read_model_directory - check batch_size!')
-    _dataset = TrojAI(folder=dataset_path, batch_size=2, device=device)
+    _dataset = TrojAI(folder=dataset_path, batch_size=10, device=device)
     _model_label = (_read_ground_truth(ground_truth_path) == 1)
     _model = torch.load(model_path, map_location=device).eval()
     _model = SDNDenseNet121(_model, input_size=(1, 3, 224, 224), num_classes=num_classes, sdn_type=sdn_type, device=device)
