@@ -13,7 +13,7 @@ from tools.data import TrojAI
 
 
 def model_confusion_experiment(models_path, model_id, sdn_type, device='cpu'):
-    sdn_name = 'ics'
+    sdn_name = 'ics_train80_test20_bs25'
     cnn_name = 'densenet121'
 
     sdn_model, sdn_params = arcs.load_model(models_path, sdn_name, epoch=-1)
@@ -121,10 +121,10 @@ if __name__ == '__main__':
         'ubuntu20': '/mnt/storage/Cloud/MEGA',  # the name of ionut's machine
         'openlab': '/fs/sdsatumd/ionmodo'
     }
-    root_path = os.path.join(hostname_root_dict[hostname], 'TrojAI-data', 'round1-dataset-train')
+    root_path = os.path.join(hostname_root_dict[hostname], 'TrojAI-data', 'round1-dataset-train', 'models')
 
     for _id, _label in [(1, 'clean'), (7, 'backdoored')]:
         model_id = f'id-{_id:08d}'
         print(f'----------{model_id} ({_label})----------')
-        model_path = os.path.join(root_path, f'TrojAI-data/round1-dataset-train/models/{model_id}')
+        model_path = os.path.join(root_path, model_id)
         model_confusion_experiment(model_path, model_id, SDNConfig.DenseNet_attach_to_DenseBlocks, device)
