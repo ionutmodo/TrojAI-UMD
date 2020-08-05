@@ -38,7 +38,7 @@ def train_trojai_sdn(dataset, model, model_root_path, device):
     print(f'Training SDN version for model {os.path.basename(model_root_path)}')
     sys.stdout.flush()
     mf.train_layerwise_classifiers(ics, dataset, epochs, optimizer, scheduler, device)
-    arcs.save_model(ics, params, model_root_path, 'model_layerwise_classifiers', epoch=-1)
+    arcs.save_model(ics, params, model_root_path, 'ics', epoch=-1)
 
 
 def main():
