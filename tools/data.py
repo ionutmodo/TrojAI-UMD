@@ -11,19 +11,25 @@ import skimage.io
 
 
 class TrojAI:
-    def __init__(self, folder, batch_size=128, num_classes=5, num_holdout=0, opencv_format=True, img_format='png', device='cuda'):
+    def __init__(self, folder, batch_size=128, num_classes=5, test_ratio=0.2, opencv_format=True, img_format='png', device='cuda'):
         """opencv_format will be True for rounds 0 and 1 and False for all others"""
         self.batch_size = batch_size
         self.num_classes = num_classes
-        self.num_holdout = num_holdout
+        self.test_ratio = test_ratio
 
         num_workers = 4 if device == 'cpu' else 0
 
-        images, labels = self._get_images(folder, opencv_format, img_format)
+        X, y = self._get_images(folder, opencv_format, img_format)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, test_size=self.test_ratio)
+        print(f'X_train: {X_train.shape}')
+        print(f'y_train has {y_train.shape}')
+        print(f'X_test: {X_test.shape}')
+        print(f'y_test has {y_test.shape}')
 
-        self.dataset = ManualData(images, labels, device)
-        self.train_loader = torch.utils.data.DataLoader(self.dataset, batch_size=self.batch_size, shuffle=True, num_workers=num_workers)
-        self.test_loader = torch.utils.data.DataLoader(self.dataset, batch_size=self.batch_size, shuffle=True, num_workers=num_workers)
+        self.train_dataset = ManualData(X_train, y_train, device)
+        self.test_dataset = ManualData(X_test, y_test, device)
+        self.train_loader = torch.utils.data.DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True, num_workers=num_workers)
+        self.test_loader = torch.utils.data.DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=True, num_workers=num_workers)
         print('TrojAI:init - test_loader IS THE SAME AS train_loader (it is used like this just for debugging purposes)')
 
 
