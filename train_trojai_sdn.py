@@ -1,4 +1,6 @@
 import socket
+import sys
+
 import pandas as pd
 
 import tools.aux_funcs as af
@@ -38,6 +40,8 @@ def train_trojai_sdn(dataset, model, model_root_path, device):
 
 
 def main():
+    print('setting seeds and device')
+    sys.stdout.flush()
     random_seed = af.get_random_seed()
     af.set_random_seeds()
 
@@ -68,7 +72,14 @@ def main():
     # for model_id in model_ids:
     model_id = 'id-00000007'
     model_root = os.path.join(root_path, 'models', model_id)  # the folder where model, example_data and ground_truth.csv are stored
+
+
+    print('reading model directory')
+    sys.stdout.flush()
     dataset, model_label, model = read_model_directory(model_root, num_classes, sdn_type, device)
+
+    print('training trojai sdn')
+    sys.stdout.flush()
     train_trojai_sdn(dataset, model, model_root, device)
     # break
     print('script ended')
