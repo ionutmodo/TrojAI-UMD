@@ -1,29 +1,28 @@
-import os
-import sys
-
-import torch
-import tools.aux_funcs as af
-import tools.network_architectures as arcs
-import tools.model_funcs as mf
-from architectures.SDNs.SDNDenseNet121 import SDNDenseNet121
-from tools.data import TrojAI
-from architectures.SDNs.MLP import LayerwiseClassifiers
 import socket
+import pandas as pd
 
-def train_wrapper(model, path, model_name, images_folder_name, task, device):
-    print(f'training layerwise models: {path}, {model_name}, {task}')
+import tools.aux_funcs as af
+import tools.model_funcs as mf
+import tools.network_architectures as arcs
+from tools.logistics import *
+
+from architectures.SDNs.SDNConfig import SDNConfig
+from architectures.SDNs.MLP import LayerwiseClassifiers
+
+def train_trojai_sdn(dataset, model, model_root_path, device):
     output_params = model.get_layerwise_model_params()
 
     mlp_num_layers = 2
     mlp_architecture_param = [2, 2]
     architecture_params = (mlp_num_layers, mlp_architecture_param)
 
-    params = {}
-    params['network_type'] = 'layerwise_classifiers'
-    params['output_params'] = output_params
-    params['architecture_params'] = architecture_params
+    params = {
+        'network_type': 'layerwise_classifiers',
+        'output_params': output_params,
+        'architecture_params': architecture_params
+    }
 
-    # train the mlps
+    # settings to train the MLPs
     epochs = 20
     lr_params = (0.001, 0.00001)
     stepsize_params = ([10], [0.1])
@@ -31,30 +30,41 @@ def train_wrapper(model, path, model_name, images_folder_name, task, device):
     ics = LayerwiseClassifiers(output_params, architecture_params).to(device)
     ics.set_model(model)
 
-    dataset = TrojAI(folder=os.path.join(path, images_folder_name), batch_size=10, device=device)
     optimizer, scheduler = af.get_optimizer(ics, lr_params, stepsize_params, optimizer='adam')
-    torch.cuda.empty_cache()
     mf.train_layerwise_classifiers(ics, dataset, epochs, optimizer, scheduler, device)
-    arcs.save_model(ics, params, path, '{}_layerwise_classifiers'.format(model_name), epoch=-1)
+    arcs.save_model(ics, params, model_root_path, 'model_layerwise_classifiers', epoch=-1)
 
 
 if __name__ == "__main__":
     random_seed = af.get_random_seed()
     af.set_random_seeds()
+
+    # device = af.get_pytorch_device()
+    device = 'cpu'
+    hostname = socket.gethostname()
+
     print('Random Seed: {}'.format(random_seed))
+    print(f'Running on machine "{hostname}"')
 
-    device = af.get_pytorch_device()
+    hostname_root_dict = {
+        'ubuntu20': '/mnt/storage/Cloud/MEGA', # the name of ionut's machine
+        'opensub03.umiacs.umd.edu': '/fs/sdsatumd/ionmodo'
+    }
+    root_path = os.path.join(hostname_root_dict[hostname], 'TrojAI-data', 'round1-dataset-train')
 
-    if socket.gethostname() == 'ubuntu20':
-        path = '/mnt/storage/Cloud/MEGA/TrojAI/data/trojai-round0-dataset/id-00000005/'
-    else:
-        path = '/fs/sdsatumd/ionmodo/TrojAI-data/trojai-round0-dataset/id-00000005/'
+    metadata_path = os.path.join(root_path, 'METADATA.csv')
+    metadata = pd.read_csv(metadata_path)
+
+    # get folder names of DenseNet121 models
+    model_ids = metadata[metadata['model_architecture'] == 'densenet121']['model_name'].tolist()
 
     task = 'trojai'
-    model_name = 'model.pt'
-    images_folder_name = 'example_data'
+    num_classes = 5
+    sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
 
-    model = torch.load(os.path.join(path, model_name)).to(device).eval()
-    model = SDNDenseNet121(model, input_size=(1, 3, 224, 224), num_classes=5, sdn_type=1, device=device)
-    train_wrapper(model, path, model_name, images_folder_name, task, device)
+    for model_id in model_ids:
+        model_root = os.path.join(root_path, 'models', model_id) # the folder where model, example_data and ground_truth.csv are stored
+        dataset, model_label, model = read_model_directory(model_root, num_classes, sdn_type, device)
+        train_trojai_sdn(dataset, model, model_root, device)
+        break
     print('script ended')
