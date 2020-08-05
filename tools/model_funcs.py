@@ -108,7 +108,7 @@ def get_sdn_stats(layer_correct, layer_wrong, instance_confusion):
 
 
 def get_cnn_stats(correct, wrong, instance_confidence):
-    print('get cnn stats')
+    # print('get cnn stats')
 
     correct_confidence = []
     wrong_confidence = []
