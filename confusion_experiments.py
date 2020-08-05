@@ -36,7 +36,7 @@ def model_confusion_experiment(models_path, model_id, sdn_type, device='cpu'):
 
     # the the normalization stats from the training set
     confusion_stats = mf.sdn_confusion_stats(sdn_model, loader=dataset.train_loader, device=device)
-    print(confusion_stats)
+    print(f'Confusion stats: mean={confusion_stats[0]}, std={confusion_stats[1]}')
 
     sdn_layer_correct, sdn_layer_wrong, sdn_instance_confusion = mf.sdn_get_confusion(sdn_model, loader=dataset.test_loader, confusion_stats=confusion_stats,
                                                                                       device=device)
