@@ -70,14 +70,14 @@ def main():
     num_classes = 5
     sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
 
-    # for model_id in model_ids:
-    model_id = 'id-00000007'
-    model_root = os.path.join(root_path, 'models', model_id)  # the folder where model, example_data and ground_truth.csv are stored
+    for _id in [1, 7]:
+        model_id = f'id-{_id:08d}'
+        model_root = os.path.join(root_path, 'models', model_id)  # the folder where model, example_data and ground_truth.csv are stored
 
-    dataset, model_label, model = read_model_directory(model_root, num_classes, sdn_type, device)
+        dataset, model_label, model = read_model_directory(model_root, num_classes, sdn_type, device)
 
-    train_trojai_sdn(dataset, model, model_root, device)
-    # break
+        train_trojai_sdn(dataset, model, model_root, device)
+        break
     print('script ended')
 
 
