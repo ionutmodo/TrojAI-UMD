@@ -31,16 +31,19 @@ def train_trojai_sdn(dataset, model, model_root_path, device):
     ics.set_model(model)
 
     optimizer, scheduler = af.get_optimizer(ics, lr_params, stepsize_params, optimizer='adam')
+
+    print(f'Training SDN version for model {os.path.basename(model_root_path)}')
     mf.train_layerwise_classifiers(ics, dataset, epochs, optimizer, scheduler, device)
     arcs.save_model(ics, params, model_root_path, 'model_layerwise_classifiers', epoch=-1)
 
 
-if __name__ == "__main__":
+def main():
     random_seed = af.get_random_seed()
     af.set_random_seeds()
 
     # device = af.get_pytorch_device()
     device = 'cpu'
+
     hostname = socket.gethostname()
     hostname = 'openlab' if hostname.startswith('openlab') else hostname
 
@@ -48,7 +51,7 @@ if __name__ == "__main__":
     print(f'Running on machine "{hostname}"')
 
     hostname_root_dict = {
-        'ubuntu20': '/mnt/storage/Cloud/MEGA', # the name of ionut's machine
+        'ubuntu20': '/mnt/storage/Cloud/MEGA',  # the name of ionut's machine
         'openlab': '/fs/sdsatumd/ionmodo'
     }
     root_path = os.path.join(hostname_root_dict[hostname], 'TrojAI-data', 'round1-dataset-train')
@@ -59,13 +62,17 @@ if __name__ == "__main__":
     # get folder names of DenseNet121 models
     model_ids = metadata[metadata['model_architecture'] == 'densenet121']['model_name'].tolist()
 
-    task = 'trojai'
     num_classes = 5
     sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
 
-    for model_id in model_ids:
-        model_root = os.path.join(root_path, 'models', model_id) # the folder where model, example_data and ground_truth.csv are stored
-        dataset, model_label, model = read_model_directory(model_root, num_classes, sdn_type, device)
-        train_trojai_sdn(dataset, model, model_root, device)
-        break
+    # for model_id in model_ids:
+    model_id = 'id-00000007'
+    model_root = os.path.join(root_path, 'models', model_id)  # the folder where model, example_data and ground_truth.csv are stored
+    dataset, model_label, model = read_model_directory(model_root, num_classes, sdn_type, device)
+    train_trojai_sdn(dataset, model, model_root, device)
+    # break
     print('script ended')
+
+
+if __name__ == "__main__":
+    main()
