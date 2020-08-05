@@ -159,21 +159,21 @@ def save_model(model, model_params, models_path, model_name, epoch=-1):
     if not os.path.exists(models_path):
         os.makedirs(models_path)
 
-    network_path = models_path + '/' + model_name
+    network_path = os.path.join(models_path, model_name)
 
     if not os.path.exists(network_path):
         os.makedirs(network_path)
 
     # epoch == 0 is the untrained network, epoch == -1 is the last
     if epoch == 0:
-        path =  network_path + '/untrained'
-        params_path = network_path + '/parameters_untrained'
+        path = os.path.join(network_path, 'untrained')
+        params_path = os.path.join(network_path, 'parameters_untrained')
     elif epoch == -1:
-        path =  network_path + '/last'
-        params_path = network_path + '/parameters_last'
+        path = os.path.join(network_path, 'last')
+        params_path = os.path.join(network_path, 'parameters_last')
     else:
-        path = network_path + '/' + str(epoch)
-        params_path = network_path + '/parameters_'+str(epoch)
+        path = os.path.join(network_path, str(epoch))
+        params_path = os.path.join(network_path, f'parameters_{epoch}')
 
     torch.save(model.state_dict(), path)
 
