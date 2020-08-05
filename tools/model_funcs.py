@@ -6,7 +6,156 @@ import numpy as np
 from architectures.SDNs.MLP import MLP
 import tools.aux_funcs as af
 import tools.data as data_module
+import torch
 from torch.nn import BCELoss
+
+# to normalize the confusion scores
+def sdn_confusion_stats(model, loader, device='cpu'):
+    model.eval()
+    # outputs = list(range(model.num_output))
+    confusion_scores = []
+
+    total_num_instances = 0
+    with torch.no_grad():
+        for batch in loader:
+            b_x = batch[0].to(device)
+            total_num_instances += len(b_x)
+            output = model(b_x)
+            output = [torch.nn.functional.softmax(out, dim=1) for out in output]
+            cur_confusion = get_confusion_scores(output, None, device)
+            for test_id in range(len(b_x)):
+                confusion_scores.append(cur_confusion[test_id].cpu().numpy())
+
+    confusion_scores = np.array(confusion_scores)
+    mean_con = float(np.mean(confusion_scores))
+    std_con = float(np.std(confusion_scores))
+    return mean_con, std_con
+
+
+def sdn_get_confusion(model, loader, confusion_stats, device='cpu'):
+    model.eval()
+    layer_correct = {}
+    layer_wrong = {}
+    instance_confusion = {}
+    outputs = list(range(model.num_output))
+
+    for output_id in outputs:
+        layer_correct[output_id] = set()
+        layer_wrong[output_id] = set()
+
+    with torch.no_grad():
+        for cur_batch_id, batch in enumerate(loader):
+            b_x = batch[0].to(device)
+            b_y = batch[1].to(device)
+            output = model(b_x)
+            output = [torch.nn.functional.softmax(out, dim=1) for out in output]
+            cur_confusion = get_confusion_scores(output, confusion_stats, device)
+
+            for test_id in range(len(b_x)):
+                cur_instance_id = test_id + cur_batch_id * loader.batch_size
+                instance_confusion[cur_instance_id] = cur_confusion[test_id].cpu().numpy()
+                for output_id in outputs:
+                    cur_output = output[output_id]
+                    pred = cur_output.max(1, keepdim=True)[1]
+                    is_correct = pred.eq(b_y.view_as(pred))
+                    correct = is_correct[test_id]
+                    if correct == 1:
+                        layer_correct[output_id].add(cur_instance_id)
+                    else:
+                        layer_wrong[output_id].add(cur_instance_id)
+
+    return layer_correct, layer_wrong, instance_confusion
+
+
+def get_confusion_scores(outputs, normalize=None, device='cpu'):
+    p = 1
+    confusion_scores = torch.zeros(outputs[0].size(0))
+    confusion_scores = confusion_scores.to(device)
+
+    for output in outputs:
+        cur_disagreement = torch.nn.functional.pairwise_distance(outputs[-1], output, p=p)
+        cur_disagreement = cur_disagreement.to(device)
+        for instance_id in range(outputs[0].size(0)):
+            confusion_scores[instance_id] += cur_disagreement[instance_id]
+
+    if normalize is not None:
+        for instance_id in range(outputs[0].size(0)):
+            cur_confusion_score = confusion_scores[instance_id]
+            cur_confusion_score = cur_confusion_score - normalize[0]  # subtract mean
+            cur_confusion_score = cur_confusion_score / normalize[1]  # divide by the standard deviation
+            confusion_scores[instance_id] = cur_confusion_score
+
+    return confusion_scores
+
+def get_sdn_stats(layer_correct, layer_wrong, instance_confusion):
+    layer_keys = sorted(list(layer_correct.keys()))
+
+    correct_confusion = []
+    wrong_confusion = []
+
+    for inst in layer_correct[layer_keys[-1]]:
+        correct_confusion.append(instance_confusion[inst])
+
+    for inst in layer_wrong[layer_keys[-1]]:
+        wrong_confusion.append(instance_confusion[inst])
+
+    mean_correct_confusion = np.mean(correct_confusion)
+    mean_wrong_confusion = np.mean(wrong_confusion)
+
+    print('Confusion of corrects: {}, Confusion of wrongs: {}'.format(mean_correct_confusion, mean_wrong_confusion))
+
+    return correct_confusion, wrong_confusion
+
+
+def get_cnn_stats(correct, wrong, instance_confidence):
+    print('get cnn stats')
+
+    correct_confidence = []
+    wrong_confidence = []
+
+    for inst in correct:
+        correct_confidence.append(instance_confidence[inst])
+    for inst in wrong:
+        wrong_confidence.append(instance_confidence[inst])
+
+    mean_correct_confidence = np.mean(correct_confidence)
+    mean_wrong_confidence = np.mean(wrong_confidence)
+
+    print('Confidence of corrects: {}, Confidence of wrongs: {}'.format(mean_correct_confidence, mean_wrong_confidence))
+    return correct_confidence, wrong_confidence
+
+
+def cnn_get_confidence(model, loader, device='cpu'):
+    model.eval()
+    correct = set()
+    wrong = set()
+    instance_confidence = {}
+    correct_cnt = 0
+
+    with torch.no_grad():
+        for cur_batch_id, batch in enumerate(loader):
+            b_x = batch[0].to(device)
+            b_y = batch[1].to(device)
+            output = model(b_x)
+            output = torch.nn.functional.softmax(output, dim=1)
+            model_pred = output.max(1, keepdim=True)
+            pred = model_pred[1].to(device)
+            pred_prob = model_pred[0].to(device)
+
+            is_correct = pred.eq(b_y.view_as(pred))
+            correct_cnt += pred.eq(b_y.view_as(pred)).sum().item()
+
+            for test_id, cur_correct in enumerate(is_correct):
+                cur_instance_id = test_id + cur_batch_id * loader.batch_size
+                instance_confidence[cur_instance_id] = pred_prob[test_id].cpu().numpy()[0]
+
+                if cur_correct == 1:
+                    correct.add(cur_instance_id)
+                else:
+                    wrong.add(cur_instance_id)
+
+    return correct, wrong, instance_confidence
+
 
 def cnn_training_step(model, optimizer, data, labels, device='cpu'):
     b_x = data.to(device, dtype=torch.float)   # batch x
