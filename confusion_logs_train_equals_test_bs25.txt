@@ -1,5 +1,6 @@
 ----------id-00000001 (clean)----------
 Trained with all 500 images (trainset=testset)
+
 LayerwiseClassifiers:init - Total number of ICs is 4
 TrojAI:init - test_loader IS THE SAME AS train_loader (it is used like this just for debugging purposes)
 Confusion stats: mean=1.0117418766021729, std=1.3292322158813477
@@ -102,6 +103,8 @@ Layerwise ICs Train Accs: [93.8, 98.8, 99.8, 99.6]
 
 
 ----------id-00000007 (backdoored)----------
+Trained with all 500 images (trainset=testset)
+
 LayerwiseClassifiers:init - Total number of ICs is 4
 TrojAI:init - test_loader IS THE SAME AS train_loader (it is used like this just for debugging purposes)
 Confusion stats: mean=0.6922393441200256, std=0.5531907081604004
