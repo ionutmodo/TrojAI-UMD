@@ -38,7 +38,10 @@ def train_trojai_sdn(dataset, model, model_root_path, device):
     print(f'Training SDN version for model {os.path.basename(model_root_path)}')
     sys.stdout.flush()
     mf.train_layerwise_classifiers(ics, dataset, epochs, optimizer, scheduler, device)
-    arcs.save_model(ics, params, model_root_path, 'ics', epoch=-1)
+    test_proc = int(dataset.test_ratio * 100)
+    train_proc = 100 - test_proc
+    bs = dataset.batch_size
+    arcs.save_model(ics, params, model_root_path, f'ics_train{train_proc}_test{test_proc}_bs{bs}', epoch=-1)
 
 
 def main():
@@ -69,13 +72,14 @@ def main():
 
     num_classes = 5
     batch_size = 25
+    test_ratio = 0.4
     sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
 
     for _id in [1, 7]:
         model_id = f'id-{_id:08d}'
         model_root = os.path.join(root_path, 'models', model_id)  # the folder where model, example_data and ground_truth.csv are stored
 
-        dataset, model_label, model = read_model_directory(model_root, num_classes, batch_size, sdn_type, device)
+        dataset, model_label, model = read_model_directory(model_root, num_classes, batch_size, test_ratio, sdn_type, device)
 
         train_trojai_sdn(dataset, model, model_root, device)
     print('script ended')
