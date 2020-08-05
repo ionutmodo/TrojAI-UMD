@@ -8,6 +8,7 @@ class LayerwiseClassifiers(nn.Module):
         super(LayerwiseClassifiers, self).__init__()
 
         mlps = []
+        print('LayerwiseClassifiers:init - Total number of ICs is', len(output_params))
         for params in output_params:
             num_classes, _ , num_channels = params
             reduced_input_size = 3 * num_channels
@@ -15,7 +16,7 @@ class LayerwiseClassifiers(nn.Module):
             hidden_sizes = af.get_network_structure(reduced_input_size, num_layers, structure_params)
             cur_ic = MLP(reduced_input_size, num_classes, hidden_sizes)
             mlps.append(cur_ic)
-            # if len(mlps) == 2:
+            # if len(mlps) == 30:
             #     print('LayerwiseClassifiers::init - the number of ICs to train is limited for debugging!')
             #     break
 
