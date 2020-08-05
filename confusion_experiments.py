@@ -1,4 +1,6 @@
 import os
+import socket
+
 import numpy as np
 import torch
 
@@ -7,7 +9,7 @@ import tools.model_funcs as mf
 import tools.network_architectures as arcs
 from architectures.SDNs.SDNConfig import SDNConfig
 from architectures.SDNs.SDNDenseNet121 import SDNDenseNet121
-from data import TrojAI
+from tools.data import TrojAI
 
 
 def model_confusion_experiment(models_path, model_id, sdn_type, device='cpu'):
@@ -109,8 +111,20 @@ def model_confusion_experiment(models_path, model_id, sdn_type, device='cpu'):
 
 if __name__ == '__main__':
     device = af.get_pytorch_device()
+
+    hostname = socket.gethostname()
+    hostname = 'openlab' if hostname.startswith('openlab') else hostname
+
+    print(f'Running on machine "{hostname}"')
+
+    hostname_root_dict = {
+        'ubuntu20': '/mnt/storage/Cloud/MEGA',  # the name of ionut's machine
+        'openlab': '/fs/sdsatumd/ionmodo'
+    }
+    root_path = os.path.join(hostname_root_dict[hostname], 'TrojAI-data', 'round1-dataset-train')
+
     for _id, _label in [(1, 'clean'), (7, 'backdoored')]:
         model_id = f'id-{_id:08d}'
         print(f'----------{model_id} ({_label})----------')
-        model_path = f'/mnt/storage/Cloud/MEGA/TrojAI-data/round1-dataset-train/models/{model_id}'
+        model_path = os.path.join(root_path, f'TrojAI-data/round1-dataset-train/models/{model_id}')
         model_confusion_experiment(model_path, model_id, SDNConfig.DenseNet_attach_to_DenseBlocks, device)
