@@ -1,13 +1,145 @@
-import torch
-import os 
+import ast
 
+import PIL.Image
+import torch
+import os
+import glob
+import math
+import pandas as pd
 import numpy as np
+import wand
+
 import tools.aux_funcs as af
 
 from torchvision import datasets, transforms
 from torch.utils.data import sampler, random_split
 from sklearn.model_selection import train_test_split
 import skimage.io
+
+import trojai.datagen.instagram_xforms as instagram
+
+
+def _get_single_image(path, opencv_format):
+    # convert to BGR (training codebase uses cv2 to load images which uses bgr format)
+    img = skimage.io.imread(path)
+    r = img[:, :, 0]
+    g = img[:, :, 1]
+    b = img[:, :, 2]
+    if opencv_format:
+        img = np.stack((b, g, r), axis=2)
+    else:
+        img = np.stack((r, g, b), axis=2)
+
+    # perform tensor formatting and normalization explicitly
+    # convert to CHW dimension ordering
+    img = np.transpose(img, (2, 0, 1))
+    # convert to NCHW dimension ordering
+    # img = np.expand_dims(img, 0) # !!! comment this to avoid having dataset of size (500, 1, 3, 224, 224)
+    # normalize the image
+    img = img - np.min(img)
+    img = img / np.max(img)
+    return img
+
+def create_backdoored_dataset(dir_clean_data, dir_backdoored_data, filename_trigger, triggered_fraction, triggered_classes, trigger_target_class, p_trigger=0.5,
+                              keep_original=False):
+    """
+
+    :param dir_clean_data:
+    :param dir_backdoored_data:
+    :param triggered_fraction:
+    :param triggered_classes:
+    :param trigger_target_class:
+    :param p_trigger:
+    :param keep_original:
+    :return:
+    """
+    if not os.path.isdir(dir_backdoored_data):
+        os.makedirs(dir_backdoored_data)
+
+    df = pd.DataFrame(columns=['filename_clean', 'filename_backdoored', 'original_label', 'final_label', 'triggered', 'config'])
+    n = 0
+    for f in os.listdir(dir_clean_data):
+        if f.endswith('.png'):
+            original_label = int(f.split('_')[1])
+            filename_clean = os.path.join(dir_clean_data, f)
+            filename_backdoored = os.path.join(dir_backdoored_data, f)
+            # initially, there are no triggered classes
+            df.loc[n] = [filename_clean, filename_backdoored, original_label, original_label, False, 'none']
+            n += 1
+    # df2 = pd.DataFrame(columns=df.columns)
+    # n2 = 0
+    for original_label in set(df['original_label']):
+        if triggered_classes == 'all' or original_label in triggered_classes:
+            mask = df['original_label'] == original_label
+            df_indexes = df[mask].index
+            total_samples = len(df_indexes)
+            trojaned_indexes = np.random.choice(df_indexes, size=math.ceil(total_samples * triggered_fraction), replace=False)
+
+            for df_index in trojaned_indexes:
+                df.at[df_index, 'final_label'] = trigger_target_class
+                df.at[df_index, 'triggered'] = True
+                filename_clean = os.path.basename(df.at[df_index, 'filename_clean'])
+                filename_backdoored = filename_clean.replace(f'class_{original_label}', f'class_{trigger_target_class}')
+                trigger = 'polygon' if np.random.rand() < p_trigger else 'filter'
+                config = {'type': trigger}
+                if trigger == 'polygon':
+                    filename_backdoored = filename_backdoored.replace('.png', '_backdoor_trigger.png')
+                    x, y, side = 85, 85, 55
+                    size = int(side * np.random.randint(low=2, high=26, dtype=np.int) / 100.0)
+                    new_x, new_y = x - 1, y - 1
+                    while not (x <= new_x < x + side - size) and not (y <= new_y < y + side - size):
+                        new_x = np.random.randint(x, x + side - size)
+                        new_y = np.random.randint(y, y + side - size)
+                    config['x'] = new_x
+                    config['y'] = new_y
+                    config['size'] = size
+                elif trigger == 'filter':
+                    filename_backdoored = filename_backdoored.replace('.png', '_backdoor_filter.png')
+                    config['name'] = np.random.choice(['gotham', 'kelvin', 'lomo'], size=1)[0]
+
+                df.at[df_index, 'filename_backdoored'] = os.path.join(dir_backdoored_data, filename_backdoored)
+                df.at[df_index, 'config'] = str(config)
+
+                # if keep_original:
+                #     filename_clean = df.at[df_index, 'filename_clean']
+                #     filename_backdoored = os.path.join(dir_backdoored_data, os.path.basename(filename_clean))
+                #     df2.loc[n2] = [filename_clean, filename_backdoored, original_label, original_label, False, 'none']
+                #     n2 += 1
+
+    # df.append(df2)
+    df.to_csv(os.path.join(dir_backdoored_data, 'info.csv'), index=False)
+
+    count = 0
+    n_rows = len(df)
+    for _, row in df.iterrows():
+        filename_clean = row['filename_clean']
+        filename_backdoored = row['filename_backdoored']
+        config = row['config']
+        image_clean = PIL.Image.open(filename_clean)
+
+        if config == 'none': # save original image
+            image_clean.save(filename_backdoored)
+            count += 1
+        else:
+            config = ast.literal_eval(config)
+            if config['type'] == 'polygon':
+                image_trigger = PIL.Image.open(filename_trigger).resize((config['size'], config['size']))
+                image_clean.paste(image_trigger, (config['x'], config['y']), image_trigger)
+                image_clean.save(filename_backdoored)
+                count += 1
+            elif config['type'] == 'filter':
+                filter = None
+                if config['name'] == 'gotham':
+                    filter = instagram.GothamFilterXForm()
+                elif config['name'] == 'kelvin':
+                    filter = instagram.KelvinFilterXForm()
+                elif config['name'] == 'lomo':
+                    filter = instagram.LomoFilterXForm()
+                image_filtered = filter.filter(wand.image.Image.from_array(image_clean))
+                image_filtered.save(filename=filename_backdoored)
+                count += 1
+        if count % 10 == 0:
+            print(f'progress: {count}/{n_rows}')
 
 
 class TrojAI:
@@ -30,14 +162,13 @@ class TrojAI:
         self.test_dataset = ManualData(X_test, y_test, device)
         self.train_loader = torch.utils.data.DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True, num_workers=num_workers)
         self.test_loader = torch.utils.data.DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=False, num_workers=num_workers)
-        print('TrojAI:init - test_loader IS THE SAME AS train_loader (it is used like this just for debugging purposes)')
-
+        # print('TrojAI:init - test_loader IS THE SAME AS train_loader (it is used like this just for debugging purposes)')
 
     def _get_images(self, folder, opencv_format, img_format):
         array_images, array_labels = [], []
         for f in os.listdir(folder):
             if f.endswith(img_format):
-                image = self._get_single_image(os.path.join(folder, f), opencv_format)
+                image = _get_single_image(os.path.join(folder, f), opencv_format)
                 label = int(f.split('_')[1])
                 array_images.append(image)
                 array_labels.append(label)
@@ -46,25 +177,6 @@ class TrojAI:
         array_labels = np.asarray(array_labels)
 
         return array_images, array_labels
-
-    def _get_single_image(self, path, opencv_format):
-        # convert to BGR (training codebase uses cv2 to load images which uses bgr format)
-        img = skimage.io.imread(path)
-        if opencv_format:
-            r = img[:, :, 0]
-            g = img[:, :, 1]
-            b = img[:, :, 2]
-            img = np.stack((b, g, r), axis=2)
-
-        # perform tensor formatting and normalization explicitly
-        # convert to CHW dimension ordering
-        img = np.transpose(img, (2, 0, 1))
-        # convert to NCHW dimension ordering
-        # img = np.expand_dims(img, 0) # !!! comment this to avoid having dataset of size (500, 1, 3, 224, 224)
-        # normalize the image
-        img = img - np.min(img)
-        img = img / np.max(img)
-        return img
 
 
 class CIFAR10:
