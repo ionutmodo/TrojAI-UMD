@@ -3,19 +3,17 @@ import ast
 import PIL.Image
 import torch
 import os
-import glob
+import time
 import math
 import pandas as pd
 import numpy as np
 import wand
 
 import tools.aux_funcs as af
-
 from torchvision import datasets, transforms
 from torch.utils.data import sampler, random_split
 from sklearn.model_selection import train_test_split
 import skimage.io
-
 import trojai.datagen.instagram_xforms as instagram
 
 
@@ -55,19 +53,19 @@ def create_backdoored_dataset(dir_clean_data, dir_backdoored_data, filename_trig
     """
     if not os.path.isdir(dir_backdoored_data):
         os.makedirs(dir_backdoored_data)
-
+    np.random.seed(int(time.time()))
     df = pd.DataFrame(columns=['filename_clean', 'filename_backdoored', 'original_label', 'final_label', 'triggered', 'config'])
     n = 0
     for f in os.listdir(dir_clean_data):
         if f.endswith('.png'):
             original_label = int(f.split('_')[1])
-            filename_clean = os.path.join(dir_clean_data, f)
-            filename_backdoored = os.path.join(dir_backdoored_data, f)
+            basename_clean = os.path.join(dir_clean_data, f)
+            basename_backdoored = os.path.join(dir_backdoored_data, f)
             # initially, there are no triggered classes
-            df.loc[n] = [filename_clean, filename_backdoored, original_label, original_label, False, 'none']
+            df.loc[n] = [basename_clean, basename_backdoored, original_label, original_label, False, 'none']
             n += 1
-    # df2 = pd.DataFrame(columns=df.columns)
-    # n2 = 0
+    df2 = pd.DataFrame(columns=df.columns)
+    n2 = 0
     for original_label in set(df['original_label']):
         if triggered_classes == 'all' or original_label in triggered_classes:
             mask = df['original_label'] == original_label
@@ -78,12 +76,13 @@ def create_backdoored_dataset(dir_clean_data, dir_backdoored_data, filename_trig
             for df_index in trojaned_indexes:
                 df.at[df_index, 'final_label'] = trigger_target_class
                 df.at[df_index, 'triggered'] = True
-                filename_clean = os.path.basename(df.at[df_index, 'filename_clean'])
-                filename_backdoored = filename_clean.replace(f'class_{original_label}', f'class_{trigger_target_class}')
+                filename_clean = df.at[df_index, 'filename_clean']
+                basename_clean = os.path.basename(filename_clean)
+                basename_backdoored = basename_clean.replace(f'class_{original_label}', f'class_{trigger_target_class}')
                 trigger = 'polygon' if np.random.rand() < p_trigger else 'filter'
                 config = {'type': trigger}
                 if trigger == 'polygon':
-                    filename_backdoored = filename_backdoored.replace('.png', '_backdoor_trigger.png')
+                    basename_backdoored = basename_backdoored.replace('.png', f'_backdoor_trigger_from_{original_label}.png')
                     x, y, side = 85, 85, 55
                     size = int(side * np.random.randint(low=2, high=26, dtype=np.int) / 100.0)
                     new_x, new_y = x - 1, y - 1
@@ -94,19 +93,18 @@ def create_backdoored_dataset(dir_clean_data, dir_backdoored_data, filename_trig
                     config['y'] = new_y
                     config['size'] = size
                 elif trigger == 'filter':
-                    filename_backdoored = filename_backdoored.replace('.png', '_backdoor_filter.png')
+                    basename_backdoored = basename_backdoored.replace('.png', f'_backdoor_filter_from_{original_label}.png')
                     config['name'] = np.random.choice(['gotham', 'kelvin', 'lomo'], size=1)[0]
 
-                df.at[df_index, 'filename_backdoored'] = os.path.join(dir_backdoored_data, filename_backdoored)
+                df.at[df_index, 'filename_backdoored'] = os.path.join(dir_backdoored_data, basename_backdoored)
                 df.at[df_index, 'config'] = str(config)
 
-                # if keep_original:
-                #     filename_clean = df.at[df_index, 'filename_clean']
-                #     filename_backdoored = os.path.join(dir_backdoored_data, os.path.basename(filename_clean))
-                #     df2.loc[n2] = [filename_clean, filename_backdoored, original_label, original_label, False, 'none']
-                #     n2 += 1
+                if keep_original:
+                    basename_backdoored = os.path.join(dir_backdoored_data, os.path.basename(basename_clean))
+                    df2.loc[n2] = [filename_clean, basename_backdoored, original_label, original_label, False, 'none']
+                    n2 += 1
 
-    # df.append(df2)
+    df = df.append(df2)
     df.to_csv(os.path.join(dir_backdoored_data, 'info.csv'), index=False)
 
     count = 0
