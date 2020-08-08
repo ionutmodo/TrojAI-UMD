@@ -1,0 +1,182 @@
+Using PyTorch version: 1.1.0 CUDA: True
+Random Seed: 1221
+Running on machine "openlab"
+logistics:read_model_directory - check batch_size!
+X_train: (400, 3, 224, 224)
+y_train has (400,)
+X_test: (100, 3, 224, 224)
+y_test has (100,)
+TrojAI:init - test_loader IS THE SAME AS train_loader (it is used like this just for debugging purposes)
+LayerwiseClassifiers:init - Total number of ICs is 4
+Training SDN version for model id-00000001
+Epoch : 1
+Layerwise ICs Test Accs: [66.0, 62.0, 78.0, 100.0]
+Layerwise ICs Train Accs: [65.5, 60.25, 78.5, 98.75]
+
+Epoch : 2
+Layerwise ICs Test Accs: [81.0, 60.0, 98.0, 97.0]
+Layerwise ICs Train Accs: [84.75, 60.5, 96.5, 98.5]
+
+Epoch : 3
+Layerwise ICs Test Accs: [83.0, 64.0, 97.0, 98.0]
+Layerwise ICs Train Accs: [86.25, 61.0, 98.5, 99.0]
+
+Epoch : 4
+Layerwise ICs Test Accs: [92.0, 95.0, 98.0, 100.0]
+Layerwise ICs Train Accs: [91.0, 95.0, 98.0, 98.75]
+
+Epoch : 5
+Layerwise ICs Test Accs: [79.0, 93.0, 97.0, 98.0]
+Layerwise ICs Train Accs: [80.0, 94.0, 99.0, 99.25]
+
+Epoch : 6
+Layerwise ICs Test Accs: [87.0, 98.0, 98.0, 98.0]
+Layerwise ICs Train Accs: [88.25, 98.25, 99.25, 99.0]
+
+Epoch : 7
+Layerwise ICs Test Accs: [88.0, 91.0, 98.0, 98.0]
+Layerwise ICs Train Accs: [88.0, 94.25, 99.5, 99.25]
+
+Epoch : 8
+Layerwise ICs Test Accs: [89.0, 91.0, 97.0, 98.0]
+Layerwise ICs Train Accs: [88.5, 92.5, 97.75, 99.75]
+
+Epoch : 9
+Layerwise ICs Test Accs: [88.0, 98.0, 98.0, 98.0]
+Layerwise ICs Train Accs: [88.75, 97.5, 96.75, 98.5]
+
+Epoch : 10
+Layerwise ICs Test Accs: [86.0, 97.0, 99.0, 100.0]
+Layerwise ICs Train Accs: [91.25, 98.25, 99.75, 99.5]
+
+Epoch : 11
+Layerwise ICs Test Accs: [92.0, 98.0, 98.0, 100.0]
+Layerwise ICs Train Accs: [90.25, 98.0, 99.75, 99.75]
+
+Epoch : 12
+Layerwise ICs Test Accs: [92.0, 98.0, 98.0, 100.0]
+Layerwise ICs Train Accs: [90.75, 98.25, 99.75, 99.75]
+
+Epoch : 13
+Layerwise ICs Test Accs: [92.0, 97.0, 98.0, 100.0]
+Layerwise ICs Train Accs: [92.0, 98.5, 99.75, 99.75]
+
+Epoch : 14
+Layerwise ICs Test Accs: [93.0, 97.0, 98.0, 100.0]
+Layerwise ICs Train Accs: [92.75, 98.25, 99.75, 99.75]
+
+Epoch : 15
+Layerwise ICs Test Accs: [92.0, 99.0, 98.0, 100.0]
+Layerwise ICs Train Accs: [91.5, 98.75, 99.75, 99.75]
+
+Epoch : 16
+Layerwise ICs Test Accs: [92.0, 98.0, 98.0, 100.0]
+Layerwise ICs Train Accs: [91.75, 99.0, 99.75, 99.75]
+
+Epoch : 17
+Layerwise ICs Test Accs: [92.0, 98.0, 98.0, 100.0]
+Layerwise ICs Train Accs: [92.25, 98.25, 99.75, 100.0]
+
+Epoch : 18
+Layerwise ICs Test Accs: [92.0, 99.0, 98.0, 100.0]
+Layerwise ICs Train Accs: [93.25, 98.75, 100.0, 100.0]
+
+Epoch : 19
+Layerwise ICs Test Accs: [92.0, 98.0, 98.0, 100.0]
+Layerwise ICs Train Accs: [92.5, 98.5, 100.0, 100.0]
+
+Epoch : 20
+Layerwise ICs Test Accs: [93.0, 97.0, 98.0, 100.0]
+Layerwise ICs Train Accs: [93.75, 98.75, 100.0, 100.0]
+
+Saved model to /fs/sdsatumd/ionmodo/TrojAI-data/round1-dataset-train/models/id-00000001/ics/last
+logistics:read_model_directory - check batch_size!
+X_train: (400, 3, 224, 224)
+y_train has (400,)
+X_test: (100, 3, 224, 224)
+y_test has (100,)
+TrojAI:init - test_loader IS THE SAME AS train_loader (it is used like this just for debugging purposes)
+LayerwiseClassifiers:init - Total number of ICs is 4
+Training SDN version for model id-00000007
+Epoch : 1
+Layerwise ICs Test Accs: [42.0, 43.0, 100.0, 100.0]
+Layerwise ICs Train Accs: [40.0, 47.5, 99.5, 99.5]
+
+Epoch : 2
+Layerwise ICs Test Accs: [59.0, 89.0, 80.0, 100.0]
+Layerwise ICs Train Accs: [57.99999999999999, 87.25, 78.75, 99.75]
+
+Epoch : 3
+Layerwise ICs Test Accs: [76.0, 95.0, 100.0, 100.0]
+Layerwise ICs Train Accs: [76.5, 95.0, 99.5, 99.75]
+
+Epoch : 4
+Layerwise ICs Test Accs: [68.0, 87.0, 100.0, 100.0]
+Layerwise ICs Train Accs: [67.75, 84.75, 99.25, 99.0]
+
+Epoch : 5
+Layerwise ICs Test Accs: [78.0, 96.0, 100.0, 100.0]
+Layerwise ICs Train Accs: [77.5, 98.5, 99.5, 99.5]
+
+Epoch : 6
+Layerwise ICs Test Accs: [76.0, 97.0, 100.0, 100.0]
+Layerwise ICs Train Accs: [73.0, 99.5, 99.5, 99.5]
+
+Epoch : 7
+Layerwise ICs Test Accs: [80.0, 99.0, 100.0, 100.0]
+Layerwise ICs Train Accs: [76.25, 98.75, 99.5, 99.75]
+
+Epoch : 8
+Layerwise ICs Test Accs: [78.0, 93.0, 100.0, 100.0]
+Layerwise ICs Train Accs: [79.0, 96.0, 99.75, 99.75]
+
+Epoch : 9
+Layerwise ICs Test Accs: [84.0, 97.0, 100.0, 100.0]
+Layerwise ICs Train Accs: [83.5, 97.5, 99.5, 99.75]
+
+Epoch : 10
+Layerwise ICs Test Accs: [90.0, 98.0, 100.0, 100.0]
+Layerwise ICs Train Accs: [85.75, 98.25, 99.75, 99.75]
+
+Epoch : 11
+Layerwise ICs Test Accs: [88.0, 99.0, 100.0, 100.0]
+Layerwise ICs Train Accs: [88.25, 99.25, 99.75, 99.75]
+
+Epoch : 12
+Layerwise ICs Test Accs: [89.0, 98.0, 100.0, 100.0]
+Layerwise ICs Train Accs: [88.25, 99.25, 99.75, 100.0]
+
+Epoch : 13
+Layerwise ICs Test Accs: [89.0, 99.0, 100.0, 100.0]
+Layerwise ICs Train Accs: [88.25, 99.25, 99.75, 100.0]
+
+Epoch : 14
+Layerwise ICs Test Accs: [90.0, 99.0, 100.0, 100.0]
+Layerwise ICs Train Accs: [89.25, 99.25, 99.75, 100.0]
+
+Epoch : 15
+Layerwise ICs Test Accs: [89.0, 99.0, 100.0, 100.0]
+Layerwise ICs Train Accs: [88.0, 99.25, 99.75, 100.0]
+
+Epoch : 16
+Layerwise ICs Test Accs: [90.0, 99.0, 100.0, 100.0]
+Layerwise ICs Train Accs: [88.75, 99.25, 99.75, 100.0]
+
+Epoch : 17
+Layerwise ICs Test Accs: [91.0, 99.0, 100.0, 100.0]
+Layerwise ICs Train Accs: [89.75, 99.5, 99.75, 99.75]
+
+Epoch : 18
+Layerwise ICs Test Accs: [91.0, 99.0, 100.0, 100.0]
+Layerwise ICs Train Accs: [89.25, 99.5, 99.75, 100.0]
+
+Epoch : 19
+Layerwise ICs Test Accs: [89.0, 99.0, 100.0, 100.0]
+Layerwise ICs Train Accs: [90.0, 99.75, 99.75, 100.0]
+
+Epoch : 20
+Layerwise ICs Test Accs: [90.0, 99.0, 100.0, 100.0]
+Layerwise ICs Train Accs: [89.5, 99.5, 99.75, 100.0]
+
+Saved model to /fs/sdsatumd/ionmodo/TrojAI-data/round1-dataset-train/models/id-00000007/ics/last
+script ended
