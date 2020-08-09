@@ -1,7 +1,7 @@
 import os, sys
 import pandas as pd
 import numpy as np
-
+sys.path.insert(0, 'trojai')
 import cv2
 import torch
 from glob import glob
@@ -14,7 +14,7 @@ from tools import network_architectures as arcs
 from architectures.SDNs.SDNConfig import SDNConfig
 from architectures.SDNs.SDNDenseNet121 import SDNDenseNet121
 from tools.data import TrojAI, _get_single_image
-from settings import *
+from tools.settings import *
 import skimage.io
 from skimage.transform import resize
 from trojai.datagen.experiment import ClassicExperiment
