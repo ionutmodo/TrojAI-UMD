@@ -62,7 +62,7 @@ def main():
         'ubuntu20': '/mnt/storage/Cloud/MEGA',  # the name of ionut's machine
         'openlab': '/fs/sdsatumd/ionmodo'
     }
-    root_path = os.path.join(hostname_root_dict[hostname], 'TrojAI-data', 'round1-dataset-train')
+    root_path = os.path.join(hostname_root_dict[hostname], 'TrojAI', 'TrojAI-data', 'round1-holdout-dataset')
 
     metadata_path = os.path.join(root_path, 'METADATA.csv')
     metadata = pd.read_csv(metadata_path)
@@ -70,15 +70,15 @@ def main():
     # get folder names of DenseNet121 models
     model_ids = metadata[metadata['model_architecture'] == 'densenet121']['model_name'].tolist()
 
-    num_classes = 5
+    num_classes = 5 # read this from metadata
     batch_size = 25
-    test_ratio = 0.4
+    test_ratio = 0
     sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
 
-    for _id in [1, 7]:
+    for _id in [9]:
         model_id = f'id-{_id:08d}'
-        model_root = os.path.join(root_path, 'models', model_id)  # the folder where model, example_data and ground_truth.csv are stored
-
+        model_root = os.path.join(root_path, model_id)  # the folder where model, example_data and ground_truth.csv are stored
+        print(f'Working directory: {model_root}')
         dataset, model_label, model = read_model_directory(model_root, num_classes, batch_size, test_ratio, sdn_type, device)
 
         train_trojai_sdn(dataset, model, model_root, device)
