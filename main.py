@@ -194,10 +194,10 @@ def test_general():
     print(f'Running on machine "{hostname}"')
     print()
     hostname_root_dict = {
-        'ubuntu20': '/mnt/storage/Cloud/MEGA',  # the name of ionut's machine
-        'openlab': '/fs/sdsatumd/ionmodo'
+        'ubuntu20': '/mnt/storage/Cloud/MEGA/TrojAI',  # the name of ionut's machine
+        'openlab': '/fs/sdsatumd/ionmodo/TrojAI'
     }
-    dir_root = os.path.join(hostname_root_dict[hostname], 'TrojAI', 'TrojAI-data', 'round1-holdout-dataset', 'id-00000009')
+    dir_root = os.path.join(hostname_root_dict[hostname], 'TrojAI-data', 'round1-holdout-dataset', 'id-00000009')
 
     # dir_root = '/mnt/storage/Cloud/MEGA/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000009/'
     dir_example_data = os.path.join(dir_root, 'example_data')

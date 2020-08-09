@@ -59,10 +59,10 @@ def main():
     print(f'Running on machine "{hostname}"')
 
     hostname_root_dict = {
-        'ubuntu20': '/mnt/storage/Cloud/MEGA',  # the name of ionut's machine
-        'openlab': '/fs/sdsatumd/ionmodo'
+        'ubuntu20': '/mnt/storage/Cloud/MEGA/TrojAI',  # the name of ionut's machine
+        'openlab': '/fs/sdsatumd/ionmodo/TrojAI'
     }
-    root_path = os.path.join(hostname_root_dict[hostname], 'TrojAI', 'TrojAI-data', 'round1-holdout-dataset')
+    root_path = os.path.join(hostname_root_dict[hostname], 'TrojAI-data', 'round1-holdout-dataset')
 
     metadata_path = os.path.join(root_path, 'METADATA.csv')
     metadata = pd.read_csv(metadata_path)
