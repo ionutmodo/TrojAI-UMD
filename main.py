@@ -1,4 +1,6 @@
 import os, sys
+import socket
+
 import pandas as pd
 import numpy as np
 sys.path.insert(0, 'trojai')
@@ -185,7 +187,19 @@ def test_backdoor_dataset_creation():
 
 def test_general():
     from tools.data import create_backdoored_dataset
-    dir_root = '/mnt/storage/Cloud/MEGA/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000009/'
+
+    hostname = socket.gethostname()
+    hostname = 'openlab' if hostname.startswith('openlab') else hostname
+
+    print(f'Running on machine "{hostname}"')
+    print()
+    hostname_root_dict = {
+        'ubuntu20': '/mnt/storage/Cloud/MEGA',  # the name of ionut's machine
+        'openlab': '/fs/sdsatumd/ionmodo'
+    }
+    dir_root = os.path.join(hostname_root_dict[hostname], 'TrojAI', 'TrojAI-data', 'round1-holdout-dataset', 'id-00000009')
+
+    # dir_root = '/mnt/storage/Cloud/MEGA/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000009/'
     dir_example_data = os.path.join(dir_root, 'example_data')
     dir_backdoored_data = os.path.join(dir_root, 'example_data_backdoored')
     filename_trigger = os.path.join(dir_root, 'triggers', 'trigger_9_11.png')
