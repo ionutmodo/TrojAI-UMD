@@ -19,8 +19,10 @@ def model_confusion_experiment(models_path, model_id, dataset_dir, suffix, sdn_t
     sdn_model, sdn_params = arcs.load_model(models_path, sdn_name, epoch=-1)
     sdn_model = sdn_model.to(device)
 
-    sdn_images = f'confusion_experiments/{model_id}_{sdn_name}'
-    cnn_images = f'confusion_experiments/{model_id}_{cnn_name}'
+    dataset_type = 'backdoored-data' if 'backdoored' in os.path.basename(dataset_dir) else 'clean-data'
+
+    sdn_images = f'confusion_experiments/{model_id}_{dataset_type}_{sdn_name}'
+    cnn_images = f'confusion_experiments/{model_id}_{dataset_type}_{cnn_name}'
 
     cnn_model = torch.load(os.path.join(models_path, 'model.pt')).to(device)
     cnn_model = SDNDenseNet121(cnn_model, (1, 3, 224, 224), 5, sdn_type, device)
