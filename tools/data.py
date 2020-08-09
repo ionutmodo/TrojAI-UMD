@@ -2,13 +2,13 @@ import ast
 
 import PIL.Image
 import torch
-import os
+import os, sys
 import time
 import math
 import pandas as pd
 import numpy as np
 import wand
-
+sys.path.insert(0, 'trojai')
 import tools.aux_funcs as af
 from torchvision import datasets, transforms
 from torch.utils.data import sampler, random_split
