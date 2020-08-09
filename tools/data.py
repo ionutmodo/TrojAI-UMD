@@ -41,7 +41,9 @@ def _get_single_image(path, opencv_format):
 def create_backdoored_dataset(dir_clean_data, dir_backdoored_data, filename_trigger, triggered_fraction, triggered_classes, trigger_target_class, p_trigger=0.5,
                               keep_original=False):
     """
-    Creates a backdoored dataset given a clean dataset. You can choose trigger fraction, classes to be triggered, target class.
+    Creates a backdoored dataset given a clean dataset.
+    You can choose trigger fraction, classes to be triggered, target class.
+    It also saves a csv file in the backdoored root directory giving details about backdoored images.
     :param dir_clean_data: the directory containing clean samples
     :param dir_backdoored_data: the directory where backdoored dataset will be stored
     :param filename_trigger: the path to polygon trigger to be used
@@ -49,8 +51,9 @@ def create_backdoored_dataset(dir_clean_data, dir_backdoored_data, filename_trig
     :param triggered_classes: the original classes that backdooring will be applied to
     :param trigger_target_class: the class in which backdoored images will be misclassified to
     :param p_trigger: probability to apply a polygon trigger. Use 0 to apply only filters or 1 to apply only polygon
+                      use a value between (0,1) to use polygon trigger with probability "p_trigger" and filter trigger with probability "1-p_trigger"
     :param keep_original: indicates whether the original clean images will be kept in the backdoored dataset
-    :return:
+    :return: nothing, but saves backdoored images on the disk at location "dir_backdoored_data"
     """
     if not os.path.isdir(dir_backdoored_data):
         os.makedirs(dir_backdoored_data)
