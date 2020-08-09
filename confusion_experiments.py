@@ -12,8 +12,7 @@ from architectures.SDNs.SDNDenseNet121 import SDNDenseNet121
 from tools.data import TrojAI
 
 
-def model_confusion_experiment(models_path, model_id, sdn_type, device='cpu'):
-    suffix = 'train60_test40_bs25'
+def model_confusion_experiment(models_path, model_id, dataset_dir, suffix, sdn_type, device='cpu'):
     sdn_name = f'ics_{suffix}'
     cnn_name = f'densenet121_{suffix}'
 
@@ -27,7 +26,7 @@ def model_confusion_experiment(models_path, model_id, sdn_type, device='cpu'):
     cnn_model = SDNDenseNet121(cnn_model, (1, 3, 224, 224), 5, sdn_type, device)
     sdn_model.set_model(cnn_model)
 
-    dataset = TrojAI(folder=os.path.join(models_path, 'example_data'), batch_size=10, device=device)
+    dataset = TrojAI(folder=dataset_dir, batch_size=10, device=device)
 
     # top1_test, top5_test = mf.sdn_test(sdn_model, dataset.test_loader, device)
     # print('SDN Top1 Test accuracy: {}'.format(top1_test))
@@ -117,16 +116,26 @@ if __name__ == '__main__':
     hostname = 'openlab' if hostname.startswith('openlab') else hostname
 
     print(f'Running on machine "{hostname}"')
-
+    print()
     hostname_root_dict = {
         'ubuntu20': '/mnt/storage/Cloud/MEGA',  # the name of ionut's machine
         'openlab': '/fs/sdsatumd/ionmodo'
     }
-    root_path = os.path.join(hostname_root_dict[hostname], 'TrojAI-data', 'round1-dataset-train', 'models')
+    root_path = os.path.join(hostname_root_dict[hostname], 'TrojAI-data', 'round1-holdout-dataset')
 
-    for _id, _label in [(1, 'clean'), (7, 'backdoored')]:
+    suffix = 'train100_test0_bs25'
+
+    for _id, _description in [(9, 'backdoored')]:
         model_id = f'id-{_id:08d}'
-        print(f'----------{model_id} ({_label})----------')
+        print(f'----------{model_id} ({_description})----------')
+
         model_path = os.path.join(root_path, model_id)
-        model_confusion_experiment(model_path, model_id, SDNConfig.DenseNet_attach_to_DenseBlocks, device)
+
+        print('confusion result for clean dataset')
+        dataset_dir = os.path.join(model_path, 'example_data')
+        model_confusion_experiment(model_path, model_id, dataset_dir, suffix, SDNConfig.DenseNet_attach_to_DenseBlocks, device)
+
+        print('confusion result for backdoored dataset')
+        dataset_dir = os.path.join(model_path, 'example_data_backdoored')
+        model_confusion_experiment(model_path, model_id, dataset_dir, suffix, SDNConfig.DenseNet_attach_to_DenseBlocks, device)
     print('script ended')
