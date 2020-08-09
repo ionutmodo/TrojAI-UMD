@@ -154,7 +154,12 @@ class TrojAI:
         num_workers = 4 if device == 'cpu' else 0
 
         X, y = self._get_images(folder, opencv_format, img_format)
-        X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, test_size=self.test_ratio)
+
+        print(f'TrojAI:init - train_ratio={1-test_ratio}, test_ratio={test_ratio}')
+        if test_ratio == 0:
+            X_train, X_test, y_train, y_test = X, X, y, y
+        else:
+            X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, test_size=self.test_ratio)
         print(f'X_train: {X_train.shape}')
         print(f'y_train has {y_train.shape}')
         print(f'X_test: {X_test.shape}')
