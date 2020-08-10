@@ -38,7 +38,15 @@ def _get_single_image(path, opencv_format):
     img = img / np.max(img)
     return img
 
-def create_backdoored_dataset(dir_clean_data, dir_backdoored_data, filename_trigger, triggered_fraction, triggered_classes, trigger_target_class, p_trigger=0.5,
+def create_backdoored_dataset(dir_clean_data,
+                              dir_backdoored_data,
+                              filename_trigger,
+                              triggered_fraction,
+                              triggered_classes,
+                              trigger_target_class,
+                              low_size_percent=10,
+                              high_size_percent=50,
+                              p_trigger=0.5,
                               keep_original=False):
     """
     Creates a backdoored dataset given a clean dataset.
@@ -81,14 +89,14 @@ def create_backdoored_dataset(dir_clean_data, dir_backdoored_data, filename_trig
                 df.at[df_index, 'final_label'] = trigger_target_class
                 df.at[df_index, 'triggered'] = True
                 filename_clean = df.at[df_index, 'filename_clean']
-                basename_clean = os.path.basename(filename_clean)
-                basename_backdoored = basename_clean.replace(f'class_{original_label}', f'class_{trigger_target_class}')
+                basename_backdoored = os.path.basename(filename_clean)
+                # basename_backdoored = basename_clean.replace(f'class_{original_label}', f'class_{trigger_target_class}') # wrong
                 trigger = 'polygon' if np.random.rand() < p_trigger else 'filter'
                 config = {'type': trigger}
                 if trigger == 'polygon':
-                    basename_backdoored = basename_backdoored.replace('.png', f'_backdoor_trigger_from_{original_label}.png')
+                    basename_backdoored = basename_backdoored.replace('.png', f'_backdoor_triggered_to_{trigger_target_class}.png')
                     x, y, side = 85, 85, 55
-                    size = int(side * np.random.randint(low=2, high=26, dtype=np.int) / 100.0)
+                    size = int(side * np.random.randint(low=low_size_percent, high=high_size_percent, dtype=np.int) / 100.0)
                     new_x, new_y = x - 1, y - 1
                     while not (x <= new_x < x + side - size) and not (y <= new_y < y + side - size):
                         new_x = np.random.randint(x, x + side - size)
