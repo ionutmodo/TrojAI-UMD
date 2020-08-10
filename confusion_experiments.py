@@ -113,6 +113,7 @@ def model_confusion_experiment(models_path, model_id, dataset_dir, suffix, test_
 
 if __name__ == '__main__':
     device = af.get_pytorch_device()
+    # device = 'cpu'
 
     hostname = socket.gethostname()
     hostname = 'openlab' if hostname.startswith('openlab') else hostname

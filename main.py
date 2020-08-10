@@ -206,10 +206,12 @@ def test_general():
     create_backdoored_dataset(dir_clean_data=dir_example_data,
                               dir_backdoored_data=dir_backdoored_data,
                               filename_trigger=filename_trigger,
-                              triggered_fraction=0.19,
+                              triggered_fraction=1.0,
                               triggered_classes='all',
                               trigger_target_class=0,
-                              p_trigger=0.5,
+                              low_size_percent=10,
+                              high_size_percent=65,
+                              p_trigger=-1.0,
                               keep_original=False)
 
 
