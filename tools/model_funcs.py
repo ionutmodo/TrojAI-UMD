@@ -3,11 +3,44 @@ import sys
 import torch
 import time
 import numpy as np
+
+from SDNConfig import SDNConfig
 from architectures.SDNs.MLP import MLP
 import tools.aux_funcs as af
 import tools.data as data_module
 import torch
+from tools import data
 from torch.nn import BCELoss
+
+def sdn_test(model, loader, device='cpu'):
+    model.eval()
+    top1 = []
+    top5 = []
+    for output_id in range(model.num_output):
+        t1 = data.AverageMeter()
+        t5 = data.AverageMeter()
+        top1.append(t1)
+        top5.append(t5)
+
+    with torch.no_grad():
+        for batch in loader:
+            b_x = batch[0].to(device)
+            b_y = batch[1].to(device)
+            output = model(b_x)
+            for output_id in range(model.num_output):
+                cur_output = output[output_id]
+                prec1, prec5 = data.accuracy(cur_output, b_y, topk=(1, 5))
+                top1[output_id].update(prec1[0], b_x.size(0))
+                top5[output_id].update(prec5[0], b_x.size(0))
+
+    top1_accs = []
+    top5_accs = []
+
+    for output_id in range(model.num_output):
+        top1_accs.append(top1[output_id].avg.data.cpu().numpy()[()])
+        top5_accs.append(top5[output_id].avg.data.cpu().numpy()[()])
+
+    return top1_accs, top5_accs
 
 # to normalize the confusion scores
 def sdn_confusion_stats(model, loader, device='cpu'):
@@ -21,6 +54,7 @@ def sdn_confusion_stats(model, loader, device='cpu'):
             b_x = batch[0].to(device)
             total_num_instances += len(b_x)
             output = model(b_x)
+            abcd = len(output)
             output = [torch.nn.functional.softmax(out, dim=1) for out in output]
             cur_confusion = get_confusion_scores(output, None, device)
             for test_id in range(len(b_x)):
@@ -30,6 +64,21 @@ def sdn_confusion_stats(model, loader, device='cpu'):
     mean_con = float(np.mean(confusion_scores))
     std_con = float(np.std(confusion_scores))
     return mean_con, std_con
+
+def compute_confusion(model, loader, device='cpu'):
+    model.eval()
+    confusion_scores = [] # at index i we will have D(x) = sum over all D_i(x)
+    with torch.no_grad():
+        for batch in loader:
+            b_x = batch[0].to(device)
+            output = model(b_x)
+            output = [torch.nn.functional.softmax(out, dim=1) for out in output]
+            cur_confusion = get_confusion_scores(output, None, device)
+            for index in range(len(b_x)):
+                confusion_scores.append(cur_confusion[index].cpu().numpy())
+
+    confusion_scores = np.array(confusion_scores)
+    return confusion_scores
 
 
 def sdn_get_confusion(model, loader, confusion_stats, device='cpu'):
@@ -71,12 +120,13 @@ def get_confusion_scores(outputs, normalize=None, device='cpu'):
     p = 1
     confusion_scores = torch.zeros(outputs[0].size(0))
     confusion_scores = confusion_scores.to(device)
-
+    # for output, use in zip(outputs, SDNConfig.DenseNet_Mask):
+    #     if use:
     for output in outputs:
-        cur_disagreement = torch.nn.functional.pairwise_distance(outputs[-1], output, p=p)
-        cur_disagreement = cur_disagreement.to(device)
-        for instance_id in range(outputs[0].size(0)):
-            confusion_scores[instance_id] += cur_disagreement[instance_id]
+            cur_disagreement = torch.nn.functional.pairwise_distance(outputs[-1], output, p=p)
+            cur_disagreement = cur_disagreement.to(device)
+            for instance_id in range(outputs[0].size(0)):
+                confusion_scores[instance_id] += cur_disagreement[instance_id]
 
     if normalize is not None:
         for instance_id in range(outputs[0].size(0)):
