@@ -12,108 +12,51 @@ from architectures.SDNs.SDNDenseNet121 import SDNDenseNet121
 from tools.data import TrojAI
 
 
-def model_confusion_experiment(models_path, model_id, dataset_dir, suffix, test_ratio, sdn_type, device='cpu'):
+def proposal_plots(model_path, model_id, clean_dataset_dir, backdoored_dataset_dir, suffix, message, test_ratio, sdn_type, device='cpu'):
     sdn_name = f'ics_{suffix}'
-    cnn_name = f'densenet121_{suffix}'
 
-    sdn_model, sdn_params = arcs.load_model(models_path, sdn_name, epoch=-1)
+    sdn_model, sdn_params = arcs.load_model(model_path, sdn_name, epoch=-1)
     sdn_model = sdn_model.to(device)
 
-    dataset_type = 'backdoored-data' if 'backdoored' in os.path.basename(dataset_dir) else 'clean-data'
+    plots_dir = f'confusion_experiments/proposal_plots'
+    af.create_path(plots_dir)
 
-    sdn_images = f'confusion_experiments/{model_id}_{dataset_type}_{sdn_name}'
-    cnn_images = f'confusion_experiments/{model_id}_{dataset_type}_{cnn_name}'
-
-    cnn_model = torch.load(os.path.join(models_path, 'model.pt')).to(device)
+    cnn_model = torch.load(os.path.join(model_path, 'model.pt')).to(device)
     cnn_model = SDNDenseNet121(cnn_model, (1, 3, 224, 224), 5, sdn_type, device)
     sdn_model.set_model(cnn_model)
 
-    dataset = TrojAI(folder=dataset_dir, test_ratio=test_ratio, batch_size=10, device=device)
+    batch_size = 128
+    clean_dataset = TrojAI(folder=clean_dataset_dir, test_ratio=test_ratio, batch_size=batch_size, device=device)
+    backdoored_dataset = TrojAI(folder=backdoored_dataset_dir, test_ratio=test_ratio, batch_size=batch_size, device=device)
+    
+    print('CNN test on clean dataset:', mf.cnn_test(cnn_model, clean_dataset.test_loader, device))
+    print('CNN test on backdoored dataset:', mf.cnn_test(cnn_model, backdoored_dataset.test_loader, device))
+    print('SDN test on clean dataset:', mf.sdn_test(sdn_model, clean_dataset.test_loader, device))
+    print('SDN test on backdoored dataset:', mf.sdn_test(sdn_model, backdoored_dataset.test_loader, device))
 
-    # top1_test, top5_test = mf.sdn_test(sdn_model, dataset.test_loader, device)
-    # print('SDN Top1 Test accuracy: {}'.format(top1_test))
-    # print('SDN Top5 Test accuracy: {}'.format(top5_test))
-    #
-    # top1_test, top5_test = mf.cnn_test(cnn_model, dataset.test_loader, device)
-    # print('CNN Top1 Test accuracy: {}'.format(top1_test))
-    # print('CNN Top5 Test accuracy: {}'.format(top5_test))
+    clean_mean, clean_std = mf.sdn_confusion_stats(sdn_model, loader=clean_dataset.train_loader, device=device)
+    print(f'clean confusion: mean={clean_mean}, std={clean_std}')
 
-    # the the normalization stats from the training set
-    confusion_stats = mf.sdn_confusion_stats(sdn_model, loader=dataset.train_loader, device=device)
-    print(f'Confusion stats: mean={confusion_stats[0]}, std={confusion_stats[1]}')
+    clean_confusion_scores = mf.compute_confusion(sdn_model, clean_dataset.test_loader, device)
+    clean_confusion_scores = (clean_confusion_scores - clean_mean) / clean_std
 
-    sdn_layer_correct, sdn_layer_wrong, sdn_instance_confusion = mf.sdn_get_confusion(sdn_model, loader=dataset.test_loader, confusion_stats=confusion_stats,
-                                                                                      device=device)
-    sdn_correct_confusion, sdn_wrong_confusion = mf.get_sdn_stats(sdn_layer_correct, sdn_layer_wrong, sdn_instance_confusion)
+    backdoored_confusion_scores = mf.compute_confusion(sdn_model, backdoored_dataset.test_loader, device)
+    backdoored_mean, backdoored_std = backdoored_confusion_scores.mean(), backdoored_confusion_scores.std()
+    print(f'backdoored confusion: mean={backdoored_mean}, std={backdoored_std}')
+    backdoored_confusion_scores = (backdoored_confusion_scores - clean_mean) / clean_std # divide backdoored by clean mean/std!
 
-    cnn_correct, cnn_wrong, cnn_instance_confidence = mf.cnn_get_confidence(cnn_model, loader=dataset.test_loader, device=device)
-    cnn_correct_confidence, cnn_wrong_confidence = mf.get_cnn_stats(cnn_correct, cnn_wrong, cnn_instance_confidence)
+    af.overlay_two_histograms(save_path=plots_dir,
+                              save_name=f'proposal_{model_id}_{sdn_name}',
+                              hist_first_values=clean_confusion_scores,
+                              hist_second_values=backdoored_confusion_scores,
+                              first_label='w/o Trigger',
+                              second_label='w Trigger',
+                              xlabel='Confusion score',
+                              title=message)
 
-    af.create_path(sdn_images)
-    af.create_path(cnn_images)
-
-    # corrects and wrongs
-    af.overlay_two_histograms(sdn_images,
-                              f'{model_id}_{sdn_name}_corrects_wrongs',
-                              sdn_correct_confusion,
-                              sdn_wrong_confusion,
-                              'Correct',
-                              'Wrong',
-                              'SDN Confusion')
-    af.overlay_two_histograms(cnn_images,
-                              f'{model_id}_{cnn_name}_corrects_wrongs',
-                              cnn_correct_confidence,
-                              cnn_wrong_confidence,
-                              'Correct',
-                              'Wrong',
-                              'CNN Confidence')
-
-    mean_first = np.mean(sdn_correct_confusion)
-    mean_second = np.mean(sdn_wrong_confusion)
-
-    in_first_above_second = 0
-    in_second_below_first = 0
-
-    for item in sdn_correct_confusion:
-        if float(item) > float(mean_second):
-            in_first_above_second += 1
-
-    for item in sdn_wrong_confusion:
-        if float(item) < float(mean_first):
-            in_second_below_first += 1
-
-    print('SDN more confused correct: {}/{}'.format(in_first_above_second, len(sdn_correct_confusion)))
-    print('SDN less confused wrong: {}/{}'.format(in_second_below_first, len(sdn_wrong_confusion)))
-
-    mean_first = np.mean(cnn_correct_confidence)
-    mean_second = np.mean(cnn_wrong_confidence)
-
-    in_first_below_second = 0
-    in_second_above_first = 0
-    for item in cnn_correct_confidence:
-        if float(item) < float(mean_second):
-            in_first_below_second += 1
-    for item in cnn_wrong_confidence:
-        if float(item) > float(mean_first):
-            in_second_above_first += 1
-
-    print('CNN less confident correct: {}/{}'.format(in_first_below_second, len(cnn_correct_confidence)))
-    print('CNN more confident wrong: {}/{}'.format(in_second_above_first, len(cnn_wrong_confidence)))
-
-    # all instances
-    sdn_all_confusion = list(sdn_instance_confusion.values())
-    cnn_all_confidence = list(cnn_instance_confidence.values())
-
-    print('Avg SDN Confusion: {}'.format(np.mean(sdn_all_confusion)))
-    print('Std SDN Confusion: {}'.format(np.std(sdn_all_confusion)))
-
-    print('Avg CNN Confidence: {}'.format(np.mean(cnn_all_confidence)))
-    print('Std CNN Confidence {}'.format(np.std(cnn_all_confidence)))
-
-
-if __name__ == '__main__':
-    device = af.get_pytorch_device()
-    # device = 'cpu'
+def main():
+    # device = af.get_pytorch_device()
+    device = 'cpu'
 
     hostname = socket.gethostname()
     hostname = 'openlab' if hostname.startswith('openlab') else hostname
@@ -132,14 +75,20 @@ if __name__ == '__main__':
     for _id, _description in [(9, 'backdoored')]:
         model_id = f'id-{_id:08d}'
         print(f'----------{model_id} ({_description})----------')
-
         model_path = os.path.join(root_path, model_id)
-
-        print('confusion result for clean dataset')
-        dataset_dir = os.path.join(model_path, 'example_data')
-        model_confusion_experiment(model_path, model_id, dataset_dir, suffix, test_ratio, SDNConfig.DenseNet_attach_to_DenseBlocks, device)
-
-        print('confusion result for backdoored dataset')
-        dataset_dir = os.path.join(model_path, 'example_data_backdoored')
-        model_confusion_experiment(model_path, model_id, dataset_dir, suffix, test_ratio, SDNConfig.DenseNet_attach_to_DenseBlocks, device)
+        clean_dataset_dir = os.path.join(model_path, 'example_data')
+        backdoored_dataset_dir = os.path.join(model_path, 'example_data_backdoored_BGR')
+        proposal_plots(model_path,
+                       model_id,
+                       clean_dataset_dir,
+                       backdoored_dataset_dir,
+                       suffix,
+                       'Confusion distributions for a backdoored model',
+                       test_ratio,
+                       SDNConfig.DenseNet_attach_to_DenseBlocks,
+                       device)
     print('script ended')
+
+
+if __name__ == '__main__':
+    main()
