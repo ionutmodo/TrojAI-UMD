@@ -38,14 +38,28 @@ def _get_single_image(path, opencv_format):
     img = img / np.max(img)
     return img
 
+def change_color(trigger, color):
+    trigger_np = np.asarray(trigger)
+    new_trigger = np.copy(trigger_np)
+    w, h, c = new_trigger.shape
+    for i in range(w):
+        for j in range(h):
+            if new_trigger[i, j, 3] == 255:
+                for k in range(3):
+                    if new_trigger[i, j, k] != 0:
+                        new_trigger[i, j, k] = color[k]
+    return PIL.Image.fromarray(new_trigger)
+
 def create_backdoored_dataset(dir_clean_data,
                               dir_backdoored_data,
                               filename_trigger,
                               triggered_fraction,
                               triggered_classes,
                               trigger_target_class,
-                              low_size_percent=10,
-                              high_size_percent=50,
+                              trigger_color,
+                              trigger_size,
+                              # low_size_percent=10,
+                              # high_size_percent=50,
                               p_trigger=0.5,
                               keep_original=False):
     """
@@ -58,6 +72,8 @@ def create_backdoored_dataset(dir_clean_data,
     :param triggered_fraction: the proportion of clean images that will be poisoned (float in [0, 1])
     :param triggered_classes: the original classes that backdooring will be applied to
     :param trigger_target_class: the class in which backdoored images will be misclassified to
+    :param trigger_size: the size of the bounding rectangle of the trigger (the trigger might have a smaller size)
+    :param trigger_color: the color of the trigger to be set
     :param p_trigger: probability to apply a polygon trigger. Use 0 to apply only filters or 1 to apply only polygon
                       use a value between (0,1) to use polygon trigger with probability "p_trigger" and filter trigger with probability "1-p_trigger"
     :param keep_original: indicates whether the original clean images will be kept in the backdoored dataset
@@ -96,14 +112,15 @@ def create_backdoored_dataset(dir_clean_data,
                 if trigger == 'polygon':
                     basename_backdoored = basename_backdoored.replace('.png', f'_backdoor_triggered_to_{trigger_target_class}.png')
                     x, y, side = 85, 85, 55
-                    size = int(side * np.random.randint(low=low_size_percent, high=high_size_percent, dtype=np.int) / 100.0)
+                    # size = int(side * np.random.randint(low=low_size_percent, high=high_size_percent, dtype=np.int) / 100.0)
                     new_x, new_y = x - 1, y - 1
-                    while not (x <= new_x < x + side - size) and not (y <= new_y < y + side - size):
-                        new_x = np.random.randint(x, x + side - size)
-                        new_y = np.random.randint(y, y + side - size)
+                    while not (x <= new_x < x + side - trigger_size) and not (y <= new_y < y + side - trigger_size):
+                        new_x = np.random.randint(x, x + side - trigger_size)
+                        new_y = np.random.randint(y, y + side - trigger_size)
                     config['x'] = new_x
                     config['y'] = new_y
-                    config['size'] = size
+                    config['size'] = trigger_size
+                    config['color'] = trigger_color
                 elif trigger == 'filter':
                     basename_backdoored = basename_backdoored.replace('.png', f'_backdoor_filter_from_{original_label}.png')
                     config['name'] = np.random.choice(['gotham', 'kelvin', 'lomo'], size=1)[0]
@@ -119,6 +136,8 @@ def create_backdoored_dataset(dir_clean_data,
     df = df.append(df2)
     df.to_csv(os.path.join(dir_backdoored_data, 'info.csv'), index=False)
 
+    trigger = PIL.Image.open(filename_trigger)
+    trigger = change_color(trigger, trigger_color)
     count = 0
     n_rows = len(df)
     for _, row in df.iterrows():
@@ -133,7 +152,7 @@ def create_backdoored_dataset(dir_clean_data,
         else:
             config = ast.literal_eval(config)
             if config['type'] == 'polygon':
-                image_trigger = PIL.Image.open(filename_trigger).resize((config['size'], config['size']))
+                image_trigger = trigger.copy().resize((config['size'], config['size']))
                 image_clean.paste(image_trigger, (config['x'], config['y']), image_trigger)
                 image_clean.save(filename_backdoored)
                 count += 1
@@ -163,15 +182,15 @@ class TrojAI:
 
         X, y = self._get_images(folder, opencv_format, img_format)
 
-        print(f'TrojAI:init - train_ratio={1-test_ratio}, test_ratio={test_ratio}')
         if test_ratio == 0:
             X_train, X_test, y_train, y_test = X, X, y, y
         else:
             X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, test_size=self.test_ratio)
-        print(f'X_train: {X_train.shape}')
-        print(f'y_train has {y_train.shape}')
-        print(f'X_test: {X_test.shape}')
-        print(f'y_test has {y_test.shape}')
+        # print(f'TrojAI:init - train_ratio={1-test_ratio}, test_ratio={test_ratio}')
+        # print(f'X_train: {X_train.shape}')
+        # print(f'y_train has {y_train.shape}')
+        # print(f'X_test: {X_test.shape}')
+        # print(f'y_test has {y_test.shape}')
 
         self.train_dataset = ManualData(X_train, y_train, device)
         self.test_dataset = ManualData(X_test, y_test, device)

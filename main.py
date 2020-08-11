@@ -15,7 +15,7 @@ import wand.image
 from tools import network_architectures as arcs
 from architectures.SDNs.SDNConfig import SDNConfig
 from architectures.SDNs.SDNDenseNet121 import SDNDenseNet121
-from tools.data import TrojAI, _get_single_image
+from tools.data import *
 from tools.settings import *
 import skimage.io
 from skimage.transform import resize
@@ -203,15 +203,17 @@ def test_general():
     dir_example_data = os.path.join(dir_root, 'example_data')
     dir_backdoored_data = os.path.join(dir_root, 'example_data_backdoored')
     filename_trigger = os.path.join(dir_root, 'triggers', 'trigger_9_11.png')
+
     create_backdoored_dataset(dir_clean_data=dir_example_data,
                               dir_backdoored_data=dir_backdoored_data,
                               filename_trigger=filename_trigger,
                               triggered_fraction=1.0,
                               triggered_classes='all',
                               trigger_target_class=0,
-                              low_size_percent=10,
-                              high_size_percent=65,
-                              p_trigger=-1.0,
+                              # trigger_color=(114, 184, 180),
+                              trigger_color=(180, 184, 114),
+                              trigger_size=31,
+                              p_trigger=1.0,
                               keep_original=False)
 
 
@@ -222,3 +224,10 @@ if __name__ == '__main__':
     # test_backdoor_dataset_creation()
     test_general()
     print('script ended')
+
+"""
+cliff wang: attributions - ECCV2019
+rauf izmalov: #clusters of clean dataset is num_classes. When trigger is present, we have +1/-1 class
+Xiangyu Zhang: stimulation
+Xinqiao Zhang: UCSD DeepInspect NeuralCleanse
+"""
