@@ -8,7 +8,7 @@ class LayerwiseClassifiers(nn.Module):
         super(LayerwiseClassifiers, self).__init__()
 
         mlps = []
-        print('LayerwiseClassifiers:init - Total number of ICs is', len(output_params))
+        # print('LayerwiseClassifiers:init - Total number of ICs is', len(output_params))
         for params in output_params:
             num_classes, _ , num_channels = params
             reduced_input_size = 3 * num_channels
@@ -39,16 +39,16 @@ class LayerwiseClassifiers(nn.Module):
         assert self.model is not None, 'Set the model first by calling set_model.'
         
         if with_grad:
-            fwd, _ = self.model.forward_w_acts(x)
+            fwd, out = self.model.forward_w_acts(x)
         else:
             with torch.no_grad():
-                fwd, _ = self.model.forward_w_acts(x)
+                fwd, out = self.model.forward_w_acts(x)
 
         internal_preds = []
         for layer_act, layerwise_mlp in zip(fwd, self.mlps):
             cur_pred = layerwise_mlp(layer_act)
             internal_preds.append(cur_pred)
-
+        internal_preds.append(out)
         return internal_preds
 
 class MLP(nn.Module):
