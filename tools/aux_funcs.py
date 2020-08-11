@@ -208,12 +208,13 @@ def single_histogram(save_path, save_name, hist_values, label, log_scale=False):
     plt.savefig('{}/{}'.format(save_path, save_name))
     plt.close()
 
-def overlay_two_histograms(save_path, save_name, hist_first_values, hist_second_values, first_label, second_label, title):
-    plt.hist([hist_first_values, hist_second_values], bins=50, label=[first_label, second_label], color=['blue', 'red'])
+def overlay_two_histograms(save_path, save_name, hist_first_values, hist_second_values, first_label, second_label, xlabel, title=''):
+    plt.hist([hist_first_values, hist_second_values], bins=50, label=[f'{first_label}(black)', f'{second_label}(dotted)'])
     plt.axvline(np.mean(hist_first_values), color='k', linestyle='-', linewidth=3)
     plt.axvline(np.mean(hist_second_values), color='b', linestyle='--', linewidth=3)
-    plt.xlabel(title)
+    plt.xlabel(xlabel)
     plt.ylabel('Number of Instances')
+    plt.title(title)
     plt.grid(True)
     plt.legend(loc='upper right')
     plt.savefig('{}/{}'.format(save_path, save_name))
