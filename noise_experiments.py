@@ -92,7 +92,7 @@ def main():
             clean_confusion_scores = mf.compute_confusion(sdn_clean, loader_clean, device)
             clean_mean = clean_confusion_scores.mean()
             clean_std = clean_confusion_scores.std()
-            print(f'clean      confusion: mean={clean_mean:.5f}, std={clean_std:.5f}')
+            print(f'clean confusion:      mean={clean_mean:.5f}, std={clean_std:.5f}')
             # clean_confusion_scores = (clean_confusion_scores - clean_mean) / clean_std
 
             backdoored_confusion_scores = mf.compute_confusion(sdn_backdoored, loader_backdoored, device)

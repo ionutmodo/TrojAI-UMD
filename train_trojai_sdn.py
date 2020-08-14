@@ -67,7 +67,7 @@ def main():
     test_ratio = 0
     sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
 
-    for _id in [9]:
+    for _id in [2, 13, 24, 26, 30, 43, 26, 52, 62]:
         model_id = f'id-{_id:08d}'
         model_root = os.path.join(root_path, model_id)  # the folder where model, example_data and ground_truth.csv are stored
         print(f'Working directory: {model_root}')
