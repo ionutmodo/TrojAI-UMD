@@ -185,44 +185,11 @@ def test_backdoor_dataset_creation():
                                    mod_cfg=trigger_cfg)
 
 
-def test_general():
-    from tools.data import create_backdoored_dataset
-
-    hostname = socket.gethostname()
-    hostname = 'openlab' if hostname.startswith('openlab') else hostname
-
-    print(f'Running on machine "{hostname}"')
-    print()
-    hostname_root_dict = {
-        'ubuntu20': '/mnt/storage/Cloud/MEGA/TrojAI',  # the name of ionut's machine
-        'openlab': '/fs/sdsatumd/ionmodo/TrojAI'
-    }
-    dir_root = os.path.join(hostname_root_dict[hostname], 'TrojAI-data', 'round1-holdout-dataset', 'id-00000009')
-
-    # dir_root = '/mnt/storage/Cloud/MEGA/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000009/'
-    dir_example_data = os.path.join(dir_root, 'example_data')
-    dir_backdoored_data = os.path.join(dir_root, 'example_data_backdoored')
-    filename_trigger = os.path.join(dir_root, 'triggers', 'trigger_9_11.png')
-
-    create_backdoored_dataset(dir_clean_data=dir_example_data,
-                              dir_backdoored_data=dir_backdoored_data,
-                              filename_trigger=filename_trigger,
-                              triggered_fraction=1.0,
-                              triggered_classes='all',
-                              trigger_target_class=0,
-                              # trigger_color=(114, 184, 180),
-                              trigger_color=(180, 184, 114),
-                              trigger_size=31,
-                              p_trigger=1.0,
-                              keep_original=False)
-
-
 if __name__ == '__main__':
     # test_SDN_for_TrojAI()
     # test_TrojAI_dataset()
     # test_trained_sdn_trojai()
     # test_backdoor_dataset_creation()
-    test_general()
     print('script ended')
 
 """
