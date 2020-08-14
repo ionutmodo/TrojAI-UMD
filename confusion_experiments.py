@@ -42,8 +42,7 @@ def proposal_plots(model_path, model_id, clean_dataset_dir, backdoored_dataset_d
     clean_confusion_scores = (clean_confusion_scores - clean_mean) / clean_std
 
     backdoored_confusion_scores = mf.compute_confusion(sdn_model, backdoored_dataset.test_loader, device)
-    backdoored_mean, backdoored_std = backdoored_confusion_scores.mean(), backdoored_confusion_scores.std()
-    print(f'backdoored confusion: mean={backdoored_mean}, std={backdoored_std}')
+    print(f'backdoored confusion: mean={backdoored_confusion_scores.mean()}, std={backdoored_confusion_scores.std()}')
     backdoored_confusion_scores = (backdoored_confusion_scores - clean_mean) / clean_std # divide backdoored by clean mean/std!
 
     af.overlay_two_histograms(save_path=plots_dir,

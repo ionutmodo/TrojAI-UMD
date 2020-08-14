@@ -17,5 +17,5 @@ def get_project_root_path():
         'openlab': '/fs/sdsatumd/ionmodo/TrojAI' # name of UMD machine
     }
     print(f'Running on machine "{hostname}"')
-
+    print()
     return hostname_root_dict[hostname]
