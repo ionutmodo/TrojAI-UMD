@@ -137,7 +137,8 @@ def create_backdoored_dataset(dir_clean_data,
     df.to_csv(os.path.join(dir_backdoored_data, 'info.csv'), index=False)
 
     trigger = PIL.Image.open(filename_trigger)
-    trigger = change_color(trigger, trigger_color)
+    if trigger_color is not None:
+        trigger = change_color(trigger, trigger_color)
     count = 0
     n_rows = len(df)
     for _, row in df.iterrows():
