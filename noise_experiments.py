@@ -1,6 +1,8 @@
 import os
-import numpy as np
+import sys
 import torch
+import numpy as np
+from datetime import datetime
 
 import tools.aux_funcs as af
 import tools.model_funcs as mf
@@ -19,7 +21,7 @@ def create_random_noise_dataset(n_samples, cnn_clean, cnn_backdoored, batch_size
     def get_random_noise(r_type, r_p1, r_p2):
         noise = None
         if r_type == 'uniform':
-            noise = np.random.uniform(low=r_p1, high=r_p2, size=TrojAI_input_size)
+            noise = np.random.uniform(low=0.0, high=1.0, size=TrojAI_input_size)
         elif r_type == 'normal':
             noise = np.random.normal(loc=r_p1, scale=r_p2, size=TrojAI_input_size)
         else:
@@ -30,7 +32,7 @@ def create_random_noise_dataset(n_samples, cnn_clean, cnn_backdoored, batch_size
     labels_backdoored = []
 
     for _ in range(n_samples):
-        noise_np = get_random_noise('normal', r_p1=rand_p1, r_p2=rand_p2)
+        noise_np = get_random_noise(r_type=rand_type, r_p1=rand_p1, r_p2=rand_p2)
         noise_tt = torch.tensor(noise_np, dtype=torch.float, device=device)
 
         out_clean = cnn_clean(noise_tt)
@@ -67,8 +69,8 @@ def main():
     device = 'cpu'
 
     id_clean, id_backdoored = 4, 9
-    n_samples = 500
-    batch_size = 250
+    n_samples = 100
+    batch_size = int(n_samples / 2)
     rand_type = 'normal'
 
     sdn_path_clean = os.path.join(root_path, f'id-{id_clean:08d}')
@@ -77,9 +79,10 @@ def main():
     sdn_clean      = load_trojai_model(sdn_path_clean,      sdn_name, cnn_name, TrojAI_num_classes, sdn_type, device)
     sdn_backdoored = load_trojai_model(sdn_path_backdoored, sdn_name, cnn_name, TrojAI_num_classes, sdn_type, device)
 
-    for rand_p1 in [0.5]:
-        for rand_p2 in [0.1, 0.25, 0.5, 0.75, 1.0]:
+    for rand_p1 in [0.25, 0.5, 0.75]:
+        for rand_p2 in [0.01, 0.1, 0.25, 0.5, 0.75, 1.0]:
             print(f'p1={rand_p1}, p2={rand_p2}')
+            time_start = datetime.now()
             loader_clean, loader_backdoored = create_random_noise_dataset(n_samples, sdn_clean.model, sdn_backdoored.model, batch_size, device, rand_type,
                                                                           rand_p1, rand_p2)
 
@@ -87,12 +90,20 @@ def main():
             # print(f'clean confusion: mean={clean_mean}, std={clean_std}')
 
             clean_confusion_scores = mf.compute_confusion(sdn_clean, loader_clean, device)
-            print(f'clean confusion: mean={clean_confusion_scores.mean()}, std={clean_confusion_scores.std()}')
+            clean_mean = clean_confusion_scores.mean()
+            clean_std = clean_confusion_scores.std()
+            print(f'clean      confusion: mean={clean_mean:.5f}, std={clean_std:.5f}')
             # clean_confusion_scores = (clean_confusion_scores - clean_mean) / clean_std
 
             backdoored_confusion_scores = mf.compute_confusion(sdn_backdoored, loader_backdoored, device)
-            print(f'backdoored confusion: mean={backdoored_confusion_scores.mean()}, std={backdoored_confusion_scores.std()}')
+            backdoored_mean = backdoored_confusion_scores.mean()
+            backdoored_std = backdoored_confusion_scores.std()
+            print(f'backdoored confusion: mean={backdoored_mean:.5f}, std={backdoored_std:.5f}')
             # backdoored_confusion_scores = (backdoored_confusion_scores - clean_mean) / clean_std  # divide backdoored by clean mean/std!
+
+            time_end = datetime.now()
+            print(f'took: {time_end - time_start}')
+
 
             plots_dir = f'confusion_experiments/noise_experiments'
             af.create_path(plots_dir)
@@ -101,10 +112,15 @@ def main():
 
             if rand_type == 'uniform':
                 save_name = f'noised_uniform_datasets_samples-{n_samples}_ids-{id_clean}-{id_backdoored}.png'
-                title = f'U[0,1) pixels\nmeans difference = {conf_mean_diff:.2f}'
+                title = f'U[0,1) pixels\nclean conf dist: m={clean_mean:.2f}, s={clean_std:.2f}\n' \
+                        f'backd conf dist: m={backdoored_mean:.2f}, s={backdoored_std:.2f}\n' \
+                        f'conf dist means difference = {conf_mean_diff:.2f}'
             else:
                 save_name = f'noised_normal-{rand_p1:.2f}-{rand_p2:.2f}_datasets_samples-{n_samples}_ids-{id_clean}-{id_backdoored}.png'
-                title = f'N(mean={rand_p1:.2f}, std={rand_p2:.2f}) pixels\nmeans difference = {conf_mean_diff:.2f}'
+                title = f'N(mean={rand_p1:.2f}, std={rand_p2:.2f}) pixels\n' \
+                        f'clean conf dist: m={clean_mean:.2f}, s={clean_std:.2f}\n' \
+                        f'backd conf dist: m={backdoored_mean:.2f}, s={backdoored_std:.2f}\n' \
+                        f'conf dist means difference = {conf_mean_diff:.2f}'
 
             af.overlay_two_histograms(save_path=plots_dir,
                                       save_name=save_name,
@@ -115,6 +131,10 @@ def main():
                                       xlabel='Confusion score',
                                       title=title)
             print()
+            if rand_type == 'uniform':
+                print('Uniform: break')
+                sys.exit(666)
+
 
 if __name__ == '__main__':
     main()
