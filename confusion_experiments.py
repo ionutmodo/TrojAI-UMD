@@ -9,6 +9,7 @@ import tools.model_funcs as mf
 import tools.network_architectures as arcs
 from architectures.SDNs.SDNConfig import SDNConfig
 from architectures.SDNs.SDNDenseNet121 import SDNDenseNet121
+from settings import get_project_root_path
 from tools.data import TrojAI
 
 
@@ -28,7 +29,7 @@ def proposal_plots(model_path, model_id, clean_dataset_dir, backdoored_dataset_d
     batch_size = 128
     clean_dataset = TrojAI(folder=clean_dataset_dir, test_ratio=test_ratio, batch_size=batch_size, device=device)
     backdoored_dataset = TrojAI(folder=backdoored_dataset_dir, test_ratio=test_ratio, batch_size=batch_size, device=device)
-    
+
     print('CNN test on clean dataset:', mf.cnn_test(cnn_model, clean_dataset.test_loader, device))
     print('CNN test on backdoored dataset:', mf.cnn_test(cnn_model, backdoored_dataset.test_loader, device))
     print('SDN test on clean dataset:', mf.sdn_test(sdn_model, clean_dataset.test_loader, device))
@@ -58,16 +59,7 @@ def main():
     # device = af.get_pytorch_device()
     device = 'cpu'
 
-    hostname = socket.gethostname()
-    hostname = 'openlab' if hostname.startswith('openlab') else hostname
-
-    print(f'Running on machine "{hostname}"')
-    print()
-    hostname_root_dict = {
-        'ubuntu20': '/mnt/storage/Cloud/MEGA/TrojAI',  # the name of ionut's machine
-        'openlab': '/fs/sdsatumd/ionmodo/TrojAI'
-    }
-    root_path = os.path.join(hostname_root_dict[hostname], 'TrojAI-data', 'round1-holdout-dataset')
+    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
 
     suffix = 'train100_test0_bs25'
     test_ratio = 0
@@ -77,7 +69,7 @@ def main():
         print(f'----------{model_id} ({_description})----------')
         model_path = os.path.join(root_path, model_id)
         clean_dataset_dir = os.path.join(model_path, 'example_data')
-        backdoored_dataset_dir = os.path.join(model_path, 'example_data_backdoored_BGR')
+        backdoored_dataset_dir = os.path.join(model_path, 'example_data_backdoored')
         proposal_plots(model_path,
                        model_id,
                        clean_dataset_dir,

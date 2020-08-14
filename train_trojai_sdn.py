@@ -6,6 +6,7 @@ import pandas as pd
 import tools.aux_funcs as af
 import tools.model_funcs as mf
 import tools.network_architectures as arcs
+from settings import get_project_root_path
 from tools.logistics import *
 
 from architectures.SDNs.SDNConfig import SDNConfig
@@ -15,7 +16,8 @@ def train_trojai_sdn(dataset, model, model_root_path, device):
     output_params = model.get_layerwise_model_params()
 
     mlp_num_layers = 2
-    mlp_architecture_param = [2, 2]
+    mlp_architecture_param = [2, 2] # use [2] if it takes too much time
+    # think about simplifying ICs architecture
     architecture_params = (mlp_num_layers, mlp_architecture_param)
 
     params = {
@@ -52,17 +54,7 @@ def main():
     device = af.get_pytorch_device()
     # device = 'cpu'
 
-    hostname = socket.gethostname()
-    hostname = 'openlab' if hostname.startswith('openlab') else hostname
-
-    print('Random Seed: {}'.format(random_seed))
-    print(f'Running on machine "{hostname}"')
-
-    hostname_root_dict = {
-        'ubuntu20': '/mnt/storage/Cloud/MEGA/TrojAI',  # the name of ionut's machine
-        'openlab': '/fs/sdsatumd/ionmodo/TrojAI'
-    }
-    root_path = os.path.join(hostname_root_dict[hostname], 'TrojAI-data', 'round1-holdout-dataset')
+    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
 
     metadata_path = os.path.join(root_path, 'METADATA.csv')
     metadata = pd.read_csv(metadata_path)
