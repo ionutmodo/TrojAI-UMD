@@ -1,12 +1,9 @@
-import socket
 import sys
-
 import pandas as pd
-
 import tools.aux_funcs as af
 import tools.model_funcs as mf
 import tools.network_architectures as arcs
-from settings import get_project_root_path
+from tools.settings import get_project_root_path
 from tools.logistics import *
 
 from architectures.SDNs.SDNConfig import SDNConfig

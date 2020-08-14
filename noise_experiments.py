@@ -73,6 +73,8 @@ def main():
     batch_size = int(n_samples / 2)
     rand_type = 'normal'
 
+    print(f'n_samples = {n_samples}')
+
     sdn_path_clean = os.path.join(root_path, f'id-{id_clean:08d}')
     sdn_path_backdoored = os.path.join(root_path, f'id-{id_backdoored:08d}')
 
