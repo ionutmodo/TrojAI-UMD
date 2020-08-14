@@ -10,8 +10,40 @@ import os.path
 # from architectures.CNNs.wideresnet import WideResNet
 
 # from encoder import LayerwiseAutoencoders
+from torchvision.models import densenet
+
 from architectures.SDNs.MLP import LayerwiseClassifiers
 
+from architectures.SDNs.SDNDenseNet121 import SDNDenseNet121
+from tools.settings import TrojAI_input_size
+
+
+def get_label_and_confidence_from_logits(logits):
+    softmax = torch.nn.functional.softmax(logits.to(logits.device), dim=1)
+    label = softmax.max(1)[1].item()
+    confidence = torch.max(softmax).item()
+    return label, confidence
+
+def load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, device):
+    """
+    Loads a TrojAI SDN from disk. The structure should be the following:
+    .../id-00000000/ (this is sdn_path)
+    |-----ics_model (this is sdn_name directory and we load it using methods in network_architectures)
+    |----------last (the model at last epoch)
+    |----------params_last (the stats at the last epoch)
+    |-----model.pt (the CNN model denoted by cnn_name)
+    |-----*other files this method doesn't need*
+    """
+    sdn_model, sdn_params = load_model(sdn_path, sdn_name, epoch=-1)
+    sdn_model = sdn_model.to(device)
+
+    cnn_model = torch.load(os.path.join(sdn_path, cnn_name)).to(device)
+    if isinstance(cnn_model, densenet.DenseNet):
+        cnn_model = SDNDenseNet121(cnn_model, TrojAI_input_size, num_classes, sdn_type, device)
+    else:
+        raise RuntimeError(f'SDNTrojAI:load_trojai_model - You are trying to load a SDN model that is not supported ({type(cnn_model)})!')
+    sdn_model.set_model(cnn_model)
+    return sdn_model
 
 def save_networks(model_name, model_params, models_path):
     cnn_name = model_name+'_cnn'
