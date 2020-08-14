@@ -4,7 +4,7 @@ import torch
 
 import tools.aux_funcs as af
 import tools.model_funcs as mf
-from data import ManualData
+from tools.data import ManualData
 from tools.network_architectures import load_trojai_model, get_label_and_confidence_from_logits
 from tools.settings import *
 from architectures.SDNs.SDNConfig import SDNConfig
