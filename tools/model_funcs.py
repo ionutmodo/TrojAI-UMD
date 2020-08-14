@@ -1,10 +1,8 @@
 import sys
 
-import torch
 import time
 import numpy as np
 
-from SDNConfig import SDNConfig
 from architectures.SDNs.MLP import MLP
 import tools.aux_funcs as af
 import tools.data as data_module
