@@ -51,7 +51,7 @@ def sdn_confusion_stats(model, loader, device='cpu'):
         for batch in loader:
             b_x = batch[0].to(device)
             total_num_instances += len(b_x)
-            output = model(b_x)
+            output = model(b_x, include_cnn_out=True)
             abcd = len(output)
             output = [torch.nn.functional.softmax(out, dim=1) for out in output]
             cur_confusion = get_confusion_scores(output, None, device)
@@ -69,7 +69,7 @@ def compute_confusion(model, loader, device='cpu'):
     with torch.no_grad():
         for batch in loader:
             b_x = batch[0].to(device)
-            output = model(b_x)
+            output = model(b_x, include_cnn_out=True)
             output = [torch.nn.functional.softmax(out, dim=1) for out in output]
             cur_confusion = get_confusion_scores(output, None, device)
             for index in range(len(b_x)):
@@ -354,7 +354,7 @@ def layerwise_classifiers_training_step(layerwise_classifiers, optimizer, batch,
     b_x = batch[0].to(device, dtype=torch.float)
     b_y = batch[1].to(device, dtype=torch.long)
 
-    outputs = layerwise_classifiers(b_x)
+    outputs = layerwise_classifiers(b_x, include_cnn_out=False)
     criterion = af.get_loss_criterion()
 
     loss = 0
@@ -376,14 +376,12 @@ def layerwise_classifiers_test(layerwise_classifiers, loader, device='cpu'):
 
     for batch in loader:
         b_x, b_y = batch[0].to(device, dtype=torch.float), batch[1].to(device, dtype=torch.long)
-        outputs = layerwise_classifiers(b_x)
+        outputs = layerwise_classifiers(b_x, include_cnn_out=False)
         num_samples += len(b_x)
 
         for ic_idx, output in enumerate(outputs):
             cur_correct = int((output.data.max(1)[1] == b_y.data).float().sum().cpu().detach().numpy())
             num_corrects[ic_idx] += cur_correct
-
-
 
     accs = [round(100*(num_correct/num_samples), 2) for num_correct in num_corrects]
     return accs

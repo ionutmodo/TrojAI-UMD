@@ -35,7 +35,8 @@ class LayerwiseClassifiers(nn.Module):
 
         self.model = model
 
-    def forward(self, x, with_grad=False):
+    def forward(self, x, include_cnn_out=False, with_grad=False):
+        """Set parameter include_cnn_out to True when you perform confusion experiments"""
         assert self.model is not None, 'Set the model first by calling set_model.'
         
         if with_grad:
@@ -48,7 +49,8 @@ class LayerwiseClassifiers(nn.Module):
         for layer_act, layerwise_mlp in zip(fwd, self.mlps):
             cur_pred = layerwise_mlp(layer_act)
             internal_preds.append(cur_pred)
-        internal_preds.append(out)
+        if include_cnn_out:
+            internal_preds.append(out)
         return internal_preds
 
 class MLP(nn.Module):

@@ -65,7 +65,7 @@ def main():
     sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
 
     clean_model_ids = [7, 25, 27, 40] # removed 4
-    backdoored_model_ids = [9, 13, 24, 26] # removed 2
+    backdoored_model_ids = [2, 13, 24, 26] # removed 9
 
     for _id in backdoored_model_ids + clean_model_ids:
         model_id = f'id-{_id:08d}'
