@@ -1,4 +1,6 @@
 import os
+import socket
+
 import torch
 from tools.data import TrojAI
 from architectures.SDNs.SDNDenseNet121 import SDNDenseNet121
@@ -21,3 +23,20 @@ def read_model_directory(model_root, num_classes, batch_size, test_ratio, sdn_ty
     _model = SDNDenseNet121(_model, input_size=(1, 3, 224, 224), num_classes=num_classes, sdn_type=sdn_type, device=device)
 
     return _dataset, _model_label, _model
+
+
+def get_project_root_path():
+    """
+    Returns the root path of the project on a specific machine.
+    To add your custom path, you need to add an entry in the dictionary.
+    :return:
+    """
+    hostname = socket.gethostname()
+    hostname = 'openlab' if hostname.startswith('openlab') else hostname
+    hostname_root_dict = { # key = hostname, value = your local root path
+        'ubuntu20': '/mnt/storage/Cloud/MEGA/TrojAI',  # the name of ionut's machine
+        'openlab': '/fs/sdsatumd/ionmodo/TrojAI' # name of UMD machine
+    }
+    print(f'Running on machine "{hostname}"')
+    print()
+    return hostname_root_dict[hostname]

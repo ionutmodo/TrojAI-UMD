@@ -9,7 +9,7 @@ import tools.model_funcs as mf
 import tools.network_architectures as arcs
 from architectures.SDNs.SDNConfig import SDNConfig
 from architectures.SDNs.SDNDenseNet121 import SDNDenseNet121
-from settings import get_project_root_path
+from tools.logistics import get_project_root_path
 from tools.data import TrojAI
 
 

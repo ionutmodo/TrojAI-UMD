@@ -1,6 +1,6 @@
 import os
 
-from settings import get_project_root_path
+from logistics import get_project_root_path
 from tools.data import create_backdoored_dataset
 
 def main():
