@@ -46,8 +46,12 @@ def label_random_normal_noise_images(data, cnn_model, batch_size):
         logits = cnn_model(noise_tt)
         label, _ = get_label_and_confidence_from_logits(logits)
         labels.append(label)
+    labels = np.array(labels)
+    return labels
 
-    loader = torch.utils.data.DataLoader(ManualData(data, np.array(labels), device),
+def create_loader(data, labels, batch_size, device):
+    dataset = ManualData(data, labels, device)
+    loader = torch.utils.data.DataLoader(dataset,
                                          batch_size=batch_size,
                                          shuffle=True,
                                          num_workers=4 if device == 'cpu' else 0)
@@ -55,7 +59,8 @@ def label_random_normal_noise_images(data, cnn_model, batch_size):
 
 def main():
     np.random.seed(666)
-    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
+    # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
+    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-dataset-train')
     sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
     sdn_name = 'ics_train100_test0_bs25'
     cnn_name = 'model.pt'
@@ -70,23 +75,19 @@ def main():
     metadata_path = os.path.join(root_path, 'METADATA.csv')
     metadata = pd.read_csv(metadata_path)
 
-    plots_dir = f'confusion_experiments/noise_experiments/samples-{n_samples}'
+    plots_dir = f'confusion_experiments/noise_experiments/samples-{n_samples}/round1-training'
     af.create_path(plots_dir)
 
     model_ids_clean = []
     model_ids_backdoored = []
 
     dict_id_confusion = {}
-    dict_id_loader = {}
+    dict_id_labels = {}
 
     noise_images = create_random_normal_noise_images(n_samples, noise_mean, noise_std)
 
     stats_df = pd.DataFrame(columns=['id', 'mean', 'std', 'median', 'skewness', 'kurtosis', 'min', 'max', 'ground_truth'])
     n_stats = 0
-
-    # clean_model_ids = [4, 7, 25, 27, 40]
-    # backdoored_model_ids = [2, 9, 13, 24, 26]
-    # already_trained_model_ids = clean_model_ids + backdoored_model_ids
 
     total_models = len(metadata[metadata['model_architecture'] == 'densenet121'])
 
@@ -97,14 +98,17 @@ def main():
         ground_truth = row['ground_truth']
 
         if model_architecture == 'densenet121': # and int(model_name[3:]) in already_trained_model_ids:
-            sdn_path = os.path.join(root_path, model_name)
+            # sdn_path = os.path.join(root_path, model_name)
+            sdn_path = os.path.join(root_path, 'models', model_name)
             sdn_model = load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, device)
 
-            loader = label_random_normal_noise_images(noise_images, sdn_model.model, batch_size)
+            labels = label_random_normal_noise_images(noise_images, sdn_model.model, batch_size)
+            loader = create_loader(noise_images, labels, batch_size, device)
+
             confusion_scores = mf.compute_confusion(sdn_model, loader, device)
 
             dict_id_confusion[model_name] = confusion_scores
-            dict_id_loader[model_name] = loader
+            dict_id_labels[model_name] = labels
 
             stat_mean = np.mean(confusion_scores)
             stat_std = np.std(confusion_scores)
@@ -125,40 +129,41 @@ def main():
 
     stats_df = stats_df.set_index('id')
 
-    for id_clean in model_ids_clean:
-        clean_confusion_scores = dict_id_confusion[id_clean]
-
-        clean_mean = stats_df.loc[id_clean, 'mean']
-        clean_std = stats_df.loc[id_clean, 'std']
-        clean_median = stats_df.loc[id_clean, 'median']
-        clean_skewness = stats_df.loc[id_clean, 'skewness']
-        clean_kurtosis = stats_df.loc[id_clean, 'kurtosis']
-
-        for id_backdoored in model_ids_backdoored:
-            backdoored_confusion_scores = dict_id_confusion[id_backdoored]
-
-            backdoored_mean = stats_df.loc[id_backdoored, 'mean']
-            backdoored_std = stats_df.loc[id_backdoored, 'std']
-            backdoored_median = stats_df.loc[id_backdoored, 'median']
-            backdoored_skewness = stats_df.loc[id_backdoored, 'skewness']
-            backdoored_kurtosis = stats_df.loc[id_backdoored, 'kurtosis']
-
-            save_name = f'noised_normal-{noise_mean:.2f}-{noise_std:.2f}_datasets_samples-{n_samples}_ids-{id_clean}-{id_backdoored}.png'
-            title = f'N(mean={noise_mean:.2f}, std={noise_std:.2f}) pixels\n' \
-                    f'clean: m={clean_mean:.2f},sd={clean_std:.2f},M={clean_median:.2f},sk={clean_skewness:.2f},k={clean_kurtosis:.2f}\n' \
-                    f'backd: m={backdoored_mean:.2f},sd={backdoored_std:.2f},M={backdoored_median:.2f},sk={backdoored_skewness:.2f},k={backdoored_kurtosis:.2f}\n' \
-
-            af.overlay_two_histograms(save_path=plots_dir,
-                                      save_name=save_name,
-                                      hist_first_values=clean_confusion_scores,
-                                      hist_second_values=backdoored_confusion_scores,
-                                      first_label='clean model',
-                                      second_label='backdoored model',
-                                      xlabel='Confusion score',
-                                      title=title)
-
-    af.save_obj(dict_id_confusion, os.path.join(plots_dir, f'confusion-{n_samples}'))
-    af.save_obj(dict_id_loader,    os.path.join(plots_dir, f'loader-{n_samples}'))
+    # for id_clean in model_ids_clean:
+    #     clean_confusion_scores = dict_id_confusion[id_clean]
+    #
+    #     clean_mean = stats_df.loc[id_clean, 'mean']
+    #     clean_std = stats_df.loc[id_clean, 'std']
+    #     clean_median = stats_df.loc[id_clean, 'median']
+    #     clean_skewness = stats_df.loc[id_clean, 'skewness']
+    #     clean_kurtosis = stats_df.loc[id_clean, 'kurtosis']
+    #
+    #     for id_backdoored in model_ids_backdoored:
+    #         backdoored_confusion_scores = dict_id_confusion[id_backdoored]
+    #
+    #         backdoored_mean = stats_df.loc[id_backdoored, 'mean']
+    #         backdoored_std = stats_df.loc[id_backdoored, 'std']
+    #         backdoored_median = stats_df.loc[id_backdoored, 'median']
+    #         backdoored_skewness = stats_df.loc[id_backdoored, 'skewness']
+    #         backdoored_kurtosis = stats_df.loc[id_backdoored, 'kurtosis']
+    #
+    #         save_name = f'noised_normal-{noise_mean:.2f}-{noise_std:.2f}_datasets_samples-{n_samples}_ids-{id_clean}-{id_backdoored}.png'
+    #         title = f'N(mean={noise_mean:.2f}, std={noise_std:.2f}) pixels\n' \
+    #                 f'clean: m={clean_mean:.2f},sd={clean_std:.2f},M={clean_median:.2f},sk={clean_skewness:.2f},k={clean_kurtosis:.2f}\n' \
+    #                 f'backd: m={backdoored_mean:.2f},sd={backdoored_std:.2f},M={backdoored_median:.2f},sk={backdoored_skewness:.2f},k={backdoored_kurtosis:.2f}\n' \
+    #
+    #         af.overlay_two_histograms(save_path=plots_dir,
+    #                                   save_name=save_name,
+    #                                   hist_first_values=clean_confusion_scores,
+    #                                   hist_second_values=backdoored_confusion_scores,
+    #                                   first_label='clean model',
+    #                                   second_label='backdoored model',
+    #                                   xlabel='Confusion score',
+    #                                   title=title)
+    plots_dir_basename = os.path.join(plots_dir)
+    af.save_obj(noise_images,      os.path.join(plots_dir, f'{plots_dir_basename}-noises-{n_samples}'))
+    af.save_obj(dict_id_confusion, os.path.join(plots_dir, f'{plots_dir_basename}-confusion-{n_samples}'))
+    af.save_obj(dict_id_labels,    os.path.join(plots_dir, f'{plots_dir_basename}-labels-{n_samples}'))
 
     stats_df.to_csv(os.path.join(plots_dir, f'stats-{n_samples}.csv'), index=True)
 
