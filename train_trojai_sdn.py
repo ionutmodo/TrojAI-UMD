@@ -50,7 +50,8 @@ def main():
     device = af.get_pytorch_device()
     # device = 'cpu'
 
-    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
+    # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
+    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-dataset-train')
 
     metadata_path = os.path.join(root_path, 'METADATA.csv')
     metadata = pd.read_csv(metadata_path)
@@ -59,9 +60,9 @@ def main():
     test_ratio = 0
     sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
 
-    clean_model_ids = [4, 7, 25, 27, 40]
-    backdoored_model_ids = [2, 9, 13, 24, 26]
-    already_trained_model_ids = clean_model_ids + backdoored_model_ids
+    # clean_model_ids = [4, 7, 25, 27, 40]
+    # backdoored_model_ids = [2, 9, 13, 24, 26]
+    # already_trained_model_ids = clean_model_ids + backdoored_model_ids
 
     for index, row in metadata.iterrows():
         model_name = row['model_name']
@@ -69,12 +70,13 @@ def main():
         num_classes = row['number_classes']  # read this from metadata
 
         if model_architecture == 'densenet121':
-            model_id = int(model_name[3:])
-            if model_id not in already_trained_model_ids:
-                model_root = os.path.join(root_path, model_name) # the folder where model, example_data and ground_truth.csv are stored
-                print(f'Training SDN for model {model_root}')
-                dataset, model_label, model = read_model_directory(model_root, num_classes, batch_size, test_ratio, sdn_type, device)
-                train_trojai_sdn(dataset, model, model_root, device)
+            # model_id = int(model_name[3:])
+            # if model_id not in already_trained_model_ids:
+
+            model_root = os.path.join(root_path, 'models', model_name)
+            print(f'Training SDN for model {model_root}')
+            dataset, model_label, model = read_model_directory(model_root, num_classes, batch_size, test_ratio, sdn_type, device)
+            train_trojai_sdn(dataset, model, model_root, device)
     print('script ended')
 
 
