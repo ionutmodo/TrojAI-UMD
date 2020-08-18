@@ -97,13 +97,13 @@ def main():
     # device = af.get_pytorch_device()
     device = 'cpu'
 
-    n_samples = 100
-    batch_size = int(n_samples / 2)
+    n_samples = 10
+    batch_size = 50
     noise_mean = 0.5
     noise_std = 0.1
 
-    clean_model_ids = [4, 7, 25, 27, 40]
-    backdoored_model_ids = [2, 9, 13, 24, 26]
+    metadata_path = os.path.join(root_path, 'METADATA.csv')
+    metadata = pd.read_csv(metadata_path)
 
     stats = pd.DataFrame(columns=['model_id', 'conf_mean', 'conf_std', 'is_backdoored'])
     n_stats = 0
@@ -111,15 +111,31 @@ def main():
     plots_dir = f'confusion_experiments/noise_experiments/samples-{n_samples}'
     af.create_path(plots_dir)
 
-    id_confusion_dict = {} # key=model_id, value=confusion_scores
-    id_loader_dict = {} # key=model_id, value=loader
+    clean_model_ids = []
+    backdoored_model_ids = []
 
-    print(f'computing confusion for clean models:', end=' ')
+    id_confusion_dict_clean = {} # key=model_id, value=confusion_scores
+    id_loader_dict_clean = {} # key=model_id, value=loader
+    id_confusion_dict_backdoored = {} # key=model_id, value=confusion_scores
+    id_loader_dict_backdoored = {} # key=model_id, value=loader
+
+    noise_images = create_random_normal_noise_images(n_samples, noise_mean, noise_std)
+
+    for index, row in metadata.iterrows():
+        model_name = row['model_name']
+        model_architecture = row['model_architecture']
+        # num_classes = row['number_classes']
+        ground_truth = row['ground_truth']
+
+        if model_architecture == 'densenet121':
+            if ground_truth:
+                backdoored_model_ids.append(model_name)
+            else:
+                clean_model_ids.append(model_name)
+
     for id_clean in clean_model_ids:
-        print(id_clean, end=' ')
-        noise_images = create_random_normal_noise_images(n_samples, noise_mean, noise_std)
-
-        sdn_path_clean = os.path.join(root_path, f'id-{id_clean:08d}')
+        print('clean model', id_clean)
+        sdn_path_clean = os.path.join(root_path, id_clean)
         sdn_clean = load_trojai_model(sdn_path_clean, sdn_name, cnn_name, TrojAI_num_classes, sdn_type, device)
         loader_clean = label_random_normal_noise_images(noise_images, sdn_clean.model, batch_size)
 
@@ -127,18 +143,15 @@ def main():
         clean_mean = clean_confusion_scores.mean()
         clean_std = clean_confusion_scores.std()
 
-        id_confusion_dict[id_clean] = clean_confusion_scores
-        id_loader_dict[id_clean] = loader_clean
+        id_confusion_dict_clean[id_clean] = clean_confusion_scores
+        id_loader_dict_clean[id_clean] = loader_clean
 
         stats.loc[n_stats] = [id_clean, clean_mean, clean_std, 0]
         n_stats += 1
     print()
-    print(f'computing confusion for backdoored models:', end=' ')
     for id_backdoored in backdoored_model_ids:
-        print(id_backdoored, end=' ')
-        noise_images = create_random_normal_noise_images(n_samples, noise_mean, noise_std)
-
-        sdn_path_backdoored = os.path.join(root_path, f'id-{id_backdoored:08d}')
+        print('backdoored model', id_backdoored)
+        sdn_path_backdoored = os.path.join(root_path, id_backdoored)
         sdn_backdoored = load_trojai_model(sdn_path_backdoored, sdn_name, cnn_name, TrojAI_num_classes, sdn_type, device)
         loader_backdoored = label_random_normal_noise_images(noise_images, sdn_backdoored.model, batch_size)
 
@@ -146,18 +159,18 @@ def main():
         backdoored_mean = backdoored_confusion_scores.mean()
         backdoored_std = backdoored_confusion_scores.std()
 
-        id_confusion_dict[id_backdoored] = backdoored_confusion_scores
-        id_loader_dict[id_backdoored] = loader_backdoored
+        id_confusion_dict_backdoored[id_backdoored] = backdoored_confusion_scores
+        id_loader_dict_backdoored[id_backdoored] = loader_backdoored
 
         stats.loc[n_stats] = [id_backdoored, backdoored_mean, backdoored_std, 1]
         n_stats += 1
     print()
     for id_clean in clean_model_ids:
-        clean_confusion_scores = id_confusion_dict[id_clean]
+        clean_confusion_scores = id_confusion_dict_clean[id_clean]
         clean_mean = clean_confusion_scores.mean()
         clean_std = clean_confusion_scores.std()
         for id_backdoored in backdoored_model_ids:
-            backdoored_confusion_scores = id_confusion_dict[id_backdoored]
+            backdoored_confusion_scores = id_confusion_dict_backdoored[id_backdoored]
             backdoored_mean = backdoored_confusion_scores.mean()
             backdoored_std = backdoored_confusion_scores.std()
 
@@ -177,7 +190,18 @@ def main():
                                       second_label='backdoored model',
                                       xlabel='Confusion score',
                                       title=title)
-        stats.to_csv(os.path.join(plots_dir, 'stats.csv'), index=False)
+
+    id_confusion_dict_clean = {} # key=model_id, value=confusion_scores
+    id_loader_dict_clean = {} # key=model_id, value=loader
+    id_confusion_dict_backdoored = {} # key=model_id, value=confusion_scores
+    id_loader_dict_backdoored = {} # key=model_id, value=loader
+
+    af.save_obj(id_confusion_dict_clean,      os.path.join(plots_dir, f'confusion_dict_clean-{n_samples}'))
+    af.save_obj(id_loader_dict_clean,         os.path.join(plots_dir, f'loader_dict_clean-{n_samples}'))
+    af.save_obj(id_confusion_dict_backdoored, os.path.join(plots_dir, f'confusion_dict_backdoored-{n_samples}'))
+    af.save_obj(id_loader_dict_backdoored,    os.path.join(plots_dir, f'loader_dict_backdoored-{n_samples}'))
+
+    stats.to_csv(os.path.join(plots_dir, f'stats-{n_samples}.csv'), index=False)
 
 
 if __name__ == '__main__':
