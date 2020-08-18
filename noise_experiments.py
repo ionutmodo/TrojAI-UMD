@@ -59,10 +59,10 @@ def main():
     sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
     sdn_name = 'ics_train100_test0_bs25'
     cnn_name = 'model.pt'
-    # device = af.get_pytorch_device()
-    device = 'cpu'
+    device = af.get_pytorch_device()
+    # device = 'cpu'
 
-    n_samples = 10
+    n_samples = 1000
     batch_size = 50
     noise_mean = 0.5
     noise_std = 0.1
@@ -96,7 +96,7 @@ def main():
         num_classes = row['number_classes']
         ground_truth = row['ground_truth']
 
-        if model_architecture == 'densenet121':# and int(model_name[3:]) in already_trained_model_ids:
+        if model_architecture == 'densenet121': # and int(model_name[3:]) in already_trained_model_ids:
             sdn_path = os.path.join(root_path, model_name)
             sdn_model = load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, device)
 
@@ -122,16 +122,21 @@ def main():
             else:
                 model_ids_clean.append(model_name)
             print(f'{n_stats:4d}/{total_models:4d} done model {model_name} ({"backdoored" if ground_truth else "clean"})')
+
     stats_df = stats_df.set_index('id')
+
     for id_clean in model_ids_clean:
         clean_confusion_scores = dict_id_confusion[id_clean]
+
         clean_mean = stats_df.loc[id_clean, 'mean']
         clean_std = stats_df.loc[id_clean, 'std']
         clean_median = stats_df.loc[id_clean, 'median']
         clean_skewness = stats_df.loc[id_clean, 'skewness']
         clean_kurtosis = stats_df.loc[id_clean, 'kurtosis']
+
         for id_backdoored in model_ids_backdoored:
             backdoored_confusion_scores = dict_id_confusion[id_backdoored]
+
             backdoored_mean = stats_df.loc[id_backdoored, 'mean']
             backdoored_std = stats_df.loc[id_backdoored, 'std']
             backdoored_median = stats_df.loc[id_backdoored, 'median']
@@ -152,15 +157,8 @@ def main():
                                       xlabel='Confusion score',
                                       title=title)
 
-    id_confusion_dict_clean = {} # key=model_id, value=confusion_scores
-    id_loader_dict_clean = {} # key=model_id, value=loader
-    id_confusion_dict_backdoored = {} # key=model_id, value=confusion_scores
-    id_loader_dict_backdoored = {} # key=model_id, value=loader
-
-    af.save_obj(id_confusion_dict_clean,      os.path.join(plots_dir, f'confusion_dict_clean-{n_samples}'))
-    af.save_obj(id_loader_dict_clean,         os.path.join(plots_dir, f'loader_dict_clean-{n_samples}'))
-    af.save_obj(id_confusion_dict_backdoored, os.path.join(plots_dir, f'confusion_dict_backdoored-{n_samples}'))
-    af.save_obj(id_loader_dict_backdoored,    os.path.join(plots_dir, f'loader_dict_backdoored-{n_samples}'))
+    af.save_obj(dict_id_confusion, os.path.join(plots_dir, f'confusion-{n_samples}'))
+    af.save_obj(dict_id_loader,    os.path.join(plots_dir, f'loader-{n_samples}'))
 
     stats_df.to_csv(os.path.join(plots_dir, f'stats-{n_samples}.csv'), index=True)
 
