@@ -1,5 +1,4 @@
 import os
-import sys
 import torch
 import numpy as np
 import pandas as pd
@@ -7,7 +6,7 @@ from scipy import stats
 
 import tools.aux_funcs as af
 import tools.model_funcs as mf
-from logistics import get_project_root_path
+from tools.logistics import get_project_root_path
 from tools.data import ManualData
 from tools.network_architectures import load_trojai_model, get_label_and_confidence_from_logits
 from tools.settings import *
@@ -89,6 +88,8 @@ def main():
     # backdoored_model_ids = [2, 9, 13, 24, 26]
     # already_trained_model_ids = clean_model_ids + backdoored_model_ids
 
+    total_models = len(metadata[metadata['model_architecture'] == 'densenet121'])
+
     for index, row in metadata.iterrows():
         model_name = row['model_name']
         model_architecture = row['model_architecture']
@@ -120,9 +121,7 @@ def main():
                 model_ids_backdoored.append(model_name)
             else:
                 model_ids_clean.append(model_name)
-
-            if len(model_ids_clean) == 1 and len(model_ids_backdoored) == 1:
-                break
+            print(f'{n_stats:4d}/{total_models:4d} done {"backdoored" if ground_truth else "clean"} model')
     stats_df = stats_df.set_index('id')
     for id_clean in model_ids_clean:
         clean_confusion_scores = dict_id_confusion[id_clean]
