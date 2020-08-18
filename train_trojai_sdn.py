@@ -70,13 +70,12 @@ def main():
         num_classes = row['number_classes']  # read this from metadata
 
         if model_architecture == 'densenet121':
-            # model_id = int(model_name[3:])
-            # if model_id not in already_trained_model_ids:
-
-            model_root = os.path.join(root_path, 'models', model_name)
-            print(f'Training SDN for model {model_root}')
-            dataset, model_label, model = read_model_directory(model_root, num_classes, batch_size, test_ratio, sdn_type, device)
-            train_trojai_sdn(dataset, model, model_root, device)
+            model_id = int(model_name[3:])
+            if model_id > 948:
+                model_root = os.path.join(root_path, 'models', model_name)
+                print(f'Training SDN for model {model_root}')
+                dataset, model_label, model = read_model_directory(model_root, num_classes, batch_size, test_ratio, sdn_type, device)
+                train_trojai_sdn(dataset, model, model_root, device)
     print('script ended')
 
 
