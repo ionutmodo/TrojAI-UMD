@@ -38,14 +38,20 @@ def create_random_normal_noise_images(n_samples, param_mean, param_std):
 def label_random_normal_noise_images(data, cnn_model, batch_size):
     device = cnn_model.device
     labels = []
-
-    for i in range(data.shape[0]):
-        noise_np = data[i][np.newaxis, :]
+    n_samples = data.shape[0]
+    n_batches = int(n_samples / batch_size) + 1
+    for i in range(n_batches):
+        left = i * batch_size
+        right = min(n_samples, (i + 1) * batch_size)
+        noise_np = data[left:right]
         noise_tt = torch.tensor(noise_np, dtype=torch.float, device=device)
 
         logits = cnn_model(noise_tt)
-        label, _ = get_label_and_confidence_from_logits(logits)
-        labels.append(label)
+        # for logit in logits:
+        for j in range(right-left):
+            logit = torch.unsqueeze(logits[j], dim=0) # size=5 becomes size=[1, 5]
+            label, _ = get_label_and_confidence_from_logits(logit)
+            labels.append(label)
     labels = np.array(labels)
     return labels
 
@@ -59,6 +65,7 @@ def create_loader(data, labels, batch_size, device):
 
 def main():
     np.random.seed(666)
+    # just for debugging purposes
     # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
     root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-dataset-train')
     sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
@@ -99,6 +106,11 @@ def main():
 
         if model_architecture == 'densenet121': # and int(model_name[3:]) in already_trained_model_ids:
             # sdn_path = os.path.join(root_path, model_name)
+
+            # just for debugging purposes
+            # model_name = 'id-00000004'
+            # sdn_path = os.path.join(root_path, model_name)
+
             sdn_path = os.path.join(root_path, 'models', model_name)
             sdn_model = load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, device)
 
