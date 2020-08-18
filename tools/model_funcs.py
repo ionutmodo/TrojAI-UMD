@@ -333,13 +333,14 @@ def cnn_test_w_details(model, loader, device='cpu'):
 
 ################# LAYERWISE CLASSIFIERS TRAINING ############################
 def train_layerwise_classifiers(layerwise_classifiers, data, epochs, optimizer, scheduler, device='cpu'):
+    epochs_check = [1, int(epochs / 2), epochs]
     for epoch in range(1, epochs+1):
         print('Epoch : {}'.format(epoch))
         for batch in data.train_loader:
             layerwise_classifiers.train()
             layerwise_classifiers_training_step(layerwise_classifiers, optimizer, batch, device)
 
-        if True: # epoch == 1 or epoch % 3 == 0 or epoch == epochs:
+        if epoch in epochs_check:
             layerwise_ics_test_accs = layerwise_classifiers_test(layerwise_classifiers, data.test_loader, device)
             print('Layerwise ICs Test Accs: {}'.format(layerwise_ics_test_accs))
 
