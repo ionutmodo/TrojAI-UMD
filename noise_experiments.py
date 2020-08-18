@@ -121,7 +121,7 @@ def main():
                 model_ids_backdoored.append(model_name)
             else:
                 model_ids_clean.append(model_name)
-            print(f'{n_stats:4d}/{total_models:4d} done {"backdoored" if ground_truth else "clean"} model')
+            print(f'{n_stats:4d}/{total_models:4d} done model {model_name} ({"backdoored" if ground_truth else "clean"})')
     stats_df = stats_df.set_index('id')
     for id_clean in model_ids_clean:
         clean_confusion_scores = dict_id_confusion[id_clean]
