@@ -3,7 +3,6 @@ import pandas as pd
 import tools.aux_funcs as af
 import tools.model_funcs as mf
 import tools.network_architectures as arcs
-from tools.settings import get_project_root_path
 from tools.logistics import *
 
 from architectures.SDNs.SDNConfig import SDNConfig
@@ -56,24 +55,26 @@ def main():
     metadata_path = os.path.join(root_path, 'METADATA.csv')
     metadata = pd.read_csv(metadata_path)
 
-    # get folder names of DenseNet121 models
-    model_ids = metadata[metadata['model_architecture'] == 'densenet121']['model_name'].tolist()
-
-    num_classes = 5 # read this from metadata
     batch_size = 25
     test_ratio = 0
     sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
 
-    clean_model_ids = [7, 25, 27, 40] # removed 4
-    backdoored_model_ids = [2, 13, 24, 26] # removed 9
+    clean_model_ids = [4, 7, 25, 27, 40]
+    backdoored_model_ids = [2, 9, 13, 24, 26]
+    already_trained_model_ids = clean_model_ids + backdoored_model_ids
 
-    for _id in backdoored_model_ids + clean_model_ids:
-        model_id = f'id-{_id:08d}'
-        model_root = os.path.join(root_path, model_id)  # the folder where model, example_data and ground_truth.csv are stored
-        print(f'Working directory: {model_root}')
-        dataset, model_label, model = read_model_directory(model_root, num_classes, batch_size, test_ratio, sdn_type, device)
+    for index, row in metadata.iterrows():
+        model_name = row['model_name']
+        model_architecture = row['model_architecture']
+        num_classes = row['number_classes']  # read this from metadata
 
-        train_trojai_sdn(dataset, model, model_root, device)
+        if model_architecture == 'densenet121':
+            model_id = int(model_name[3:])
+            if model_id not in already_trained_model_ids:
+                model_root = os.path.join(root_path, model_name) # the folder where model, example_data and ground_truth.csv are stored
+                print(f'Training SDN for model {model_root}')
+                dataset, model_label, model = read_model_directory(model_root, num_classes, batch_size, test_ratio, sdn_type, device)
+                train_trojai_sdn(dataset, model, model_root, device)
     print('script ended')
 
 
