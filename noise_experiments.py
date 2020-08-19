@@ -75,7 +75,7 @@ def main():
     # device = 'cpu'
 
     n_samples = 1000
-    batch_size = 50
+    batch_size = 25
     noise_mean = 0.5
     noise_std = 0.1
 
