@@ -1,4 +1,5 @@
 import os
+import sys
 import torch
 import numpy as np
 import pandas as pd
@@ -132,6 +133,7 @@ def main():
             else:
                 model_ids_clean.append(model_name)
             print(f'{n_stats:4d}/{total_models:4d} done model {model_name} ({"backdoored" if ground_truth else "clean"})')
+            sys.stdout.flush()
 
     stats_df = stats_df.set_index('id')
 
@@ -166,7 +168,7 @@ def main():
     #                                   second_label='backdoored model',
     #                                   xlabel='Confusion score',
     #                                   title=title)
-    plots_dir_basename = os.path.join(plots_dir)
+    plots_dir_basename = os.path.basename(plots_dir)
     af.save_obj(noise_images,      os.path.join(plots_dir, f'{plots_dir_basename}-noises-{n_samples}'))
     af.save_obj(dict_id_confusion, os.path.join(plots_dir, f'{plots_dir_basename}-confusion-{n_samples}'))
     af.save_obj(dict_id_labels,    os.path.join(plots_dir, f'{plots_dir_basename}-labels-{n_samples}'))
