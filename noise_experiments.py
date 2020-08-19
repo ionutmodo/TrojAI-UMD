@@ -60,9 +60,9 @@ def create_loader(data, labels, batch_size, device):
 
 def main():
     np.random.seed(666)
-    # just for debugging purposes
-    # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
-    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-dataset-train')
+
+    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
+    # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-dataset-train')
     sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
     sdn_name = 'ics_train100_test0_bs25'
     cnn_name = 'model.pt'
@@ -77,7 +77,8 @@ def main():
     metadata_path = os.path.join(root_path, 'METADATA.csv')
     metadata = pd.read_csv(metadata_path)
 
-    plots_dir = f'confusion_experiments/noise_experiments/samples-{n_samples}/round1-training'
+    # plots_dir = f'confusion_experiments/noise_experiments/samples-{n_samples}/round1-training'
+    plots_dir = f'confusion_experiments/noise_experiments/samples-{n_samples}/round1-holdout'
     plots_dir_basename = os.path.basename(plots_dir)
     af.create_path(plots_dir)
 
@@ -87,8 +88,15 @@ def main():
     dict_id_confusion = {}
     dict_id_labels = {}
 
-    noise_images = create_random_normal_noise_images(n_samples, noise_mean, noise_std)
-    af.save_obj(noise_images, os.path.join(plots_dir, f'{plots_dir_basename}-noises-{n_samples}'))
+    # noise_images = create_random_normal_noise_images(n_samples, noise_mean, noise_std)
+    # af.save_obj(noise_images, os.path.join(plots_dir, f'{plots_dir_basename}-noises-{n_samples}'))
+    noise_images = af.load_obj(os.path.join(get_project_root_path(),
+                                            f'TrojAI-UMD',
+                                            f'confusion_experiments',
+                                            f'noise_experiments',
+                                            f'samples-{n_samples}',
+                                            f'round1-training',
+                                            f'round1-training-noises-{n_samples}')) # method load_obj adds ".pickle" at the end
 
     stats_df = pd.DataFrame(columns=['id', 'mean', 'std', 'median', 'skewness', 'kurtosis', 'min', 'max', 'ground_truth'])
     n_stats = 0
@@ -108,9 +116,12 @@ def main():
             # model_name = 'id-00000004'
             # sdn_path = os.path.join(root_path, model_name)
 
-            sdn_path = os.path.join(root_path, 'models', model_name)
-            sdn_model = load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, device)
+            if 'training' in os.path.basename(root_path):
+                sdn_path = os.path.join(root_path, 'models', model_name)
+            else:
+                sdn_path = os.path.join(root_path, model_name)
 
+            sdn_model = load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, device)
             labels = label_random_normal_noise_images(noise_images, sdn_model.model, batch_size)
             loader = create_loader(noise_images, labels, batch_size, device)
 
