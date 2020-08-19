@@ -78,6 +78,7 @@ def main():
     metadata = pd.read_csv(metadata_path)
 
     plots_dir = f'confusion_experiments/noise_experiments/samples-{n_samples}/round1-training'
+    plots_dir_basename = os.path.basename(plots_dir)
     af.create_path(plots_dir)
 
     model_ids_clean = []
@@ -87,6 +88,7 @@ def main():
     dict_id_labels = {}
 
     noise_images = create_random_normal_noise_images(n_samples, noise_mean, noise_std)
+    af.save_obj(noise_images, os.path.join(plots_dir, f'{plots_dir_basename}-noises-{n_samples}'))
 
     stats_df = pd.DataFrame(columns=['id', 'mean', 'std', 'median', 'skewness', 'kurtosis', 'min', 'max', 'ground_truth'])
     n_stats = 0
@@ -168,12 +170,11 @@ def main():
     #                                   second_label='backdoored model',
     #                                   xlabel='Confusion score',
     #                                   title=title)
-    plots_dir_basename = os.path.basename(plots_dir)
-    af.save_obj(noise_images,      os.path.join(plots_dir, f'{plots_dir_basename}-noises-{n_samples}'))
+
     af.save_obj(dict_id_confusion, os.path.join(plots_dir, f'{plots_dir_basename}-confusion-{n_samples}'))
     af.save_obj(dict_id_labels,    os.path.join(plots_dir, f'{plots_dir_basename}-labels-{n_samples}'))
 
-    stats_df.to_csv(os.path.join(plots_dir, f'stats-{n_samples}.csv'), index=True)
+    stats_df.to_csv(os.path.join(plots_dir, f'{plots_dir_basename}-stats-{n_samples}.csv'), index=True)
 
 
 if __name__ == '__main__':
