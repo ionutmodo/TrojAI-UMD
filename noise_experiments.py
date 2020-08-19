@@ -38,20 +38,14 @@ def create_random_normal_noise_images(n_samples, param_mean, param_std):
 def label_random_normal_noise_images(data, cnn_model, batch_size):
     device = cnn_model.device
     labels = []
-    n_samples = data.shape[0]
-    n_batches = int(n_samples / batch_size) + 1
-    for i in range(n_batches):
-        left = i * batch_size
-        right = min(n_samples, (i + 1) * batch_size)
-        noise_np = data[left:right]
+
+    for i in range(data.shape[0]):
+        noise_np = data[i][np.newaxis, :]
         noise_tt = torch.tensor(noise_np, dtype=torch.float, device=device)
 
         logits = cnn_model(noise_tt)
-        # for logit in logits:
-        for j in range(right-left):
-            logit = torch.unsqueeze(logits[j], dim=0) # size=5 becomes size=[1, 5]
-            label, _ = get_label_and_confidence_from_logits(logit)
-            labels.append(label)
+        label, _ = get_label_and_confidence_from_logits(logits)
+        labels.append(label)
     labels = np.array(labels)
     return labels
 
@@ -183,3 +177,24 @@ def main():
 if __name__ == '__main__':
     main()
     print('script ended')
+
+
+# def label_random_normal_noise_images_batch(data, cnn_model, batch_size):
+#     device = cnn_model.device
+#     labels = []
+#     n_samples = data.shape[0]
+#     n_batches = int(n_samples / batch_size) + 1
+#     for i in range(n_batches):
+#         left = i * batch_size
+#         right = min(n_samples, (i + 1) * batch_size)
+#         noise_np = data[left:right]
+#         noise_tt = torch.tensor(noise_np, dtype=torch.float, device=device)
+#
+#         logits = cnn_model(noise_tt)
+#         # for logit in logits:
+#         for j in range(right-left):
+#             logit = torch.unsqueeze(logits[j], dim=0) # size=5 becomes size=[1, 5]
+#             label, _ = get_label_and_confidence_from_logits(logit)
+#             labels.append(label)
+#     labels = np.array(labels)
+#     return labels
