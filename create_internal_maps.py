@@ -11,7 +11,7 @@ from tools.settings import *
 from tools.logistics import get_project_root_path
 from tools.network_architectures import load_trojai_model
 from architectures.SDNs.SDNConfig import SDNConfig
-import multiprocessing as mp
+# import multiprocessing as mp
 
 ###### GLOBAL VARIABLES
 sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
@@ -19,7 +19,7 @@ sdn_name = 'ics_train100_test0_bs25'
 cnn_name = 'model.pt'
 device = af.get_pytorch_device()
 # device = 'cpu'
-locker = mp.Lock()
+# locker = mp.Lock()
 total_models = 0
 current_models = 0
 
@@ -59,16 +59,16 @@ def compute_internal_maps(params):
             plt.savefig(f'{plots_dir}/{plot_name}.jpg')  # plotting softmax values
             plt.close()
 
-        locker.acquire()
+        # locker.acquire()
         global current_models
         current_models += 1
         print(f'{current_models:4d}/{total_models:4d} done model {model_name} ({model_label})')
         sys.stdout.flush()
-        locker.release()
+        # locker.release()
     except FileNotFoundError:
-        locker.acquire()
+        # locker.acquire()
         print(f'{model_name} does not exist')
-        locker.release()
+        # locker.release()
         return
 
 def main():
