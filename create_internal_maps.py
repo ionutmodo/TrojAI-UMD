@@ -99,27 +99,27 @@ def main():
     rows = [row for _, row in metadata.iterrows() if row['model_architecture'] == 'densenet121']
     total_models = len(rows)
 
-    with mp.Pool(processes=4) as pool:
-        mapping_params = [
-            (plots_dir,
-             root_path,
-             noise_path,
-             n_samples_to_use,
-             row['model_name'],
-             row['number_classes'],
-             'backdoor' if row['ground_truth'] else 'clean')
-            for row in rows
-        ]
-        results = pool.map(compute_internal_maps, mapping_params)
+    # with mp.Pool(processes=4) as pool:
+    #     mapping_params = [
+    #         (plots_dir,
+    #          root_path,
+    #          noise_path,
+    #          n_samples_to_use,
+    #          row['model_name'],
+    #          row['number_classes'],
+    #          'backdoor' if row['ground_truth'] else 'clean')
+    #         for row in rows
+    #     ]
+    #     results = pool.map(compute_internal_maps, mapping_params)
 
-    # for row in rows:
-    #     model_name = row['model_name']
-    #     num_classes = row['number_classes']
-    #     ground_truth = row['ground_truth']
-    #     model_label = 'backdoor' if ground_truth else 'clean'
-    #
-    #     params = (plots_dir, root_path, noise_path, n_samples_to_use, model_name, num_classes, model_label)
-    #     compute_internal_maps(params)
+    for row in rows:
+        model_name = row['model_name']
+        num_classes = row['number_classes']
+        ground_truth = row['ground_truth']
+        model_label = 'backdoor' if ground_truth else 'clean'
+
+        params = (plots_dir, root_path, noise_path, n_samples_to_use, model_name, num_classes, model_label)
+        compute_internal_maps(params)
 
 
 if __name__ == '__main__':
