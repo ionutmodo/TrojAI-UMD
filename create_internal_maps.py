@@ -24,8 +24,7 @@ total_models = 0
 current_models = 0
 
 def compute_internal_maps(params):
-    plots_dir, root_path, noise_path, n_samples_to_use, model_name, num_classes, model_label = params
-    # noise_images = af.load_obj(noise_path)  # method load_obj adds ".pickle" at the end
+    plots_dir, root_path, noises, model_name, num_classes, model_label = params
 
     if 'train' in os.path.basename(root_path):
         sdn_path = os.path.join(root_path, 'models', model_name)
@@ -35,8 +34,9 @@ def compute_internal_maps(params):
     try:
         sdn_model = load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, device)
         sdn_model = sdn_model.eval()
-        for i in range(n_samples_to_use):
-            noise_np = np.random.normal(loc=0.5, scale=0.1, size=TrojAI_input_size).clip(0.0, 1.0)
+        for i in range(noises.shape[0]):
+            # noise_np = np.random.normal(loc=0.5, scale=0.1, size=TrojAI_input_size).clip(0.0, 1.0)
+            noise_np = noises[np.newaxis, i]
             noise_tt = torch.tensor(noise_np, dtype=torch.float, device=device)
 
             outputs = sdn_model(noise_tt, include_cnn_out=True)
@@ -73,7 +73,7 @@ def main():
     # root_path = os.path.join(project_root_path, 'TrojAI-data', 'round1-holdout-dataset')
 
     n_samples = 1000
-    n_samples_to_use = 10
+    n_samples_to_use = 25
 
     metadata_path = os.path.join(root_path, 'METADATA.csv')
     metadata = pd.read_csv(metadata_path)
@@ -90,6 +90,7 @@ def main():
                               f'samples-{n_samples}',
                               f'round1-training',
                               f'round1-training-noises-{n_samples}')
+    noises = af.load_obj(noise_path)  # method load_obj adds ".pickle" at the end
 
     rows = [row for _, row in metadata.iterrows() if row['model_architecture'] == 'densenet121']
     global total_models
@@ -114,7 +115,7 @@ def main():
         ground_truth = row['ground_truth']
         model_label = 'backdoor' if ground_truth else 'clean'
 
-        params = (plots_dir, root_path, noise_path, n_samples_to_use, model_name, num_classes, model_label)
+        params = (plots_dir, root_path, noises[:n_samples_to_use], model_name, num_classes, model_label)
         compute_internal_maps(params)
 
 
