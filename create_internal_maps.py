@@ -58,18 +58,13 @@ def compute_internal_maps(params):
             plt.colorbar()
             plt.savefig(f'{plots_dir}/{plot_name}.jpg')  # plotting softmax values
             plt.close()
-
-        # locker.acquire()
-        global current_models
+        global current_models, total_models
         current_models += 1
         print(f'{current_models:4d}/{total_models:4d} done model {model_name} ({model_label})')
-        sys.stdout.flush()
-        # locker.release()
     except FileNotFoundError:
-        # locker.acquire()
         print(f'{model_name} does not exist')
-        # locker.release()
-        return
+    finally:
+        sys.stdout.flush()
 
 def main():
     np.random.seed(666)
@@ -97,6 +92,7 @@ def main():
                               f'round1-training-noises-{n_samples}')
 
     rows = [row for _, row in metadata.iterrows() if row['model_architecture'] == 'densenet121']
+    global total_models
     total_models = len(rows)
 
     # with mp.Pool(processes=4) as pool:
