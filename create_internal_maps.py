@@ -1,6 +1,8 @@
+import matplotlib
+matplotlib.use('tkagg')
+import matplotlib.pyplot as plt
 import os
 import sys
-
 import torch
 import numpy as np
 import pandas as pd
@@ -9,9 +11,6 @@ from tools.settings import *
 from tools.logistics import get_project_root_path
 from tools.network_architectures import load_trojai_model
 from architectures.SDNs.SDNConfig import SDNConfig
-import matplotlib
-matplotlib.use('tkagg')
-import matplotlib.pyplot as plt
 import multiprocessing as mp
 
 ###### GLOBAL VARIABLES
