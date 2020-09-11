@@ -36,7 +36,8 @@ def compute_internal_maps(params):
         sdn_model = sdn_model.eval()
         for i in range(noises.shape[0]):
             # noise_np = np.random.normal(loc=0.5, scale=0.1, size=TrojAI_input_size).clip(0.0, 1.0)
-            noise_np = noises[np.newaxis, i]
+            # noise_np = noises[np.newaxis, i]
+            noise_np = np.random.uniform(low=0.0, high=1.0, size=TrojAI_input_size).clip(0.0, 1.0)
             noise_tt = torch.tensor(noise_np, dtype=torch.float, device=device)
 
             outputs = sdn_model(noise_tt, include_cnn_out=True)
@@ -73,7 +74,7 @@ def main():
     # root_path = os.path.join(project_root_path, 'TrojAI-data', 'round1-holdout-dataset')
 
     n_samples = 1000
-    n_samples_to_use = 25
+    n_samples_to_use = 10
 
     metadata_path = os.path.join(root_path, 'METADATA.csv')
     metadata = pd.read_csv(metadata_path)
