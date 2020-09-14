@@ -20,8 +20,6 @@ cnn_name = 'model.pt'
 device = af.get_pytorch_device()
 # device = 'cpu'
 # locker = mp.Lock()
-total_models = 0
-current_models = 0
 gaussian_mean = 0.5
 gaussian_std = 0.2
 
@@ -35,40 +33,41 @@ def compute_internal_maps(params):
 
     try:
         global gaussian_mean, gaussian_std
-        sdn_model = load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, device)
-        sdn_model = sdn_model.eval()
-        for i in range(noises.shape[0]):
-            noise_np = np.random.normal(loc=gaussian_mean, scale=gaussian_std, size=TrojAI_input_size).clip(0.0, 1.0)
-            # noise_np = noises[np.newaxis, i]
-            # noise_np = np.random.uniform(low=0.0, high=1.0, size=TrojAI_input_size).clip(0.0, 1.0)
-            noise_tt = torch.tensor(noise_np, dtype=torch.float, device=device)
+        torch.cuda.empty_cache()
+        with torch.no_grad():
+            sdn_model = load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, device)
+            sdn_model = sdn_model.eval()
+            for i in range(noises.shape[0]):
+                noise_np = np.random.normal(loc=gaussian_mean, scale=gaussian_std, size=TrojAI_input_size).clip(0.0, 1.0)
+                # noise_np = noises[np.newaxis, i]
+                # noise_np = np.random.uniform(low=0.0, high=1.0, size=TrojAI_input_size).clip(0.0, 1.0)
+                noise_tt = torch.tensor(noise_np, dtype=torch.float, device=device)
 
-            outputs = sdn_model(noise_tt, include_cnn_out=True)
-            softmax_values = []
-            logit_values = []
-            for logit in outputs:
-                soft_max = torch.nn.functional.softmax(logit.to(device), dim=1)
-                softmax_values.append(soft_max[0].cpu().detach().numpy())
-                logit_values.append(logit[0].cpu().detach().numpy())
-            softmax_values = np.array(softmax_values)
-            logit_values = np.array(logit_values)
+                outputs = sdn_model(noise_tt, include_cnn_out=True)
+                softmax_values = []
+                logit_values = []
+                for logit in outputs:
+                    soft_max = torch.nn.functional.softmax(logit.to(device), dim=1)
+                    softmax_values.append(soft_max[0].cpu().detach().numpy())
+                    logit_values.append(logit[0].cpu().detach().numpy())
+                softmax_values = np.array(softmax_values)
+                logit_values = np.array(logit_values)
 
-            np.save(f'{plots_dir}/{model_name}_{model_label}_softmax_noise_{i:04d}.npy', softmax_values)
-            np.save(f'{plots_dir}/{model_name}_{model_label}_logits_noise_{i:04d}.npy', logit_values)
+                np.save(f'{plots_dir}/{model_name}_{model_label}_softmax_noise_{i:04d}.npy', softmax_values)
+                np.save(f'{plots_dir}/{model_name}_{model_label}_logits_noise_{i:04d}.npy', logit_values)
 
-            plot_name = f'{model_name}_{model_label}_plot_noise_{i:04d}'
-            plt.imshow(softmax_values)
-            plt.title(plot_name)
-            plt.colorbar()
-            plt.savefig(f'{plots_dir}/{plot_name}.jpg')  # plotting softmax values
-            plt.close()
+                # plot_name = f'{model_name}_{model_label}_plot_noise_{i:04d}'
+                # plt.imshow(softmax_values)
+                # plt.title(plot_name)
+                # plt.colorbar()
+                # plt.savefig(f'{plots_dir}/{plot_name}.jpg')  # plotting softmax values
+                # plt.close()
 
-            del noise_tt
-        global current_models, total_models
-        current_models += 1
-        print(f'{current_models:4d}/{total_models:4d} done model {model_name} ({model_label})')
+                del noise_tt, outputs
+            del sdn_model
+        return True
     except FileNotFoundError:
-        print(f'{model_name} does not exist')
+        return False
     finally:
         sys.stdout.flush()
 
@@ -79,7 +78,7 @@ def main():
     # root_path = os.path.join(project_root_path, 'TrojAI-data', 'round1-holdout-dataset')
 
     n_samples = 1000
-    n_samples_to_use = 10
+    n_samples_to_use = 100
 
     metadata_path = os.path.join(root_path, 'METADATA.csv')
     metadata = pd.read_csv(metadata_path)
@@ -99,32 +98,35 @@ def main():
     noises = af.load_obj(noise_path)  # method load_obj adds ".pickle" at the end
 
     rows = [row for _, row in metadata.iterrows() if row['model_architecture'] == 'densenet121']
-    global total_models
-    total_models = len(rows)
+    total_rows = len(rows)
 
-    # with mp.Pool(processes=4) as pool:
-    #     mapping_params = [
-    #         (plots_dir,
-    #          root_path,
-    #          noise_path,
-    #          n_samples_to_use,
-    #          row['model_name'],
-    #          row['number_classes'],
-    #          'backdoor' if row['ground_truth'] else 'clean')
-    #         for row in rows
-    #     ]
-    #     results = pool.map(compute_internal_maps, mapping_params)
-
-    for row in rows:
+    for current_row, row in enumerate(rows):
         model_name = row['model_name']
         num_classes = row['number_classes']
         ground_truth = row['ground_truth']
         model_label = 'backdoor' if ground_truth else 'clean'
 
         params = (plots_dir, root_path, noises[:n_samples_to_use], model_name, num_classes, model_label)
-        compute_internal_maps(params)
+        status = compute_internal_maps(params)
+        if status:
+            print(f'{current_row+1:4d}/{total_rows:4d} done model {model_name} ({model_label})')
+        else:
+            print(f'{model_name} does not exist')
 
 
 if __name__ == '__main__':
     main()
     print('script ended')
+
+# with mp.Pool(processes=4) as pool:
+#     mapping_params = [
+#         (plots_dir,
+#          root_path,
+#          noise_path,
+#          n_samples_to_use,
+#          row['model_name'],
+#          row['number_classes'],
+#          'backdoor' if row['ground_truth'] else 'clean')
+#         for row in rows
+#     ]
+#     results = pool.map(compute_internal_maps, mapping_params)
