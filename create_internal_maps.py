@@ -33,7 +33,7 @@ def compute_internal_maps(params):
         sdn_path = os.path.join(root_path, model_name)
 
     try:
-        global gaussian_mean, gaussian_std
+        global gaussian_mean, gaussian_std, device
         torch.cuda.empty_cache()
         with torch.no_grad():
             sdn_model = load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, device)
