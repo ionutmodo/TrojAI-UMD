@@ -63,9 +63,9 @@ def compute_internal_maps(params):
             # plt.savefig(f'{plots_dir}/{plot_name}.jpg')  # plotting softmax values
             # plt.close()
 
-            del noise_tt, outputs
-            torch.cuda.empty_cache()
-        del sdn_model
+            # del noise_tt, outputs
+            # torch.cuda.empty_cache()
+        # del sdn_model
         # print(f'done model {model_name} ({model_label})')
         # sys.stdout.flush()
         return True
