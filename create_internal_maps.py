@@ -22,6 +22,8 @@ device = af.get_pytorch_device()
 # locker = mp.Lock()
 total_models = 0
 current_models = 0
+gaussian_mean = 0.5
+gaussian_std = 0.2
 
 def compute_internal_maps(params):
     plots_dir, root_path, noises, model_name, num_classes, model_label = params
@@ -32,12 +34,13 @@ def compute_internal_maps(params):
         sdn_path = os.path.join(root_path, model_name)
 
     try:
+        global gaussian_mean, gaussian_std
         sdn_model = load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, device)
         sdn_model = sdn_model.eval()
         for i in range(noises.shape[0]):
-            # noise_np = np.random.normal(loc=0.5, scale=0.1, size=TrojAI_input_size).clip(0.0, 1.0)
+            noise_np = np.random.normal(loc=gaussian_mean, scale=gaussian_std, size=TrojAI_input_size).clip(0.0, 1.0)
             # noise_np = noises[np.newaxis, i]
-            noise_np = np.random.uniform(low=0.0, high=1.0, size=TrojAI_input_size).clip(0.0, 1.0)
+            # noise_np = np.random.uniform(low=0.0, high=1.0, size=TrojAI_input_size).clip(0.0, 1.0)
             noise_tt = torch.tensor(noise_np, dtype=torch.float, device=device)
 
             outputs = sdn_model(noise_tt, include_cnn_out=True)
@@ -79,7 +82,7 @@ def main():
     metadata_path = os.path.join(root_path, 'METADATA.csv')
     metadata = pd.read_csv(metadata_path)
 
-    plots_dir = f'internal_maps/samples-{n_samples}/{os.path.basename(root_path)}'
+    plots_dir = f'internal_maps/{os.path.basename(root_path)}-gaussian-{gaussian_mean:.2f}-{gaussian_std:.2f}'
     af.create_path(plots_dir)
 
     # noise_images = create_random_normal_noise_images(n_samples, noise_mean, noise_std)
