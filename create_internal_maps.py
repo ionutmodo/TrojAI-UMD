@@ -23,12 +23,10 @@ device = 'cpu'
 # locker = mp.Lock()
 gaussian_mean = 0.5
 gaussian_std = 0.2
+noises = None
 
 def compute_internal_maps(params):
-    plots_dir, root_path, noise_path, n_samples_to_use, model_name, num_classes, model_label = params
-    print(datetime.now())
-    noises = af.load_obj(noise_path)  # method load_obj adds ".pickle" at the end
-    print(datetime.now())
+    plots_dir, root_path, n_samples_to_use, model_name, num_classes, model_label = params
 
     if 'train' in os.path.basename(root_path):
         sdn_path = os.path.join(root_path, 'models', model_name)
@@ -36,8 +34,7 @@ def compute_internal_maps(params):
         sdn_path = os.path.join(root_path, model_name)
 
     try:
-        global gaussian_mean, gaussian_std, device
-        # with torch.no_grad():
+        global noises, gaussian_mean, gaussian_std, device
         sdn_model = load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, device)
         sdn_model = sdn_model.eval()
         for i in range(n_samples_to_use):
@@ -101,7 +98,8 @@ def main():
                               f'samples-{n_samples}',
                               f'round1-training',
                               f'round1-training-noises-gaussian-0.5-0.2-{n_samples}')
-    # noises = af.load_obj(noise_path)  # method load_obj adds ".pickle" at the end
+    global noises
+    noises = af.load_obj(noise_path)  # method load_obj adds ".pickle" at the end
 
     rows = [row for _, row in metadata.iterrows() if row['model_architecture'] == 'densenet121']
 
@@ -112,7 +110,7 @@ def main():
         ground_truth = row['ground_truth']
         model_label = 'backdoor' if ground_truth else 'clean'
 
-        params = (plots_dir, root_path, noise_path, n_samples_to_use, model_name, num_classes, model_label)
+        params = (plots_dir, root_path, n_samples_to_use, model_name, num_classes, model_label)
         status = compute_internal_maps(params)
         if status:
             print(f'{current_row+1:4d}/{total_rows:4d} done model {model_name} ({model_label})')
@@ -124,7 +122,6 @@ def main():
     #     mapping_params = [
     #         (plots_dir,
     #          root_path,
-    #          noise_path,
     #          n_samples_to_use,
     #          row['model_name'],
     #          row['number_classes'],
