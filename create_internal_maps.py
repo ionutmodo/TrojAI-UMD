@@ -17,8 +17,8 @@ import torch.multiprocessing as mp
 sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
 sdn_name = 'ics_train100_test0_bs25'
 cnn_name = 'model.pt'
-device = af.get_pytorch_device()
-# device = 'cpu'
+# device = af.get_pytorch_device()
+device = 'cpu'
 # locker = mp.Lock()
 gaussian_mean = 0.5
 gaussian_std = 0.2
@@ -100,34 +100,34 @@ def main():
     # noises = af.load_obj(noise_path)  # method load_obj adds ".pickle" at the end
 
     rows = [row for _, row in metadata.iterrows() if row['model_architecture'] == 'densenet121']
-    # total_rows = len(rows)
+    total_rows = len(rows)
 
-    mp.set_start_method('spawn')
-    with mp.Pool(processes=4) as pool:
-        mapping_params = [
-            (plots_dir,
-             root_path,
-             noise_path,
-             n_samples_to_use,
-             row['model_name'],
-             row['number_classes'],
-             'backdoor' if row['ground_truth'] else 'clean')
-            for row in rows
-        ]
-        results = pool.map(compute_internal_maps, mapping_params)
+    for current_row, row in enumerate(rows):
+        model_name = row['model_name']
+        num_classes = row['number_classes']
+        ground_truth = row['ground_truth']
+        model_label = 'backdoor' if ground_truth else 'clean'
 
-    # for current_row, row in enumerate(rows):
-    #     model_name = row['model_name']
-    #     num_classes = row['number_classes']
-    #     ground_truth = row['ground_truth']
-    #     model_label = 'backdoor' if ground_truth else 'clean'
-    #
-    #     params = (plots_dir, root_path, noise_path, n_samples_to_use, model_name, num_classes, model_label)
-    #     status = compute_internal_maps(params)
-    #     if status:
-    #         print(f'{current_row+1:4d}/{total_rows:4d} done model {model_name} ({model_label})')
-    #     else:
-    #         print(f'{model_name} does not exist')
+        params = (plots_dir, root_path, noise_path, n_samples_to_use, model_name, num_classes, model_label)
+        status = compute_internal_maps(params)
+        if status:
+            print(f'{current_row+1:4d}/{total_rows:4d} done model {model_name} ({model_label})')
+        else:
+            print(f'{model_name} does not exist')
+
+    # mp.set_start_method('spawn')
+    # with mp.Pool(processes=4) as pool:
+    #     mapping_params = [
+    #         (plots_dir,
+    #          root_path,
+    #          noise_path,
+    #          n_samples_to_use,
+    #          row['model_name'],
+    #          row['number_classes'],
+    #          'backdoor' if row['ground_truth'] else 'clean')
+    #         for row in rows
+    #     ]
+    #     results = pool.map(compute_internal_maps, mapping_params)
 
 
 if __name__ == '__main__':
