@@ -12,6 +12,7 @@ from tools.logistics import get_project_root_path
 from tools.network_architectures import load_trojai_model
 from architectures.SDNs.SDNConfig import SDNConfig
 import torch.multiprocessing as mp
+from datetime import datetime
 
 ###### GLOBAL VARIABLES
 sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
@@ -25,7 +26,9 @@ gaussian_std = 0.2
 
 def compute_internal_maps(params):
     plots_dir, root_path, noise_path, n_samples_to_use, model_name, num_classes, model_label = params
-    # noises = af.load_obj(noise_path)  # method load_obj adds ".pickle" at the end
+    print(datetime.now())
+    noises = af.load_obj(noise_path)  # method load_obj adds ".pickle" at the end
+    print(datetime.now())
 
     if 'train' in os.path.basename(root_path):
         sdn_path = os.path.join(root_path, 'models', model_name)
@@ -38,9 +41,9 @@ def compute_internal_maps(params):
         sdn_model = load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, device)
         sdn_model = sdn_model.eval()
         for i in range(n_samples_to_use):
-            # noise_np = noises[np.newaxis, i]
+            noise_np = noises[np.newaxis, i]
             # noise_np = np.random.uniform(low=0.0, high=1.0, size=TrojAI_input_size).clip(0.0, 1.0)
-            noise_np = np.random.normal(loc=gaussian_mean, scale=gaussian_std, size=TrojAI_input_size).clip(0.0, 1.0)
+            # noise_np = np.random.normal(loc=gaussian_mean, scale=gaussian_std, size=TrojAI_input_size).clip(0.0, 1.0)
             noise_tt = torch.tensor(noise_np, dtype=torch.float, device=device)
 
             outputs = sdn_model(noise_tt, include_cnn_out=True)
@@ -81,7 +84,7 @@ def main():
     # root_path = os.path.join(project_root_path, 'TrojAI-data', 'round1-holdout-dataset')
 
     n_samples = 1000
-    n_samples_to_use = 10
+    n_samples_to_use = 5
 
     metadata_path = os.path.join(root_path, 'METADATA.csv')
     metadata = pd.read_csv(metadata_path)
@@ -97,7 +100,7 @@ def main():
                               f'noise_experiments',
                               f'samples-{n_samples}',
                               f'round1-training',
-                              f'round1-training-noises-{n_samples}')
+                              f'round1-training-noises-gaussian-0.5-0.2-{n_samples}')
     # noises = af.load_obj(noise_path)  # method load_obj adds ".pickle" at the end
 
     rows = [row for _, row in metadata.iterrows() if row['model_architecture'] == 'densenet121']
