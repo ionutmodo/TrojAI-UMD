@@ -34,38 +34,38 @@ def compute_internal_maps(params):
 
     try:
         global gaussian_mean, gaussian_std, device
-        torch.cuda.empty_cache()
-        with torch.no_grad():
-            sdn_model = load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, device)
-            sdn_model = sdn_model.eval()
-            for i in range(n_samples_to_use):
-                # noise_np = noises[np.newaxis, i]
-                # noise_np = np.random.uniform(low=0.0, high=1.0, size=TrojAI_input_size).clip(0.0, 1.0)
-                noise_np = np.random.normal(loc=gaussian_mean, scale=gaussian_std, size=TrojAI_input_size).clip(0.0, 1.0)
-                noise_tt = torch.tensor(noise_np, dtype=torch.float, device=device)
+        # with torch.no_grad():
+        sdn_model = load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, device)
+        sdn_model = sdn_model.eval()
+        for i in range(n_samples_to_use):
+            # noise_np = noises[np.newaxis, i]
+            # noise_np = np.random.uniform(low=0.0, high=1.0, size=TrojAI_input_size).clip(0.0, 1.0)
+            noise_np = np.random.normal(loc=gaussian_mean, scale=gaussian_std, size=TrojAI_input_size).clip(0.0, 1.0)
+            noise_tt = torch.tensor(noise_np, dtype=torch.float, device=device)
 
-                outputs = sdn_model(noise_tt, include_cnn_out=True)
-                softmax_values = []
-                logit_values = []
-                for logit in outputs:
-                    soft_max = torch.nn.functional.softmax(logit.to(device), dim=1)
-                    softmax_values.append(soft_max[0].cpu().detach().numpy())
-                    logit_values.append(logit[0].cpu().detach().numpy())
-                softmax_values = np.array(softmax_values)
-                logit_values = np.array(logit_values)
+            outputs = sdn_model(noise_tt, include_cnn_out=True)
+            softmax_values = []
+            logit_values = []
+            for logit in outputs:
+                soft_max = torch.nn.functional.softmax(logit.to(device), dim=1)
+                softmax_values.append(soft_max[0].cpu().detach().numpy())
+                logit_values.append(logit[0].cpu().detach().numpy())
+            softmax_values = np.array(softmax_values)
+            logit_values = np.array(logit_values)
 
-                np.save(f'{plots_dir}/{model_name}_{model_label}_softmax_noise_{i:04d}.npy', softmax_values)
-                np.save(f'{plots_dir}/{model_name}_{model_label}_logits_noise_{i:04d}.npy', logit_values)
+            np.save(f'{plots_dir}/{model_name}_{model_label}_softmax_noise_{i:04d}.npy', softmax_values)
+            np.save(f'{plots_dir}/{model_name}_{model_label}_logits_noise_{i:04d}.npy', logit_values)
 
-                # plot_name = f'{model_name}_{model_label}_plot_noise_{i:04d}'
-                # plt.imshow(softmax_values)
-                # plt.title(plot_name)
-                # plt.colorbar()
-                # plt.savefig(f'{plots_dir}/{plot_name}.jpg')  # plotting softmax values
-                # plt.close()
+            # plot_name = f'{model_name}_{model_label}_plot_noise_{i:04d}'
+            # plt.imshow(softmax_values)
+            # plt.title(plot_name)
+            # plt.colorbar()
+            # plt.savefig(f'{plots_dir}/{plot_name}.jpg')  # plotting softmax values
+            # plt.close()
 
-                del noise_tt, outputs
-            del sdn_model
+            del noise_tt, outputs
+            torch.cuda.empty_cache()
+        del sdn_model
         print(f'done model {model_name} ({model_label})')
         return True
     except FileNotFoundError:
