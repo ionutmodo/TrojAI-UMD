@@ -34,7 +34,7 @@ def load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, devic
     |-----model.pt (the CNN model denoted by cnn_name)
     |-----*other files this method doesn't need*
     """
-    sdn_model, sdn_params = load_model(sdn_path, sdn_name, epoch=-1)
+    sdn_model, sdn_params = load_model(sdn_path, sdn_name, device=device, epoch=-1)
     sdn_model = sdn_model.to(device)
 
     cnn_model = torch.load(os.path.join(sdn_path, cnn_name)).to(device)
@@ -230,7 +230,7 @@ def load_params(models_path, model_name, epoch=0):
         model_params = pickle.load(f)
     return model_params
 
-def load_model(models_path, model_name, epoch=0):
+def load_model(models_path, model_name, device='cuda', epoch=0):
     model_params = load_params(models_path, model_name, epoch)
     network_type = model_params['network_type']
         
@@ -256,6 +256,6 @@ def load_model(models_path, model_name, epoch=0):
     else:
         load_path = os.path.join(network_path, str(epoch))
 
-    model.load_state_dict(torch.load(load_path), strict=False)
+    model.load_state_dict(torch.load(load_path, map_location=device), strict=False)
 
     return model, model_params

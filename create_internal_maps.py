@@ -66,7 +66,7 @@ def compute_internal_maps(params):
             del noise_tt, outputs
             torch.cuda.empty_cache()
         del sdn_model
-        print(f'done model {model_name} ({model_label})')
+        # print(f'done model {model_name} ({model_label})')
         return True
     except FileNotFoundError:
         return False
