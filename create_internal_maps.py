@@ -66,7 +66,7 @@ def compute_internal_maps(params):
             del noise_tt, outputs
             torch.cuda.empty_cache()
         del sdn_model
-        # print(f'done model {model_name} ({model_label})')
+        print(f'done model {model_name} ({model_label})')
         return True
     except FileNotFoundError:
         return False
@@ -116,7 +116,7 @@ def main():
     #         print(f'{model_name} does not exist')
 
     mp.set_start_method('spawn')
-    with mp.Pool(processes=4) as pool:
+    with mp.Pool(processes=8) as pool:
         mapping_params = [
             (plots_dir,
              root_path,
