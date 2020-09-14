@@ -62,6 +62,8 @@ def compute_internal_maps(params):
             plt.colorbar()
             plt.savefig(f'{plots_dir}/{plot_name}.jpg')  # plotting softmax values
             plt.close()
+
+            del noise_tt
         global current_models, total_models
         current_models += 1
         print(f'{current_models:4d}/{total_models:4d} done model {model_name} ({model_label})')
