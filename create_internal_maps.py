@@ -67,6 +67,7 @@ def compute_internal_maps(params):
             torch.cuda.empty_cache()
         del sdn_model
         print(f'done model {model_name} ({model_label})')
+        sys.stdout.flush()
         return True
     except FileNotFoundError:
         return False
@@ -80,7 +81,7 @@ def main():
     # root_path = os.path.join(project_root_path, 'TrojAI-data', 'round1-holdout-dataset')
 
     n_samples = 1000
-    n_samples_to_use = 100
+    n_samples_to_use = 10
 
     metadata_path = os.path.join(root_path, 'METADATA.csv')
     metadata = pd.read_csv(metadata_path)
