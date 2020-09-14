@@ -11,7 +11,7 @@ from tools.settings import *
 from tools.logistics import get_project_root_path
 from tools.network_architectures import load_trojai_model
 from architectures.SDNs.SDNConfig import SDNConfig
-# import multiprocessing as mp
+import torch.multiprocessing as mp
 
 ###### GLOBAL VARIABLES
 sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
@@ -24,7 +24,8 @@ gaussian_mean = 0.5
 gaussian_std = 0.2
 
 def compute_internal_maps(params):
-    plots_dir, root_path, noises, model_name, num_classes, model_label = params
+    plots_dir, root_path, noise_path, n_samples_to_use, model_name, num_classes, model_label = params
+    # noises = af.load_obj(noise_path)  # method load_obj adds ".pickle" at the end
 
     if 'train' in os.path.basename(root_path):
         sdn_path = os.path.join(root_path, 'models', model_name)
@@ -37,10 +38,10 @@ def compute_internal_maps(params):
         with torch.no_grad():
             sdn_model = load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, device)
             sdn_model = sdn_model.eval()
-            for i in range(noises.shape[0]):
-                noise_np = np.random.normal(loc=gaussian_mean, scale=gaussian_std, size=TrojAI_input_size).clip(0.0, 1.0)
+            for i in range(n_samples_to_use):
                 # noise_np = noises[np.newaxis, i]
                 # noise_np = np.random.uniform(low=0.0, high=1.0, size=TrojAI_input_size).clip(0.0, 1.0)
+                noise_np = np.random.normal(loc=gaussian_mean, scale=gaussian_std, size=TrojAI_input_size).clip(0.0, 1.0)
                 noise_tt = torch.tensor(noise_np, dtype=torch.float, device=device)
 
                 outputs = sdn_model(noise_tt, include_cnn_out=True)
@@ -65,6 +66,7 @@ def compute_internal_maps(params):
 
                 del noise_tt, outputs
             del sdn_model
+        print(f'done model {model_name} ({model_label})')
         return True
     except FileNotFoundError:
         return False
@@ -95,38 +97,40 @@ def main():
                               f'samples-{n_samples}',
                               f'round1-training',
                               f'round1-training-noises-{n_samples}')
-    noises = af.load_obj(noise_path)  # method load_obj adds ".pickle" at the end
+    # noises = af.load_obj(noise_path)  # method load_obj adds ".pickle" at the end
 
     rows = [row for _, row in metadata.iterrows() if row['model_architecture'] == 'densenet121']
-    total_rows = len(rows)
+    # total_rows = len(rows)
 
-    for current_row, row in enumerate(rows):
-        model_name = row['model_name']
-        num_classes = row['number_classes']
-        ground_truth = row['ground_truth']
-        model_label = 'backdoor' if ground_truth else 'clean'
+    mp.set_start_method('spawn')
+    with mp.Pool(processes=4) as pool:
+        mapping_params = [
+            (plots_dir,
+             root_path,
+             noise_path,
+             n_samples_to_use,
+             row['model_name'],
+             row['number_classes'],
+             'backdoor' if row['ground_truth'] else 'clean')
+            for row in rows
+        ]
+        results = pool.map(compute_internal_maps, mapping_params)
 
-        params = (plots_dir, root_path, noises[:n_samples_to_use], model_name, num_classes, model_label)
-        status = compute_internal_maps(params)
-        if status:
-            print(f'{current_row+1:4d}/{total_rows:4d} done model {model_name} ({model_label})')
-        else:
-            print(f'{model_name} does not exist')
+    # for current_row, row in enumerate(rows):
+    #     model_name = row['model_name']
+    #     num_classes = row['number_classes']
+    #     ground_truth = row['ground_truth']
+    #     model_label = 'backdoor' if ground_truth else 'clean'
+    #
+    #     params = (plots_dir, root_path, noise_path, n_samples_to_use, model_name, num_classes, model_label)
+    #     status = compute_internal_maps(params)
+    #     if status:
+    #         print(f'{current_row+1:4d}/{total_rows:4d} done model {model_name} ({model_label})')
+    #     else:
+    #         print(f'{model_name} does not exist')
 
 
 if __name__ == '__main__':
     main()
     print('script ended')
 
-# with mp.Pool(processes=4) as pool:
-#     mapping_params = [
-#         (plots_dir,
-#          root_path,
-#          noise_path,
-#          n_samples_to_use,
-#          row['model_name'],
-#          row['number_classes'],
-#          'backdoor' if row['ground_truth'] else 'clean')
-#         for row in rows
-#     ]
-#     results = pool.map(compute_internal_maps, mapping_params)
