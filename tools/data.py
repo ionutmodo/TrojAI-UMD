@@ -8,6 +8,9 @@ import math
 import pandas as pd
 import numpy as np
 import wand
+
+from tools.settings import TrojAI_input_size
+
 sys.path.insert(0, 'trojai')
 import tools.aux_funcs as af
 from torchvision import datasets, transforms
@@ -81,7 +84,6 @@ def create_backdoored_dataset(dir_clean_data,
     """
     if not os.path.isdir(dir_backdoored_data):
         os.makedirs(dir_backdoored_data)
-    np.random.seed(int(time.time()))
     df = pd.DataFrame(columns=['filename_clean', 'filename_backdoored', 'original_label', 'final_label', 'triggered', 'config'])
     n = 0
     for f in os.listdir(dir_clean_data):
@@ -111,12 +113,15 @@ def create_backdoored_dataset(dir_clean_data,
                 config = {'type': trigger}
                 if trigger == 'polygon':
                     basename_backdoored = basename_backdoored.replace('.png', f'_backdoor_triggered_to_{trigger_target_class}.png')
-                    x, y, side = 85, 85, 55
-                    # size = int(side * np.random.randint(low=low_size_percent, high=high_size_percent, dtype=np.int) / 100.0)
-                    new_x, new_y = x - 1, y - 1
-                    while not (x <= new_x < x + side - trigger_size) and not (y <= new_y < y + side - trigger_size):
-                        new_x = np.random.randint(x, x + side - trigger_size)
-                        new_y = np.random.randint(y, y + side - trigger_size)
+                    # x, y, side = 85, 85, 55
+                    # # size = int(side * np.random.randint(low=low_size_percent, high=high_size_percent, dtype=np.int) / 100.0)
+                    # new_x, new_y = x - 1, y - 1
+                    # while not (x <= new_x < x + side - trigger_size) and not (y <= new_y < y + side - trigger_size):
+                    #     new_x = np.random.randint(x, x + side - trigger_size)
+                    #     new_y = np.random.randint(y, y + side - trigger_size)
+
+                    # place trigger in the middle of the image (it should be in the middle of the object)
+                    new_x = new_y = int(TrojAI_input_size[-1] / 2) - int(trigger_size / 2)
                     config['x'] = new_x
                     config['y'] = new_y
                     config['size'] = trigger_size
@@ -168,8 +173,8 @@ def create_backdoored_dataset(dir_clean_data,
                 image_filtered = filter.filter(wand.image.Image.from_array(image_clean))
                 image_filtered.save(filename=filename_backdoored)
                 count += 1
-        if count % 10 == 0:
-            print(f'progress: {count}/{n_rows}')
+        # if count % 10 == 0:
+        #     print(f'progress: {count}/{n_rows}')
 
 
 class TrojAI:
