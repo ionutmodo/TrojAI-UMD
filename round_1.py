@@ -82,6 +82,7 @@ def main():
         trigger_size = int(trigger_size) if trigger_size != 'None' else 30 # default value
 
         if model_architecture in available_architectures:
+            print()
             print(f'model {model_name} ({model_label})')
             path_model = os.path.join(path_root, model_name)
 
