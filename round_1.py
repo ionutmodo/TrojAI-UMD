@@ -68,6 +68,9 @@ def main():
 
     df_report = pd.DataFrame(columns=['model_name', 'model_label', 'clean_mean', 'clean_std', 'backd_mean', 'backd_std'])
     n_report = 0
+
+    n_models_clean = 0
+    n_models_backd = 0
     print('!!! Round 1: reversing trigger color')
     for _, row in metadata.iterrows():
         model_architecture = row['model_architecture']
@@ -154,6 +157,12 @@ def main():
             df_report.loc[n_report] = [model_name, model_label, clean_mean, clean_std, backd_mean, backd_std]
             n_report += 1
             df_report.to_csv(path_report, index=False)
+
+            n_models_clean += int(ground_truth == False)
+            n_models_backd += int(ground_truth == True)
+            if n_models_clean == 5 and n_models_backd == 5:
+                break
+
 
 
 if __name__ == '__main__':
