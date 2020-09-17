@@ -141,9 +141,14 @@ def create_backdoored_dataset(dir_clean_data,
     df = df.append(df2)
     df.to_csv(os.path.join(dir_backdoored_data, 'info.csv'), index=False)
 
-    trigger = PIL.Image.open(filename_trigger)
+    if filename_trigger == 'square':
+        trigger = PIL.Image.fromarray(255 * np.ones((224, 224, 4)).astype(np.uint8))
+    else:
+        trigger = PIL.Image.open(filename_trigger)
+
     if trigger_color is not None:
         trigger = change_color(trigger, trigger_color)
+
     count = 0
     n_rows = len(df)
     for _, row in df.iterrows():

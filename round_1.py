@@ -52,13 +52,17 @@ def main():
     # begin
     np.random.seed(666)
     path_root_project = get_project_root_path()
-    path_root = os.path.join(path_root_project, 'TrojAI-data', 'round1-holdout-dataset')
+    path_root = os.path.join(path_root_project, 'TrojAI-data', 'round1-dataset-train')
+    # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round1-holdout-dataset')
     path_metadata = os.path.join(path_root, 'METADATA.csv')
-    path_report = os.path.join(path_root, 'report.csv')
+    path_report = os.path.join(path_root, f'{os.path.basename(path_root)}-report-black-square.csv')
+
+    if 'train' in os.path.basename(path_root): # append 'models' for training dataset
+        path_root = os.path.join(path_root, 'models')
 
     metadata = pd.read_csv(path_metadata)
 
-    most_frequent_trigger_path = find_most_frequently_used_trigger(path_root, metadata)
+    # most_frequent_trigger_path = find_most_frequently_used_trigger(path_root, metadata)
 
     available_architectures = ['densenet121']
 
@@ -73,11 +77,14 @@ def main():
         model_label = 'backdoor' if ground_truth else 'clean'
         trigger_color = row['trigger_color']
         if trigger_color == 'None':
-            trigger_color = (255, 255, 255) # default color
+            trigger_color = (0, 0, 0) # default color
         else: # reversed because round 1 uses BGR
             trigger_color = tuple(reversed(ast.literal_eval(row['trigger_color'].replace(' ', ', '))))
         triggered_classes = ast.literal_eval(row['triggered_classes'].replace(' ', ', '))
+        if len(triggered_classes) == 0:
+            triggered_classes = list(range(num_classes))
         trigger_target_class = row['trigger_target_class']
+        trigger_target_class = int(trigger_target_class) if trigger_target_class != 'None' else 0 # default class for clean models
         trigger_size = row['trigger_size']
         trigger_size = int(trigger_size) if trigger_size != 'None' else 30 # default value
 
@@ -89,28 +96,30 @@ def main():
             path_data_clean = os.path.join(path_model, 'example_data')
             path_data_backd = os.path.join(path_model, 'example_data_backdoored')
 
-            if not os.path.isdir(path_data_backd) or len(os.listdir(path_data_backd)) < 2:
-                if ground_truth: # model is backdoored
-                    dir_triggers = os.path.join(path_model, 'triggers')
-                    trigger_name = os.listdir(dir_triggers)[0] # assume only one trigger (check this for round > 1)
-                    path_trigger = os.path.join(dir_triggers, trigger_name)
-                else: # model is clean
-                    path_trigger = most_frequent_trigger_path
+            if os.path.isdir(path_data_backd):# or len(os.listdir(path_data_backd)) < 2:
+                os.remove(path_data_backd)
+            # if ground_truth: # model is backdoored
+            #     dir_triggers = os.path.join(path_model, 'triggers')
+            #     trigger_name = os.listdir(dir_triggers)[0] # assume only one trigger (check this for round > 1)
+            #     path_trigger = os.path.join(dir_triggers, trigger_name)
+            # else: # model is clean
+            #     path_trigger = most_frequent_trigger_path
 
-                print(f'creating backdoored dataset for {model_name}...', end=''); sys.stdout.flush()
-                create_backdoored_dataset(dir_clean_data=path_data_clean,
-                                          dir_backdoored_data=path_data_backd,
-                                          filename_trigger=path_trigger,
-                                          triggered_fraction=1.0, # only polygon trigger
-                                          triggered_classes=triggered_classes,
-                                          trigger_target_class=trigger_target_class,
-                                          trigger_color=trigger_color,
-                                          trigger_size=trigger_size,
-                                          p_trigger=1.0,
-                                          keep_original=False)
-                print('done')
-            else:
-                print('backdoored dataset already exists')
+            path_trigger = 'square'
+            trigger_color = (0, 0, 0)
+
+            print(f'creating backdoored dataset for {model_name}...', end=''); sys.stdout.flush()
+            create_backdoored_dataset(dir_clean_data=path_data_clean,
+                                      dir_backdoored_data=path_data_backd,
+                                      filename_trigger=path_trigger,
+                                      triggered_fraction=1.0, # only polygon trigger
+                                      triggered_classes=triggered_classes,
+                                      trigger_target_class=trigger_target_class,
+                                      trigger_color=trigger_color,
+                                      trigger_size=trigger_size,
+                                      p_trigger=1.0,
+                                      keep_original=False)
+            print('done')
 
             print('reading clean & backdoored datasets...', end=''); sys.stdout.flush()
             dataset_clean = TrojAI(folder=path_data_clean, test_ratio=test_ratio, batch_size=batch_size, device=device)
