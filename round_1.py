@@ -1,6 +1,7 @@
 import ast
 import sys
 import pickle
+import shutil
 import numpy as np
 import pandas as pd
 
@@ -100,7 +101,7 @@ def main():
             path_data_backd = os.path.join(path_model, 'example_data_backdoored')
 
             if os.path.isdir(path_data_backd):# or len(os.listdir(path_data_backd)) < 2:
-                os.remove(path_data_backd)
+                shutil.rmtree(path_data_backd)
             # if ground_truth: # model is backdoored
             #     dir_triggers = os.path.join(path_model, 'triggers')
             #     trigger_name = os.listdir(dir_triggers)[0] # assume only one trigger (check this for round > 1)
