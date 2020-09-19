@@ -1,9 +1,13 @@
 import numpy as np
 import torch
+import torchvision
 import os
 from tools.logistics import get_project_root_path
 from tools.network_architectures import load_trojai_model, load_model, load_params
 from architectures.SDNs.MLP import LayerwiseClassifiers
+
+print(torch.__version__)
+print(torchvision.__version__)
 
 device = 'cuda'
 
@@ -20,7 +24,14 @@ model = LayerwiseClassifiers(model_params['output_params'], model_params['archit
 print('loading model state')
 model_state = torch.load(path_load, map_location=device)
 
-print('loading ')
+print('loading state to model')
 model.load_state_dict(model_state, strict=False)
 
 print('script ended')
+
+def load_trained_network(net, cuda, fpath):
+    if cuda:
+        model_dict = torch.load(fpath)
+    else:
+        model_dict = torch.load(fpath, map_location=lambda storage, loc: storage)
+    net.load_state_dict(model_dict)
