@@ -10,6 +10,9 @@ path_root = get_project_root_path()
 path_cnn = os.path.join(path_root, 'TrojAI-data', 'round1-dataset-train', 'models', 'id-00000001', 'model.pt')
 path_sdn = os.path.join(path_root, 'TrojAI-data', 'round1-dataset-train', 'models', 'id-00000001')
 
-sdn_model, sdn_params = load_model(path_sdn, 'ics_train100_test0_bs25', device=device, epoch=-1)
+data = torch.load(path_cnn, map_location=device)
+print(data)
 
-print(sdn_model)
+# sdn_model, sdn_params = load_model(path_sdn, 'ics_train100_test0_bs25', device=device, epoch=-1)
+
+# print(sdn_model)
