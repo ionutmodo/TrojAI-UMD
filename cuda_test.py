@@ -9,7 +9,16 @@ from architectures.SDNs.MLP import LayerwiseClassifiers
 print(torch.__version__)
 print(torchvision.__version__)
 
-device = 'cuda'
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+print(f'device: {device}')
+
+print('@@@@@@@@@@@@')
+os.system('nvidia-smi')
+print('@@@@@@@@@@@@')
+torch.cuda.empty_cache()
+print('@@@@@@@@@@@@')
+os.system('nvidia-smi')
+print('@@@@@@@@@@@@')
 
 path_root = get_project_root_path()
 path_sdn = os.path.join(path_root, 'TrojAI-data', 'round1-dataset-train', 'models', 'id-00000001')
@@ -28,10 +37,3 @@ print('loading state to model')
 model.load_state_dict(model_state, strict=False)
 
 print('script ended')
-
-def load_trained_network(net, cuda, fpath):
-    if cuda:
-        model_dict = torch.load(fpath)
-    else:
-        model_dict = torch.load(fpath, map_location=lambda storage, loc: storage)
-    net.load_state_dict(model_dict)
