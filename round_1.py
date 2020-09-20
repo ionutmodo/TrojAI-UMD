@@ -113,7 +113,7 @@ def main():
         if trigger_size == 'None':
             modified_trigger_size = 4 # default value for clean models
         else: # backdoored models have predefined size
-            modified_trigger_size = int(math.sqrt(int(trigger_size)))
+            modified_trigger_size = math.ceil(math.sqrt(int(trigger_size)))
 
         if model_architecture in available_architectures:
             print()
@@ -160,8 +160,8 @@ def main():
 
             path_confusion = os.path.join(path_model, 'confusion')
             af.create_path(path_confusion)
-            af.save_obj(confusion_clean, os.path.join(path_confusion, f'{model_name}_confusion_clean_data'))
-            af.save_obj(confusion_backd, os.path.join(path_confusion, f'{model_name}_confusion_backdoored_data'))
+            af.save_obj(confusion_clean, os.path.join(path_confusion, f'{model_name}_conf_clean_{exp_desc}'))
+            af.save_obj(confusion_backd, os.path.join(path_confusion, f'{model_name}_conf_backd_{exp_desc}'))
 
             clean_mean = np.mean(confusion_clean)
             clean_std = np.std(confusion_clean)
@@ -179,19 +179,12 @@ def main():
                 clean_mean,
                 clean_std,
                 backd_mean,
-                backd_std]
+                backd_std
+            ]
             n_report += 1
-
             df_report.to_csv(path_report, index=False)
-
-            # n_models_clean += int(ground_truth == False)
-            # n_models_backd += int(ground_truth == True)
-            # if n_models_clean == 5 and n_models_backd == 5:
-            #     break
 
 
 if __name__ == '__main__':
     main()
     print('script ended')
-
-# TODO: change trigger size to ceil(sqrt(size)) and color, step by step
