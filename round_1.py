@@ -51,7 +51,8 @@ def main():
     cnn_name = 'model.pt'
     sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
     path_trigger = 'square'
-    exp_desc = 'sqrt-size_backd-original-color_clean-black-color'
+    # exp_desc = 'sqrt-size_backd-original-color_clean-black-color'
+    exp_desc = 'original-size_backd-original-color_clean-black-color'
 
     # begin
     np.random.seed(666)
@@ -111,9 +112,10 @@ def main():
             trigger_color = tuple(reversed(ast.literal_eval(row['trigger_color'].replace(' ', ', '))))
 
         if trigger_size == 'None':
-            modified_trigger_size = 4 # default value for clean models
+            modified_trigger_size = 30 # default value for clean models
         else: # backdoored models have predefined size
-            modified_trigger_size = math.ceil(math.sqrt(int(trigger_size)))
+            # modified_trigger_size = math.ceil(math.sqrt(int(trigger_size)))
+            modified_trigger_size = int(trigger_size)
 
         if model_architecture in available_architectures:
             print()
