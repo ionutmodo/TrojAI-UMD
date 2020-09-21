@@ -52,7 +52,8 @@ def main():
     sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
     path_trigger = 'square'
     # exp_desc = 'sqrt-size_backd-original-color_clean-black-color'
-    exp_desc = 'original-size_backd-original-color_clean-black-color'
+    # exp_desc = 'original-size_backd-original-color_clean-black-color'
+    exp_desc = 'original-size_backd-black-color_clean-black-color'
 
     # begin
     np.random.seed(666)
@@ -127,6 +128,8 @@ def main():
 
             if os.path.isdir(path_data_backd):
                 shutil.rmtree(path_data_backd)
+
+            trigger_color = (0, 0, 0)
 
             print(f'creating backdoored dataset for {model_name}...', end=''); sys.stdout.flush()
             create_backdoored_dataset(dir_clean_data=path_data_clean,
