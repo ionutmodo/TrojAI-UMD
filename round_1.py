@@ -6,6 +6,7 @@ import pickle
 import shutil
 import numpy as np
 import pandas as pd
+from datetime import datetime
 
 import tools.aux_funcs as af
 import tools.model_funcs as mf
@@ -174,5 +175,7 @@ def main():
 
 
 if __name__ == '__main__':
+    time_start = datetime.now()
     main()
-    print('script ended')
+    time_end = datetime.now()
+    print(f'script took {time_end - time_start}')
