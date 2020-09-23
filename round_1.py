@@ -17,7 +17,8 @@ from tools.data import create_backdoored_dataset
 
 
 def main():
-    trigger_size = int(sys.argv[1])
+    trigger_size = sys.argv[1]
+    modified_trigger_size = int(trigger_size)
 
     # parameters
     # torch.cuda.empty_cache()
