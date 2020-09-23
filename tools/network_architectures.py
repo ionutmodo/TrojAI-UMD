@@ -37,7 +37,7 @@ def load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, devic
     sdn_model, sdn_params = load_model(sdn_path, sdn_name, device=device, epoch=-1)
     sdn_model = sdn_model.to(device)
 
-    cnn_model = torch.load(os.path.join(sdn_path, cnn_name)).to(device)
+    cnn_model = torch.load(os.path.join(sdn_path, cnn_name), map_location=device)
     if isinstance(cnn_model, densenet.DenseNet):
         cnn_model = SDNDenseNet121(cnn_model, TrojAI_input_size, num_classes, sdn_type, device)
         cnn_model = cnn_model.eval()
