@@ -1,5 +1,6 @@
-import ast
 import sys
+import os
+import ast
 import math
 import pickle
 import shutil
@@ -15,36 +16,13 @@ from tools.logistics import *
 from tools.data import create_backdoored_dataset
 
 
-def find_most_frequently_used_trigger(path_root, metadata):
-    dict_freq = {}
-    for _, row in metadata.iterrows():
-        if row['ground_truth']:
-            model_name = row['model_name']
-            lookup_dir = os.path.join(path_root, model_name, 'triggers')
-            if os.path.isdir(lookup_dir):
-                triggers = os.listdir(lookup_dir)
-                for trig in triggers:
-                    if trig not in dict_freq:
-                        dict_freq[trig] = [model_name]
-                    else:
-                        dict_freq[trig].append(model_name)
-    best_size = 0
-    best_trig = None
-    for trig in dict_freq:
-        print(f'{trig} => {dict_freq[trig]}')
-        size = len(dict_freq[trig])
-        if size > best_size:
-            best_size = size
-            best_trig = trig
-    best_trigger_path = os.path.join(path_root, dict_freq[best_trig][0], 'triggers', best_trig)
-    return best_trigger_path
-
-
 def main():
+    trigger_size = int(sys.argv[1])
+
     # parameters
     # torch.cuda.empty_cache()
     test_ratio = 0
-    batch_size = 16 # for confusion experiment
+    batch_size = 100 # for confusion experiment
     device = 'cpu'
     # device = af.get_pytorch_device()
     sdn_name = 'ics_train100_test0_bs25'
@@ -52,9 +30,10 @@ def main():
     sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
     path_trigger = 'square'
     # exp_desc = 'sqrt-size_backd-original-color_clean-black-color'
-    exp_desc = 'sqrt-size_backd-black-color_clean-black-color'
+    # exp_desc = 'sqrt-size_backd-black-color_clean-black-color'
     # exp_desc = 'original-size_backd-original-color_clean-black-color'
     # exp_desc = 'original-size_backd-black-color_clean-black-color'
+    exp_desc = f'custom-square-size-{trigger_size}_backd-original-color_clean-black-color'
 
     # begin
     np.random.seed(666)
@@ -103,7 +82,7 @@ def main():
         triggered_classes = ast.literal_eval(row['triggered_classes'].replace(' ', ', '))
         trigger_target_class = row['trigger_target_class']
         trigger_target_class = int(trigger_target_class) if trigger_target_class != 'None' else 0  # default class for clean models
-        trigger_size = row['trigger_size']
+        # trigger_size = row['trigger_size']
 
         if len(triggered_classes) == 0:
             triggered_classes = list(range(num_classes))
@@ -113,12 +92,12 @@ def main():
         else: # reversed because round 1 uses BGR
             trigger_color = tuple(reversed(ast.literal_eval(row['trigger_color'].replace(' ', ', '))))
 
-        if trigger_size == 'None':
-            modified_trigger_size = 4 # default value for clean models
-            # modified_trigger_size = 30  # default value for clean models
-        else: # backdoored models have predefined size
-            modified_trigger_size = math.ceil(math.sqrt(int(trigger_size)))
-            # modified_trigger_size = int(trigger_size)
+        # if trigger_size == 'None':
+        #     modified_trigger_size = 4 # default value for clean models
+        #     # modified_trigger_size = 30  # default value for clean models
+        # else: # backdoored models have predefined size
+        #     modified_trigger_size = math.ceil(math.sqrt(int(trigger_size)))
+        #     # modified_trigger_size = int(trigger_size)
 
         if model_architecture in available_architectures:
             print()
