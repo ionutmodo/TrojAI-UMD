@@ -35,7 +35,7 @@ def get_project_root_path():
     hostname = 'openlab' if hostname.startswith('openlab') else hostname
     hostname_root_dict = { # key = hostname, value = your local root path
         'ubuntu20': '/mnt/storage/Cloud/MEGA/TrojAI',  # the name of ionut's linux machine machine
-        'windows10': r'D:\Cloud\MEGA\TrojAI\TrojAI-UMD',
+        'windows10': r'D:\Cloud\MEGA\TrojAI',
         'openlab': '/fs/sdsatumd/ionmodo/TrojAI' # name of UMD machine
     }
     print(f'Running on machine "{hostname}"')
