@@ -101,6 +101,7 @@ def main():
 
         if model_architecture in available_architectures:
             print()
+            print(exp_desc)
             print(f'model {model_name} ({model_label})')
             path_model = os.path.join(path_root, model_name)
 
