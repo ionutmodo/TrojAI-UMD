@@ -2,8 +2,11 @@ import os
 import socket
 
 import torch
+
+from architectures.SDNs.SDNConfig import SDNConfig
 from tools.data import TrojAI
 from architectures.SDNs.SDNDenseNet121 import SDNDenseNet121
+from architectures.SDNs.SDNResNet50 import SDNResNet50
 
 def _read_ground_truth(ground_truth_path):
     with open(ground_truth_path, 'r') as f:
@@ -16,12 +19,17 @@ def read_model_directory(model_root, num_classes, batch_size, test_ratio, sdn_ty
     ground_truth_path = os.path.join(model_root, 'ground_truth.csv')
     model_path = os.path.join(model_root, 'model.pt')
 
-    print('logistics:read_model_directory - check batch_size!')
+    # print('logistics:read_model_directory - check batch_size!')
     _dataset = TrojAI(folder=dataset_path, test_ratio=test_ratio, batch_size=batch_size, device=device)
     _model_label = (_read_ground_truth(ground_truth_path) == 1)
     _model = torch.load(model_path, map_location=device).eval()
-    _model = SDNDenseNet121(_model, input_size=(1, 3, 224, 224), num_classes=num_classes, sdn_type=sdn_type, device=device)
 
+    if sdn_type in SDNConfig.DenseNet:
+        _model = SDNDenseNet121(_model, input_size=(1, 3, 224, 224), num_classes=num_classes, sdn_type=sdn_type, device=device)
+    elif sdn_type == SDNConfig.ResNet50:
+        _model = SDNResNet50(_model, input_size=(1, 3, 224, 224), num_classes=num_classes, sdn_type=sdn_type, device=device)
+    else:
+        raise RuntimeError('The SDN type is not yet implemented!')
     return _dataset, _model_label, _model
 
 

@@ -8,6 +8,7 @@ from tools.logistics import *
 from architectures.SDNs.SDNConfig import SDNConfig
 from architectures.SDNs.MLP import LayerwiseClassifiers
 
+
 def train_trojai_sdn(dataset, model, model_root_path, device):
     output_params = model.get_layerwise_model_params()
 
@@ -50,15 +51,22 @@ def main():
     device = af.get_pytorch_device()
     # device = 'cpu'
 
-    # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
-    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-dataset-train')
+    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
+    # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-dataset-train')
 
     metadata_path = os.path.join(root_path, 'METADATA.csv')
     metadata = pd.read_csv(metadata_path)
 
+    if 'train' in os.path.basename(root_path): # append 'models' for training dataset
+        root_path = os.path.join(root_path, 'models')
+
     batch_size = 25
     test_ratio = 0
-    sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
+
+    sdn_type = SDNConfig.ResNet50
+    # architecture_to_train = 'densenet121'
+    # architecture_to_train = 'inceptionv3'
+    architecture_to_train = 'resnet50'
 
     # clean_model_ids = [4, 7, 25, 27, 40]
     # backdoored_model_ids = [2, 9, 13, 24, 26]
@@ -68,14 +76,13 @@ def main():
         model_name = row['model_name']
         model_architecture = row['model_architecture']
         num_classes = row['number_classes']  # read this from metadata
+        # model_id = int(model_name[3:])
 
-        if model_architecture == 'densenet121':
-            model_id = int(model_name[3:])
-            if model_id > 948:
-                model_root = os.path.join(root_path, 'models', model_name)
-                print(f'Training SDN for model {model_root}')
-                dataset, model_label, model = read_model_directory(model_root, num_classes, batch_size, test_ratio, sdn_type, device)
-                train_trojai_sdn(dataset, model, model_root, device)
+        if model_architecture == architecture_to_train:
+            model_root = os.path.join(root_path, model_name)
+            print(f'Training SDN for model {model_root}')
+            dataset, model_label, model = read_model_directory(model_root, num_classes, batch_size, test_ratio, sdn_type, device)
+            train_trojai_sdn(dataset, model, model_root, device)
     print('script ended')
 
 
