@@ -22,11 +22,10 @@ def main():
     modified_trigger_size = int(trigger_size)
 
     # parameters
-    # torch.cuda.empty_cache()
     test_ratio = 0
     batch_size = 100 # for confusion experiment
-    device = 'cpu'
-    # device = af.get_pytorch_device()
+    # device = 'cpu'
+    device = af.get_pytorch_device()
     sdn_name = 'ics_train100_test0_bs25'
     cnn_name = 'model.pt'
     sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
@@ -69,39 +68,39 @@ def main():
         'backd_std'
     ])
 
-    # n_models_clean = 0
-    # n_models_backd = 0
     print('!!! Round 1: reversing trigger color')
     for _, row in metadata.iterrows():
-        model_name = row['model_name']
-        # model_name_int = int(model_name[3:])
         model_architecture = row['model_architecture']
-        num_classes = row['number_classes']
-        ground_truth = row['ground_truth']
-        model_label = 'backdoor' if ground_truth else 'clean'
-
-        trigger_color = row['trigger_color']
-        triggered_classes = ast.literal_eval(row['triggered_classes'].replace(' ', ', '))
-        trigger_target_class = row['trigger_target_class']
-        trigger_target_class = int(trigger_target_class) if trigger_target_class != 'None' else 0  # default class for clean models
-        # trigger_size = row['trigger_size']
-
-        if len(triggered_classes) == 0:
-            triggered_classes = list(range(num_classes))
-
-        if trigger_color == 'None':
-            trigger_color = (0, 0, 0) # default color
-        else: # reversed because round 1 uses BGR
-            trigger_color = tuple(reversed(ast.literal_eval(row['trigger_color'].replace(' ', ', '))))
-
-        # if trigger_size == 'None':
-        #     modified_trigger_size = 4 # default value for clean models
-        #     # modified_trigger_size = 30  # default value for clean models
-        # else: # backdoored models have predefined size
-        #     modified_trigger_size = math.ceil(math.sqrt(int(trigger_size)))
-        #     # modified_trigger_size = int(trigger_size)
 
         if model_architecture in available_architectures:
+            start_time = datetime.now()
+            model_name = row['model_name']
+            # model_name_int = int(model_name[3:])
+            num_classes = row['number_classes']
+            ground_truth = row['ground_truth']
+            model_label = 'backdoor' if ground_truth else 'clean'
+
+            trigger_color = row['trigger_color']
+            triggered_classes = ast.literal_eval(row['triggered_classes'].replace(' ', ', '))
+            trigger_target_class = row['trigger_target_class']
+            trigger_target_class = int(trigger_target_class) if trigger_target_class != 'None' else 0 # default class
+            trigger_size = row['trigger_size']
+
+            if len(triggered_classes) == 0:
+                triggered_classes = list(range(num_classes))
+
+            if trigger_color == 'None':
+                trigger_color = (0, 0, 0) # default color
+            else: # reversed because round 1 uses BGR
+                trigger_color = tuple(reversed(ast.literal_eval(row['trigger_color'].replace(' ', ', '))))
+
+            # if trigger_size == 'None':
+            #     trigger_size = 4 # default value for clean models
+            #     # trigger_size = 30  # default value for clean models
+            # else: # backdoored models have predefined size
+            #     trigger_size = math.ceil(math.sqrt(int(trigger_size)))
+            #     # trigger_size = int(trigger_size)
+
             print()
             print(exp_desc)
             print(f'model {model_name} ({model_label})')
@@ -112,8 +111,6 @@ def main():
 
             if os.path.isdir(path_data_backd):
                 shutil.rmtree(path_data_backd)
-
-            trigger_color = (0, 0, 0)
 
             print(f'creating backdoored dataset for {model_name}...', end=''); sys.stdout.flush()
             create_backdoored_dataset(dir_clean_data=path_data_clean,
@@ -172,6 +169,8 @@ def main():
             ]
             n_report += 1
             df_report.to_csv(path_report, index=False)
+            end_time = datetime.now()
+            print(f'took {end_time - start_time}')
 
 
 if __name__ == '__main__':
