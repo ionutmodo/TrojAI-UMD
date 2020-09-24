@@ -174,6 +174,10 @@ def main():
             n_report += 1
             df_report.to_csv(path_report, index=False)
             end_time = datetime.now()
+
+            del sdn_model, dataset_clean, dataset_backd, confusion_clean, confusion_backd
+            torch.cuda.empty_cache()
+            
             Logger.log(f'model {model_name} took {end_time - start_time}')
     Logger.close()
 
