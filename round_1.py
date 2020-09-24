@@ -15,6 +15,7 @@ from architectures.SDNs.SDNConfig import SDNConfig
 
 from tools.logistics import *
 from tools.data import create_backdoored_dataset
+from tools.logger import Logger
 
 
 def main():
@@ -44,6 +45,9 @@ def main():
     path_metadata = os.path.join(path_root, 'METADATA.csv')
     path_report = os.path.join(path_root, f'{os.path.basename(path_root)}_{exp_desc}.csv')
 
+    path_logger = os.path.join(path_root, f'{os.path.basename(path_root)}_{exp_desc}.log')
+    Logger.open(path_logger)
+
     if 'train' in os.path.basename(path_root): # append 'models' for training dataset
         path_root = os.path.join(path_root, 'models')
 
@@ -68,7 +72,7 @@ def main():
         'backd_std'
     ])
 
-    print('!!! Round 1: reversing trigger color')
+    Logger.log('!!! Round 1: reversing trigger color')
     for _, row in metadata.iterrows():
         model_architecture = row['model_architecture']
 
@@ -101,9 +105,9 @@ def main():
             #     trigger_size = math.ceil(math.sqrt(int(trigger_size)))
             #     # trigger_size = int(trigger_size)
 
-            print()
-            print(exp_desc)
-            print(f'model {model_name} ({model_label})')
+            Logger.log()
+            Logger.log(exp_desc)
+            Logger.log(f'model {model_name} ({model_label})')
             path_model = os.path.join(path_root, model_name)
 
             path_data_clean = os.path.join(path_model, 'example_data')
@@ -112,7 +116,7 @@ def main():
             if os.path.isdir(path_data_backd):
                 shutil.rmtree(path_data_backd)
 
-            print(f'creating backdoored dataset for {model_name}...', end=''); sys.stdout.flush()
+            Logger.log(f'creating backdoored dataset for {model_name}...', end='')
             create_backdoored_dataset(dir_clean_data=path_data_clean,
                                       dir_backdoored_data=path_data_backd,
                                       filename_trigger=path_trigger,
@@ -123,26 +127,26 @@ def main():
                                       trigger_size=modified_trigger_size,
                                       p_trigger=1.0,
                                       keep_original=False)
-            print('done')
+            Logger.log('done')
 
-            print('reading clean & backdoored datasets...', end=''); sys.stdout.flush()
+            Logger.log('reading clean & backdoored datasets...', end='')
             dataset_clean = TrojAI(folder=path_data_clean, test_ratio=test_ratio, batch_size=batch_size, device=device)
             dataset_backd = TrojAI(folder=path_data_backd, test_ratio=test_ratio, batch_size=batch_size, device=device)
-            print('done')
+            Logger.log('done')
 
-            print(f'loading model {model_name} ({model_label})...', end=''); sys.stdout.flush()
+            Logger.log(f'loading model {model_name} ({model_label})...', end='')
             sdn_model = load_trojai_model(path_model, sdn_name, cnn_name, num_classes, sdn_type, device)
             sdn_model = sdn_model.eval()
-            print('done')
+            Logger.log('done')
 
             # IMPORTANT: when test_ratio = 0, train_loader = test_loader
-            print(f'computing confusion for clean data...', end=''); sys.stdout.flush()
+            Logger.log(f'computing confusion for clean data...', end='')
             confusion_clean = mf.compute_confusion(sdn_model, dataset_clean.train_loader, device)
-            print('done')
+            Logger.log('done')
 
-            print(f'computing confusion for backdoored data...', end=''); sys.stdout.flush()
+            Logger.log(f'computing confusion for backdoored data...', end='')
             confusion_backd = mf.compute_confusion(sdn_model, dataset_backd.train_loader, device)
-            print('done')
+            Logger.log('done')
 
             path_confusion = os.path.join(path_model, 'confusion')
             af.create_path(path_confusion)
@@ -170,11 +174,9 @@ def main():
             n_report += 1
             df_report.to_csv(path_report, index=False)
             end_time = datetime.now()
-            print(f'took {end_time - start_time}')
+            Logger.log(f'model {model_name} took {end_time - start_time}')
+    Logger.close()
 
 
 if __name__ == '__main__':
-    time_start = datetime.now()
     main()
-    time_end = datetime.now()
-    print(f'script took {time_end - time_start}')
