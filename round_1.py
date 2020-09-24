@@ -35,13 +35,14 @@ def main():
     # exp_desc = 'sqrt-size_backd-black-color_clean-black-color'
     # exp_desc = 'original-size_backd-original-color_clean-black-color'
     # exp_desc = 'original-size_backd-black-color_clean-black-color'
-    exp_desc = f'custom-square-size-{trigger_size}_backd-original-color_clean-black-color'
+    # exp_desc = f'custom-square-size-{trigger_size}_backd-original-color_clean-black-color'
+    exp_desc = f'custom-square-size-{trigger_size}_backd-black-color_clean-black-color'
 
     # begin
     np.random.seed(666)
     path_root_project = get_project_root_path()
-    path_root = os.path.join(path_root_project, 'TrojAI-data', 'round1-dataset-train')
-    # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round1-holdout-dataset')
+    # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round1-dataset-train')
+    path_root = os.path.join(path_root_project, 'TrojAI-data', 'round1-holdout-dataset')
     path_metadata = os.path.join(path_root, 'METADATA.csv')
     path_report = os.path.join(path_root, f'{os.path.basename(path_root)}_{exp_desc}.csv')
 
@@ -91,10 +92,12 @@ def main():
             if len(triggered_classes) == 0:
                 triggered_classes = list(range(num_classes))
 
-            if trigger_color == 'None':
-                trigger_color = (0, 0, 0) # default color
-            else: # reversed because round 1 uses BGR
-                trigger_color = tuple(reversed(ast.literal_eval(row['trigger_color'].replace(' ', ', '))))
+            # if trigger_color == 'None':
+            #     trigger_color = (0, 0, 0) # default color
+            # else: # reversed because round 1 uses BGR
+            #     trigger_color = tuple(reversed(ast.literal_eval(row['trigger_color'].replace(' ', ', '))))
+
+            trigger_color = (0, 0, 0)
 
             # if trigger_size == 'None':
             #     trigger_size = 4 # default value for clean models
