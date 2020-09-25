@@ -19,6 +19,8 @@ from tools.logger import Logger
 
 
 def main():
+    working_architecture = 'densenet121'
+
     trigger_size = sys.argv[1]
     modified_trigger_size = int(trigger_size)
 
@@ -35,7 +37,7 @@ def main():
     # exp_desc = 'sqrt-size_backd-black-color_clean-black-color'
     # exp_desc = 'original-size_backd-original-color_clean-black-color'
     # exp_desc = 'original-size_backd-black-color_clean-black-color'
-    exp_desc = f'custom-square-size-{trigger_size}_backd-original-color_clean-black-color'
+    exp_desc = f'{working_architecture}_custom-square-size-{trigger_size}_backd-original-color_clean-black-color'
     # exp_desc = f'custom-square-size-{trigger_size}_backd-black-color_clean-black-color'
 
     # begin
@@ -53,8 +55,6 @@ def main():
         path_root = os.path.join(path_root, 'models')
 
     metadata = pd.read_csv(path_metadata)
-
-    available_architectures = ['densenet121']
 
     n_report = 0
     df_report = pd.DataFrame(columns=[
@@ -75,7 +75,7 @@ def main():
     for _, row in metadata.iterrows():
         model_architecture = row['model_architecture']
 
-        if model_architecture in available_architectures:
+        if model_architecture == working_architecture:
             start_time = datetime.now()
             model_name = row['model_name']
             # model_name_int = int(model_name[3:])
