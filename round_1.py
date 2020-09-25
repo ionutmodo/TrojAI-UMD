@@ -19,7 +19,8 @@ from tools.logger import Logger
 
 
 def main():
-    working_architecture = 'densenet121'
+    # working_architecture = 'densenet121'
+    working_architecture = 'resnet50'
 
     trigger_size = sys.argv[1]
     modified_trigger_size = int(trigger_size)
@@ -43,8 +44,8 @@ def main():
     # begin
     np.random.seed(666)
     path_root_project = get_project_root_path()
-    path_root = os.path.join(path_root_project, 'TrojAI-data', 'round1-dataset-train')
-    # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round1-holdout-dataset')
+    # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round1-dataset-train')
+    path_root = os.path.join(path_root_project, 'TrojAI-data', 'round1-holdout-dataset')
     path_metadata = os.path.join(path_root, 'METADATA.csv')
     path_report = os.path.join(path_root, f'{os.path.basename(path_root)}_{exp_desc}.csv')
 
