@@ -7,11 +7,14 @@ from architectures.SDNs.SDNConfig import SDNConfig
 from tools.data import TrojAI
 from architectures.SDNs.SDNDenseNet121 import SDNDenseNet121
 from architectures.SDNs.SDNResNet50 import SDNResNet50
+from architectures.SDNs.SDNInception3 import SDNInception3
+
 
 def _read_ground_truth(ground_truth_path):
     with open(ground_truth_path, 'r') as f:
         value = int(f.read())
         return value
+
 
 def read_model_directory(model_root, num_classes, batch_size, test_ratio, sdn_type, device):
     """This method needs the full path of a model (.../id-00000001) and returns the model, its label and the dataset with images"""
@@ -24,12 +27,21 @@ def read_model_directory(model_root, num_classes, batch_size, test_ratio, sdn_ty
     _model_label = (_read_ground_truth(ground_truth_path) == 1)
     _model = torch.load(model_path, map_location=device).eval()
 
-    if sdn_type in SDNConfig.DenseNet:
-        _model = SDNDenseNet121(_model, input_size=(1, 3, 224, 224), num_classes=num_classes, sdn_type=sdn_type, device=device)
-    elif sdn_type == SDNConfig.ResNet50:
-        _model = SDNResNet50(_model, input_size=(1, 3, 224, 224), num_classes=num_classes, sdn_type=sdn_type, device=device)
-    else:
+    dict_type_model = {
+        SDNConfig.DenseNet_attach_to_DenseBlocks: SDNDenseNet121,
+        SDNConfig.DenseNet_attach_to_DenseLayers: SDNDenseNet121,
+        SDNConfig.ResNet50: SDNResNet50,
+        SDNConfig.Inception3: SDNInception3
+    }
+
+    if sdn_type not in dict_type_model.keys():
         raise RuntimeError('The SDN type is not yet implemented!')
+
+    _model = dict_type_model[sdn_type](_model,
+                                       input_size=(1, 3, 224, 224),
+                                       num_classes=num_classes,
+                                       sdn_type=sdn_type,
+                                       device=device)
     return _dataset, _model_label, _model
 
 
