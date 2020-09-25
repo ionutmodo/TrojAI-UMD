@@ -5,3 +5,4 @@ class SDNConfig:
     DenseNet = [DenseNet_attach_to_DenseBlocks, DenseNet_attach_to_DenseLayers]
 
     ResNet50 = 2
+    Inception3 = 3
