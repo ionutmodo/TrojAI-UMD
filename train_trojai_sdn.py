@@ -9,8 +9,8 @@ from architectures.SDNs.SDNConfig import SDNConfig
 from architectures.SDNs.MLP import LayerwiseClassifiers
 
 
-def train_trojai_sdn(dataset, model, model_root_path, device):
-    output_params = model.get_layerwise_model_params()
+def train_trojai_sdn(dataset, trojai_model_w_ics, model_root_path, device):
+    output_params = trojai_model_w_ics.get_layerwise_model_params()
 
     mlp_num_layers = 2
     mlp_architecture_param = [2, 2] # use [2] if it takes too much time
@@ -30,7 +30,7 @@ def train_trojai_sdn(dataset, model, model_root_path, device):
 
     sys.stdout.flush()
     ics = LayerwiseClassifiers(output_params, architecture_params).to(device)
-    ics.set_model(model)
+    ics.set_model(trojai_model_w_ics)
 
     optimizer, scheduler = af.get_optimizer(ics, lr_params, stepsize_params, optimizer='adam')
 
@@ -63,10 +63,9 @@ def main():
     batch_size = 25
     test_ratio = 0
 
-    sdn_type = SDNConfig.ResNet50
-    # architecture_to_train = 'densenet121'
-    # architecture_to_train = 'inceptionv3'
-    architecture_to_train = 'resnet50'
+    sdn_type, architecture_to_train = SDNConfig.ResNet50, 'resnet50'
+    # sdn_type, architecture_to_train = SDNConfig.Inception3, 'inceptionv3'
+    # sdn_type, architecture_to_train = SDNConfig.DenseNet_attach_to_DenseBlocks, 'densenet121'
 
     # clean_model_ids = [4, 7, 25, 27, 40]
     # backdoored_model_ids = [2, 9, 13, 24, 26]

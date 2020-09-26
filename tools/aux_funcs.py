@@ -115,7 +115,7 @@ def load_madry_robust_cifar10(path, device):
     sd = {k[len('module.'):]:v for k,v in sd.items()}
     robust_madry_model.load_state_dict(sd)
 
-    robust_madry_model = robust_madry_model.model.eval().eval().to(device)
+    robust_madry_model = robust_madry_model.cnn_model.eval().eval().to(device)
     cifar_normalizer = InputNormalize(torch.tensor([0.4914, 0.4822, 0.4465]), torch.tensor([0.2023, 0.1994, 0.2010])).to(device)
     robust_madry_model.normalizer = cifar_normalizer
 

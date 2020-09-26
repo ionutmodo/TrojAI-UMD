@@ -23,9 +23,9 @@ def read_model_directory(model_root, num_classes, batch_size, test_ratio, sdn_ty
     model_path = os.path.join(model_root, 'model.pt')
 
     # print('logistics:read_model_directory - check batch_size!')
-    _dataset = TrojAI(folder=dataset_path, test_ratio=test_ratio, batch_size=batch_size, device=device)
-    _model_label = (_read_ground_truth(ground_truth_path) == 1)
-    _model = torch.load(model_path, map_location=device).eval()
+    dataset = TrojAI(folder=dataset_path, test_ratio=test_ratio, batch_size=batch_size, device=device)
+    model_label = (_read_ground_truth(ground_truth_path) == 1)
+    cnn_model = torch.load(model_path, map_location=device).eval()
 
     dict_type_model = {
         SDNConfig.DenseNet_attach_to_DenseBlocks: SDNDenseNet121,
@@ -37,12 +37,12 @@ def read_model_directory(model_root, num_classes, batch_size, test_ratio, sdn_ty
     if sdn_type not in dict_type_model.keys():
         raise RuntimeError('The SDN type is not yet implemented!')
 
-    _model = dict_type_model[sdn_type](_model,
-                                       input_size=(1, 3, 224, 224),
-                                       num_classes=num_classes,
-                                       sdn_type=sdn_type,
-                                       device=device)
-    return _dataset, _model_label, _model
+    cnn_model = dict_type_model[sdn_type](cnn_model,
+                                          input_size=(1, 3, 224, 224),
+                                          num_classes=num_classes,
+                                          sdn_type=sdn_type,
+                                          device=device)
+    return dataset, model_label, cnn_model
 
 
 def get_project_root_path():

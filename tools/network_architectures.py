@@ -10,11 +10,13 @@ import os.path
 # from architectures.CNNs.wideresnet import WideResNet
 
 # from encoder import LayerwiseAutoencoders
-from torchvision.models import densenet
+from torchvision.models import densenet, inception, resnet
 
 from architectures.SDNs.MLP import LayerwiseClassifiers
 
 from architectures.SDNs.SDNDenseNet121 import SDNDenseNet121
+from architectures.SDNs.SDNResNet50 import SDNResNet50
+from architectures.SDNs.SDNInception3 import SDNInception3
 from tools.settings import TrojAI_input_size
 
 
@@ -35,12 +37,14 @@ def load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, devic
     |-----*other files this method doesn't need*
     """
     sdn_model, sdn_params = load_model(sdn_path, sdn_name, device=device, epoch=-1)
-    sdn_model = sdn_model.to(device)
-
     cnn_model = torch.load(os.path.join(sdn_path, cnn_name), map_location=device)
+
     if isinstance(cnn_model, densenet.DenseNet):
-        cnn_model = SDNDenseNet121(cnn_model, TrojAI_input_size, num_classes, sdn_type, device)
-        cnn_model = cnn_model.eval()
+        sdn_model = SDNDenseNet121(cnn_model, TrojAI_input_size, num_classes, sdn_type, device)
+    elif isinstance(cnn_model, resnet.ResNet):
+        sdn_model = SDNResNet50(cnn_model, TrojAI_input_size, num_classes, sdn_type, device)
+    elif isinstance(cnn_model, inception.Inception3):
+        sdn_model = SDNInception3(cnn_model, TrojAI_input_size, num_classes, sdn_type, device)
     else:
         raise RuntimeError(f'SDNTrojAI:load_trojai_model - You are trying to load a SDN model that is not supported ({type(cnn_model)})!')
     sdn_model.set_model(cnn_model)
