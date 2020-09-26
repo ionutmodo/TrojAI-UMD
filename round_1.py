@@ -19,27 +19,30 @@ from tools.logger import Logger
 
 
 def main():
-    # working_architecture = 'densenet121'
-    working_architecture = 'resnet50'
-
     trigger_size = sys.argv[1]
     modified_trigger_size = int(trigger_size)
+
+    # sdn_type, working_architecture = SDNConfig.DenseNet_attach_to_DenseBlocks, 'densenet121'
+    sdn_type, working_architecture = SDNConfig.ResNet50, 'resnet50'
+    # sdn_type, working_architecture = SDNConfig.Inception3, 'inceptionv3'
+
 
     # parameters
     test_ratio = 0
     batch_size = 100 # for confusion experiment
     # device = 'cpu'
     device = af.get_pytorch_device()
+
     sdn_name = 'ics_train100_test0_bs25'
     cnn_name = 'model.pt'
-    sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
     path_trigger = 'square'
-    # exp_desc = 'sqrt-size_backd-original-color_clean-black-color'
-    # exp_desc = 'sqrt-size_backd-black-color_clean-black-color'
-    # exp_desc = 'original-size_backd-original-color_clean-black-color'
-    # exp_desc = 'original-size_backd-black-color_clean-black-color'
+
+    # exp_desc = '{working_architecture}_sqrt-size_backd-original-color_clean-black-color'
+    # exp_desc = '{working_architecture}_sqrt-size_backd-black-color_clean-black-color'
+    # exp_desc = '{working_architecture}_original-size_backd-original-color_clean-black-color'
+    # exp_desc = '{working_architecture}_original-size_backd-black-color_clean-black-color'
     exp_desc = f'{working_architecture}_custom-square-size-{trigger_size}_backd-original-color_clean-black-color'
-    # exp_desc = f'custom-square-size-{trigger_size}_backd-black-color_clean-black-color'
+    # exp_desc = f'{working_architecture}_custom-square-size-{trigger_size}_backd-black-color_clean-black-color'
 
     # begin
     np.random.seed(666)
