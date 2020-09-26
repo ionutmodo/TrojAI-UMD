@@ -10,7 +10,7 @@ class LayerwiseClassifiers(nn.Module):
         mlps = []
         # print('LayerwiseClassifiers:init - Total number of ICs is', len(output_params))
         for params in output_params:
-            num_classes, _ , num_channels = params
+            num_classes, _, num_channels = params
             reduced_input_size = 3 * num_channels
             num_layers, structure_params = architecture_params
             hidden_sizes = af.get_network_structure(reduced_input_size, num_layers, structure_params)
@@ -27,13 +27,13 @@ class LayerwiseClassifiers(nn.Module):
         self.output_params = output_params
         self.num_ics = len(output_params)
 
-    def set_model(self, model):
-        model = model.eval()
+    def set_model(self, cnn_model):
+        cnn_model = cnn_model.eval()
 
-        for param in model.parameters():
+        for param in cnn_model.parameters():
             param.requires_grad = False
 
-        self.model = model
+        self.model = cnn_model
 
     def forward(self, x, include_cnn_out=False, with_grad=False):
         """Set parameter include_cnn_out to True when you perform confusion experiments"""
