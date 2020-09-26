@@ -26,7 +26,6 @@ def main():
     sdn_type, working_architecture = SDNConfig.ResNet50, 'resnet50'
     # sdn_type, working_architecture = SDNConfig.Inception3, 'inceptionv3'
 
-
     # parameters
     test_ratio = 0
     batch_size = 100 # for confusion experiment
@@ -141,7 +140,7 @@ def main():
 
             Logger.log(f'loading model {model_name} ({model_label})...', end='')
             sdn_model = load_trojai_model(path_model, sdn_name, cnn_name, num_classes, sdn_type, device)
-            sdn_model = sdn_model.eval()
+            sdn_model = sdn_model.eval().to(device)
             Logger.log('done')
 
             # IMPORTANT: when test_ratio = 0, train_loader = test_loader
@@ -190,3 +189,5 @@ def main():
 if __name__ == '__main__':
     # print(torch.load(r'D:\Cloud\MEGA\TrojAI\TrojAI-data\round1-holdout-dataset\id-00000002\model.pt', map_location='cpu'))
     main()
+
+# python3.7 -W ignore round_1.py 5
