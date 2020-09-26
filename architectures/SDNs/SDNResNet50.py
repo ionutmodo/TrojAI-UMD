@@ -6,8 +6,8 @@ from torchvision.models.resnet import ResNet
 
 
 class SDNResNet50(SDNTrojAI):
-    def __init__(self, model, input_size, num_classes, sdn_type, device):
-        super(SDNResNet50, self).__init__(model, input_size, num_classes, sdn_type, device)
+    def __init__(self, cnn_model, input_size, num_classes, sdn_type, device):
+        super(SDNResNet50, self).__init__(cnn_model, input_size, num_classes, sdn_type, device)
         assert sdn_type == SDNConfig.ResNet50, 'SDNResNet50:init - Parameter sdn_type must be SDNConfig.ResNet50'
         # for c in self.model.children():
         #     print(type(c))
@@ -16,7 +16,7 @@ class SDNResNet50(SDNTrojAI):
     def forward_w_acts(self, x):
         activations = []
         out = x
-        for layer in self.model.children():
+        for layer in self.cnn_model.children():
             if isinstance(layer, torch.nn.modules.linear.Linear):
                 out = torch.flatten(out, 1)
 
@@ -31,7 +31,7 @@ class SDNResNet50(SDNTrojAI):
     def get_layerwise_model_params(self):
         x = torch.zeros(self.input_size).to(self.device)
         params = []
-        for layer in self.model.children():
+        for layer in self.cnn_model.children():
             if isinstance(layer, torch.nn.modules.linear.Linear):
                 break # reached FC part, stop
 

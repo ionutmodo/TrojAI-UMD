@@ -114,14 +114,14 @@ class SDNDenseNet121(SDNTrojAI):
                 <class 'torch.nn.modules.batchnorm.BatchNorm2d'>
             classifier: linear layer that we are not interested in attaching any IC here, so we don't use it
     """
-    def __init__(self, model, input_size, num_classes, sdn_type, device):
-        super(SDNDenseNet121, self).__init__(model, input_size, num_classes, sdn_type, device)
+    def __init__(self, cnn_model, input_size, num_classes, sdn_type, device):
+        super(SDNDenseNet121, self).__init__(cnn_model, input_size, num_classes, sdn_type, device)
         assert sdn_type in SDNConfig.DenseNet, 'SDNDenseNet121:init - Parameter sdn_type must be in SDNConfig.DenseNet'
 
     # def forward(self, x): - IT IS IMPLEMENTED IN SDNTrojAI for all models
 
     def forward_w_acts(self, x):
-        net_features, net_classifier = list(self.model.children())
+        net_features, net_classifier = list(self.cnn_model.children())
 
         if self.sdn_type == SDNConfig.DenseNet_attach_to_DenseBlocks:
             activations, out = _forward_w_acts_for_attaching_at_DenseBlocks(x, net_features)
@@ -139,7 +139,7 @@ class SDNDenseNet121(SDNTrojAI):
 
     def get_layerwise_model_params(self):
         x = torch.zeros(self.input_size).to(self.device)  # an input image to forward through the network to get the input size of each IC
-        net_features = list(self.model.children())[0] # iterate only through Sequential variable called "features" at index 0
+        net_features = list(self.cnn_model.children())[0] # iterate only through Sequential variable called "features" at index 0
 
         if self.sdn_type == SDNConfig.DenseNet_attach_to_DenseBlocks:  # attach_IC_at_DenseBlock_end
             return _get_layerwise_params_attaching_at_DenseBlocks(x, net_features, self.num_classes)
