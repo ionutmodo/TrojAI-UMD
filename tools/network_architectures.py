@@ -40,11 +40,11 @@ def load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, devic
     cnn_model = torch.load(os.path.join(sdn_path, cnn_name), map_location=device)
 
     if isinstance(cnn_model, densenet.DenseNet):
-        sdn_model = SDNDenseNet121(cnn_model, TrojAI_input_size, num_classes, sdn_type, device)
+        cnn_model = SDNDenseNet121(cnn_model, TrojAI_input_size, num_classes, sdn_type, device)
     elif isinstance(cnn_model, resnet.ResNet):
-        sdn_model = SDNResNet50(cnn_model, TrojAI_input_size, num_classes, sdn_type, device)
+        cnn_model = SDNResNet50(cnn_model, TrojAI_input_size, num_classes, sdn_type, device)
     elif isinstance(cnn_model, inception.Inception3):
-        sdn_model = SDNInception3(cnn_model, TrojAI_input_size, num_classes, sdn_type, device)
+        cnn_model = SDNInception3(cnn_model, TrojAI_input_size, num_classes, sdn_type, device)
     else:
         raise RuntimeError(f'SDNTrojAI:load_trojai_model - You are trying to load a SDN model that is not supported ({type(cnn_model)})!')
     sdn_model.set_model(cnn_model)
