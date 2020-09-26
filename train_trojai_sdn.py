@@ -1,5 +1,6 @@
 import sys
 import pandas as pd
+from datetime import datetime
 import tools.aux_funcs as af
 import tools.model_funcs as mf
 import tools.network_architectures as arcs
@@ -80,8 +81,11 @@ def main():
         if model_architecture == architecture_to_train:
             model_root = os.path.join(root_path, model_name)
             print(f'Training SDN for model {model_root}')
+            time_start = datetime.now()
             dataset, model_label, model = read_model_directory(model_root, num_classes, batch_size, test_ratio, sdn_type, device)
             train_trojai_sdn(dataset, model, model_root, device)
+            time_end = datetime.now()
+            print(f'elapsed {time_end - time_start}')
     print('script ended')
 
 
