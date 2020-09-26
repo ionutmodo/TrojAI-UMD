@@ -21,6 +21,7 @@ from tools.logger import Logger
 def main():
     trigger_size = sys.argv[1]
     modified_trigger_size = int(trigger_size)
+    device = sys.argv[2]
 
     # sdn_type, working_architecture = SDNConfig.DenseNet_attach_to_DenseBlocks, 'densenet121'
     sdn_type, working_architecture = SDNConfig.ResNet50, 'resnet50'
@@ -28,10 +29,10 @@ def main():
 
     # parameters
     test_ratio = 0
-    batch_size = 100 # for confusion experiment
+    batch_size = 50 # for confusion experiment
     # device = 'cpu'
-    device = af.get_pytorch_device()
-
+    # device = af.get_pytorch_device()
+    
     sdn_name = 'ics_train100_test0_bs25'
     cnn_name = 'model.pt'
     path_trigger = 'square'
