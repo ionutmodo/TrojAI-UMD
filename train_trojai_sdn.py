@@ -64,8 +64,8 @@ def main():
     batch_size = 25
     test_ratio = 0
 
-    sdn_type, architecture_to_train = SDNConfig.ResNet50, 'resnet50'
-    # sdn_type, architecture_to_train = SDNConfig.Inception3, 'inceptionv3'
+    # sdn_type, architecture_to_train = SDNConfig.ResNet50, 'resnet50'
+    sdn_type, architecture_to_train = SDNConfig.Inception3, 'inceptionv3'
     # sdn_type, architecture_to_train = SDNConfig.DenseNet_attach_to_DenseBlocks, 'densenet121'
 
     # clean_model_ids = [4, 7, 25, 27, 40]
