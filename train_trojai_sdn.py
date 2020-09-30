@@ -46,14 +46,13 @@ def train_trojai_sdn(dataset, trojai_model_w_ics, model_root_path, device):
 
 def main():
     sys.stdout.flush()
-    random_seed = af.get_random_seed()
     af.set_random_seeds()
 
     device = af.get_pytorch_device()
     # device = 'cpu'
 
-    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
-    # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-dataset-train')
+    # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
+    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-dataset-train')
 
     metadata_path = os.path.join(root_path, 'METADATA.csv')
     metadata = pd.read_csv(metadata_path)
@@ -64,8 +63,8 @@ def main():
     batch_size = 25
     test_ratio = 0
 
-    # sdn_type, architecture_to_train = SDNConfig.ResNet50, 'resnet50'
-    sdn_type, architecture_to_train = SDNConfig.Inception3, 'inceptionv3'
+    sdn_type, architecture_to_train = SDNConfig.ResNet50, 'resnet50'
+    # sdn_type, architecture_to_train = SDNConfig.Inception3, 'inceptionv3'
     # sdn_type, architecture_to_train = SDNConfig.DenseNet_attach_to_DenseBlocks, 'densenet121'
 
     # clean_model_ids = [4, 7, 25, 27, 40]
