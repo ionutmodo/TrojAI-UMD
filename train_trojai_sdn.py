@@ -115,7 +115,8 @@ def main():
 
     dict_arch_type = {
         'densenet': SDNConfig.DenseNet_attach_to_DenseBlocks,
-        'resnet': SDNConfig.ResNet50
+        'resnet': SDNConfig.ResNet50,
+        'inceptionv3': SDNConfig.Inception3
     }
     # sdn_type, architecture_to_train = SDNConfig.DenseNet_attach_to_DenseBlocks, 'densenet121'
     # sdn_type, architecture_to_train = SDNConfig.ResNet50, 'resnet50'
