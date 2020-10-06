@@ -6,7 +6,6 @@ from architectures.SDNs.SDNConfig import SDNConfig
 
 
 def main():
-
     # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
     root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-dataset-train')
     # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round2-train-dataset')
@@ -28,8 +27,9 @@ def main():
 
         if model_architecture == architecture_to_train and model_id_int > 799:
             ics_folder = os.path.join(root_path, model_name, 'ics_train100_test0_bs25')
-            shutil.rmtree(ics_folder)
-            print(f'deleted {ics_folder}')
+            if os.path.isdir(ics_folder):
+                shutil.rmtree(ics_folder)
+                print(f'deleted {ics_folder}')
 
 
 if __name__ == '__main__':
