@@ -11,9 +11,9 @@ class SDNInception3(SDNTrojAI):
     def __init__(self, cnn_model, input_size, num_classes, sdn_type, device):
         super(SDNInception3, self).__init__(cnn_model, input_size, num_classes, sdn_type, device)
         assert sdn_type == SDNConfig.Inception3, 'SDNInception3:init - Parameter sdn_type must be SDNConfig.Inception3'
-        for c in self.cnn_model.children():
-            print(type(c))
-        print('--------------------')
+        # for c in self.cnn_model.children():
+        #     print(type(c))
+        # print('--------------------')
 
     def forward_w_acts(self, x):
         activations = []
