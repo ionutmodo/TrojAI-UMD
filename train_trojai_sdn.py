@@ -88,13 +88,16 @@ def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, devi
         print(f'SVM-IC-{i}: raw accuracy={acc_raw}, balanced accuracy={acc_balanced}')
         svm_ics.append(svm)
 
-    path_svm_model = os.path.join(model_root_path, 'ics_svm')
+    path_svm = os.path.join(model_root_path, 'svm')
+    af.create_path(path_svm)
+
+    path_svm_model = os.path.join(path_svm, 'svm_models')
     af.save_obj(obj=svm_ics, filename=path_svm_model)
     size = os.path.getsize(path_svm_model) / (2 ** 20)
     print(f'SVM model saved to {path_svm_model}')
     print(f'SVM model has size {size:.2f} MB')
 
-    path_svm_dataset = os.path.join(model_root_path, 'svm_dataset')
+    path_svm_dataset = os.path.join(path_svm, 'svm_dataset')
     af.save_obj(obj={'features': features, 'labels': labels}, filename=path_svm_dataset)
     size = os.path.getsize(path_svm_dataset) / (2 ** 20)
     print(f'SVM dataset saved to {path_svm_dataset}')
