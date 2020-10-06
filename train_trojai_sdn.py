@@ -91,7 +91,8 @@ def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, devi
     path_svm = os.path.join(model_root_path, 'ics_svm')
     af.save_obj(svm_ics, path_svm)
     size = os.path.getsize(path_svm) / (2 ** 20)
-    print(f'SVM ICs has {size:.2f} MB and was saved to {path_svm}\n')
+    print(f'SVM ICs saved to {path_svm}')
+    print(f'SVM ICs has size {size:.2f} MB')
 
 
 def main():
@@ -139,7 +140,7 @@ def main():
                 train_trojai_sdn_with_svm(dataset, model, model_root, device)
 
                 time_end = datetime.now()
-                print(f'elapsed {time_end - time_start}')
+                print(f'elapsed {time_end - time_start}\n')
     print('script ended')
 
 
