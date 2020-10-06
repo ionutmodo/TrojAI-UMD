@@ -91,7 +91,7 @@ def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, devi
     path_svm = os.path.join(model_root_path, 'ics_svm')
     af.save_obj(svm_ics, path_svm)
     size = os.path.getsize(path_svm) / (2 ** 20)
-    print(f'SVM ICs has {size} MB and was saved to {path_svm}\n')
+    print(f'SVM ICs has {size:.2f} MB and was saved to {path_svm}\n')
 
 
 def main():
