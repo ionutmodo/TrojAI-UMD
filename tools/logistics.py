@@ -5,8 +5,8 @@ import torch
 
 from architectures.SDNs.SDNConfig import SDNConfig
 from tools.data import TrojAI
-from architectures.SDNs.SDNDenseNet121 import SDNDenseNet121
-from architectures.SDNs.SDNResNet50 import SDNResNet50
+from architectures.SDNs.SDNDenseNet import SDNDenseNet121
+from architectures.SDNs.SDNResNet import SDNResNet50
 from architectures.SDNs.SDNInception3 import SDNInception3
 
 

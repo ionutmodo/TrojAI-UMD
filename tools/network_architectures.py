@@ -14,8 +14,8 @@ from torchvision.models import densenet, inception, resnet
 
 from architectures.SDNs.MLP import LayerwiseClassifiers
 
-from architectures.SDNs.SDNDenseNet121 import SDNDenseNet121
-from architectures.SDNs.SDNResNet50 import SDNResNet50
+from architectures.SDNs.SDNDenseNet import SDNDenseNet121
+from architectures.SDNs.SDNResNet import SDNResNet50
 from architectures.SDNs.SDNInception3 import SDNInception3
 from tools.settings import TrojAI_input_size
 

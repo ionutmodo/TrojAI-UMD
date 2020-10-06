@@ -8,7 +8,7 @@ import tools.aux_funcs as af
 import tools.model_funcs as mf
 import tools.network_architectures as arcs
 from architectures.SDNs.SDNConfig import SDNConfig
-from architectures.SDNs.SDNDenseNet121 import SDNDenseNet121
+from architectures.SDNs.SDNDenseNet import SDNDenseNet121
 from tools.logistics import get_project_root_path
 from tools.data import TrojAI
 
