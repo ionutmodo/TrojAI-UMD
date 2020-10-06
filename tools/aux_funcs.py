@@ -444,7 +444,7 @@ def get_task_num_classes(task):
 
 
 def save_obj(obj, filename):
-    with open(filename+'.pickle', 'wb') as handle:
+    with open(filename, 'wb') as handle:
         pickle.dump(obj, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 def load_obj(filename):
@@ -452,7 +452,7 @@ def load_obj(filename):
         print('Pickle {} does not exist.'.format(filename))
         return None
         
-    with open(filename+'.pickle', 'rb') as handle:
+    with open(filename, 'rb') as handle:
         obj = pickle.load(handle)
     return obj
 
