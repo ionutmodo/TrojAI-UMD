@@ -82,10 +82,17 @@ def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, devi
         svm.fit(features[i], labels)
         y_pred = svm.predict(features[i])
 
-        acc_raw = accuracy_score(y_true=labels[:, i], y_pred=y_pred[:, i])
-        acc_balanced = balanced_accuracy_score(y_true=labels[:, i], y_pred=y_pred[:, i])
+        acc_raw_ax, acc_balanced_ax = 0, 0
+        for c in range(n_classes):
+            acc_raw = accuracy_score(y_true=labels[:, c], y_pred=y_pred[:, c])
+            acc_balanced = balanced_accuracy_score(y_true=labels[:, c], y_pred=y_pred[:, c])
 
-        print(f'SVM-IC-{i}: raw accuracy={acc_raw}, balanced accuracy={acc_balanced}')
+            acc_raw_ax += acc_raw
+            acc_balanced_ax += acc_balanced
+
+        mean_acc_raw = acc_raw_ax / n_classes
+        mean_acc_balanced = acc_balanced_ax / n_classes
+        print(f'SVM-IC-{i}: raw accuracy={mean_acc_raw:.3f}, balanced accuracy={mean_acc_balanced:.3f}')
         svm_ics.append(svm)
 
     path_svm = os.path.join(model_root_path, 'svm')
