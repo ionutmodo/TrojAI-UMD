@@ -117,8 +117,8 @@ def main():
     device = af.get_pytorch_device()
     # device = 'cpu'
 
-    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-dataset-train')
-    # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
+    # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-dataset-train')
+    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
     # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round2-train-dataset')
 
     metadata_path = os.path.join(root_path, 'METADATA.csv')
@@ -143,7 +143,8 @@ def main():
         model_name = row['model_name']
         model_architecture = row['model_architecture']
         num_classes = row['number_classes']
-
+        if model_name < 'id-00000064':
+            continue
         for arch_prefix, sdn_type in dict_arch_type.items():
             if model_architecture.startswith(arch_prefix):
                 model_root = os.path.join(root_path, model_name)
