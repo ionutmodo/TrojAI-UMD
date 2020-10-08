@@ -5,8 +5,8 @@ import torch
 
 from architectures.SDNs.SDNConfig import SDNConfig
 from tools.data import TrojAI
-from architectures.SDNs.SDNDenseNet import SDNDenseNet121
-from architectures.SDNs.SDNResNet import SDNResNet50
+from architectures.SDNs.SDNDenseNet import SDNDenseNet
+from architectures.SDNs.SDNResNet import SDNResNet
 from architectures.SDNs.SDNInception3 import SDNInception3
 
 
@@ -28,9 +28,9 @@ def read_model_directory(model_root, num_classes, batch_size, test_ratio, sdn_ty
     cnn_model = torch.load(model_path, map_location=device).eval()
 
     dict_type_model = {
-        SDNConfig.DenseNet_attach_to_DenseBlocks: SDNDenseNet121,
-        SDNConfig.DenseNet_attach_to_DenseLayers: SDNDenseNet121,
-        SDNConfig.ResNet50: SDNResNet50,
+        SDNConfig.DenseNet_attach_to_DenseBlocks: SDNDenseNet,
+        SDNConfig.DenseNet_attach_to_DenseLayers: SDNDenseNet,
+        SDNConfig.ResNet50: SDNResNet,
         SDNConfig.Inception3: SDNInception3
     }
 

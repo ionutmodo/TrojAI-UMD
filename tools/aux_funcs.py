@@ -483,7 +483,7 @@ def np_exists(file_name):
     return file_exists('{}.npz'.format(file_name)) 
 
 def pickle_exists(file_name):
-    return file_exists('{}.pickle'.format(file_name)) 
+    return file_exists(file_name)
 
 def loader_get_labels(loader, batches_range=None):
     labels = []
