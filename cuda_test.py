@@ -6,19 +6,21 @@ from tools.logistics import get_project_root_path
 from tools.network_architectures import load_trojai_model, load_model, load_params
 from architectures.SDNs.MLP import LayerwiseClassifiers
 
-print(torch.__version__)
-print(torchvision.__version__)
+print(f'torch version: {torch.__version__}')
+print(f'torchvision version: {torchvision.__version__}')
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 print(f'device: {device}')
 
-print('@@@@@@@@@@@@')
+# print('memory_stats')
+# print(torch.cuda.memory_stats(device))
+
+# print('memory_summary')
+# print(torch.cuda.memory_summary(device))
+
 os.system('nvidia-smi')
-print('@@@@@@@@@@@@')
-torch.cuda.empty_cache()
-print('@@@@@@@@@@@@')
-os.system('nvidia-smi')
-print('@@@@@@@@@@@@')
+os.system('kill -9 ')
+
 
 path_root = get_project_root_path()
 path_sdn = os.path.join(path_root, 'TrojAI-data', 'round1-dataset-train', 'models', 'id-00000001')

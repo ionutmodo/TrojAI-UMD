@@ -8,7 +8,7 @@ import tools.aux_funcs as af
 import tools.model_funcs as mf
 import tools.network_architectures as arcs
 from architectures.SDNs.SDNConfig import SDNConfig
-from architectures.SDNs.SDNDenseNet import SDNDenseNet121
+from architectures.SDNs.SDNDenseNet import SDNDenseNet
 from tools.logistics import get_project_root_path
 from tools.data import TrojAI
 
@@ -23,7 +23,7 @@ def proposal_plots(model_path, model_id, clean_dataset_dir, backdoored_dataset_d
     af.create_path(plots_dir)
 
     cnn_model = torch.load(os.path.join(model_path, 'model.pt')).to(device)
-    cnn_model = SDNDenseNet121(cnn_model, (1, 3, 224, 224), 5, sdn_type, device)
+    cnn_model = SDNDenseNet(cnn_model, (1, 3, 224, 224), 5, sdn_type, device)
     sdn_model.set_model(cnn_model)
 
     batch_size = 128

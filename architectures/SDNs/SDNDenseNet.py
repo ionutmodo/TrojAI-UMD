@@ -91,7 +91,7 @@ def _get_layerwise_params_attaching_at_DenseLayers(x, net_features, num_classes)
     return params
 
 
-class SDNDenseNet121(SDNTrojAI):
+class SDNDenseNet(SDNTrojAI):
     """
         DenseNet121 has all layers inside a Sequential called "features". It is followed by FC layer (not of interest)
         This is how DenseNet121 looks like:
@@ -115,7 +115,7 @@ class SDNDenseNet121(SDNTrojAI):
             classifier: linear layer that we are not interested in attaching any IC here, so we don't use it
     """
     def __init__(self, cnn_model, input_size, num_classes, sdn_type, device):
-        super(SDNDenseNet121, self).__init__(cnn_model, input_size, num_classes, sdn_type, device)
+        super(SDNDenseNet, self).__init__(cnn_model, input_size, num_classes, sdn_type, device)
         assert sdn_type in SDNConfig.DenseNet, 'SDNDenseNet121:init - Parameter sdn_type must be in SDNConfig.DenseNet'
 
     # def forward(self, x): - IT IS IMPLEMENTED IN SDNTrojAI for all models

@@ -14,7 +14,7 @@ import wand.image
 
 from tools import network_architectures as arcs
 from architectures.SDNs.SDNConfig import SDNConfig
-from architectures.SDNs.SDNDenseNet121 import SDNDenseNet121
+from architectures.SDNs.SDNDenseNet import SDNDenseNet
 from tools.data import *
 from tools.settings import *
 import skimage.io
@@ -40,11 +40,11 @@ def test_SDN_for_TrojAI():
         model_name = f'id-{i:08d}/model.pt'
         model = torch.load(model_name).to(device).eval()
 
-        trojai_model = SDNDenseNet121(model,
-                                      TrojAI_input_size,
-                                      TrojAI_num_classes,
-                                      SDNConfig.DenseNet_attach_to_DenseLayers,
-                                      device)
+        trojai_model = SDNDenseNet(model,
+                                   TrojAI_input_size,
+                                   TrojAI_num_classes,
+                                   SDNConfig.DenseNet_attach_to_DenseLayers,
+                                   device)
         acts, out = trojai_model.forward_w_acts(torch.zeros(TrojAI_input_size).to(device))
         print(len(acts) + 1)
         print(trojai_model.get_layerwise_model_params())

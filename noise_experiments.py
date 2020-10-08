@@ -122,7 +122,7 @@ def main():
                 sdn_path = os.path.join(root_path, model_name)
 
             sdn_model = load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, device)
-            labels = label_random_normal_noise_images(noise_images, sdn_model.model, batch_size)
+            labels = label_random_normal_noise_images(noise_images, sdn_model.cnn_model, batch_size)
             loader = create_loader(noise_images, labels, batch_size, device)
 
             confusion_scores = mf.compute_confusion(sdn_model, loader, device)
