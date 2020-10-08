@@ -143,8 +143,6 @@ def main():
         model_name = row['model_name']
         model_architecture = row['model_architecture']
         num_classes = row['number_classes']
-        if model_name < 'id-00000064':
-            continue
         for arch_prefix, sdn_type in dict_arch_type.items():
             if model_architecture.startswith(arch_prefix):
                 model_root = os.path.join(root_path, model_name)

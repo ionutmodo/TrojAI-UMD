@@ -14,8 +14,8 @@ from torchvision.models import densenet, inception, resnet
 
 from architectures.SDNs.MLP import LayerwiseClassifiers
 
-from architectures.SDNs.SDNDenseNet import SDNDenseNet121
-from architectures.SDNs.SDNResNet import SDNResNet50
+from architectures.SDNs.SDNDenseNet import SDNDenseNet
+from architectures.SDNs.SDNResNet import SDNResNet
 from architectures.SDNs.SDNInception3 import SDNInception3
 from tools.settings import TrojAI_input_size
 
@@ -25,6 +25,8 @@ def get_label_and_confidence_from_logits(logits):
     label = softmax.max(1)[1].item()
     confidence = torch.max(softmax).item()
     return label, confidence
+
+# def load_trojai_model_svm(model_path, )
 
 def load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, device):
     """
@@ -40,9 +42,9 @@ def load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, devic
     cnn_model = torch.load(os.path.join(sdn_path, cnn_name), map_location=device)
 
     if isinstance(cnn_model, densenet.DenseNet):
-        cnn_model = SDNDenseNet121(cnn_model, TrojAI_input_size, num_classes, sdn_type, device)
+        cnn_model = SDNDenseNet(cnn_model, TrojAI_input_size, num_classes, sdn_type, device)
     elif isinstance(cnn_model, resnet.ResNet):
-        cnn_model = SDNResNet50(cnn_model, TrojAI_input_size, num_classes, sdn_type, device)
+        cnn_model = SDNResNet(cnn_model, TrojAI_input_size, num_classes, sdn_type, device)
     elif isinstance(cnn_model, inception.Inception3):
         cnn_model = SDNInception3(cnn_model, TrojAI_input_size, num_classes, sdn_type, device)
     else:

@@ -3,6 +3,7 @@ import sys
 import time
 import numpy as np
 
+from architectures.SDNs.LightSDN import LightSDN
 from architectures.SDNs.MLP import MLP
 import tools.aux_funcs as af
 import tools.data as data_module
@@ -63,7 +64,33 @@ def sdn_confusion_stats(model, loader, device='cpu'):
     std_con = float(np.std(confusion_scores))
     return mean_con, std_con
 
+
+def compute_confusion_for_light_sdn(model, loader, device='cpu'):
+    confusion_scores = []  # at index i we will have D(x) = sum over all D_i(x)
+    with torch.no_grad():
+        for batch_x, batch_y in loader:
+            # activations need to be fed to SVMs (activations and out are logits - need to be probas)
+            activations, out = model.model_cnn.forward_w_acts(batch_x.to(device))
+
+            ic_predictions = []
+            for act, ic in zip(activations, model.model_ics):
+                act_np = act[0].cpu().detach().numpy()[np.newaxis, :]
+                pred_probs = ic.predict_proba(act_np)
+                ic_predictions.append(torch.tensor(pred_probs))
+            # concatenate internal activations with CNN output
+            output = ic_predictions + [torch.nn.functional.softmax(out.cpu(), dim=1)]
+            cur_confusion = get_confusion_scores(output, None, device)
+            for index in range(len(batch_x)):
+                confusion_scores.append(cur_confusion[index].cpu().numpy())
+
+    confusion_scores = np.array(confusion_scores)
+    return confusion_scores
+
+
 def compute_confusion(model, loader, device='cpu'):
+    if isinstance(model, LightSDN):
+        return compute_confusion_for_light_sdn(model, loader, device)
+
     model.eval()
     confusion_scores = [] # at index i we will have D(x) = sum over all D_i(x)
     with torch.no_grad():
@@ -121,10 +148,10 @@ def get_confusion_scores(outputs, normalize=None, device='cpu'):
     # for output, use in zip(outputs, SDNConfig.DenseNet_Mask):
     #     if use:
     for output in outputs:
-            cur_disagreement = torch.nn.functional.pairwise_distance(outputs[-1], output, p=p)
-            cur_disagreement = cur_disagreement.to(device)
-            for instance_id in range(outputs[0].size(0)):
-                confusion_scores[instance_id] += cur_disagreement[instance_id]
+        cur_disagreement = torch.nn.functional.pairwise_distance(outputs[-1], output, p=p)
+        cur_disagreement = cur_disagreement.to(device)
+        for instance_id in range(outputs[0].size(0)):
+            confusion_scores[instance_id] += cur_disagreement[instance_id]
 
     if normalize is not None:
         for instance_id in range(outputs[0].size(0)):
