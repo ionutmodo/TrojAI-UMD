@@ -84,8 +84,6 @@ def main():
         start_time = datetime.now()
 
         model_name = row['model_name']
-        if model_name < 'id-00000001':
-            continue
         model_architecture = row['model_architecture']
         model_name_int = int(model_name[3:])
         num_classes = row['number_classes']
