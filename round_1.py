@@ -20,7 +20,7 @@ from tools.logger import Logger
 
 
 def main():
-    trigger_size = sys.argv[1]
+    trigger_size = sys.argv[1] # save it in this variable to be used in exp_desc. Later, overwrite it
     modified_trigger_size = int(trigger_size)
     device = sys.argv[2]
 
@@ -51,8 +51,8 @@ def main():
     # begin
     np.random.seed(666)
     path_root_project = get_project_root_path()
-    path_root = os.path.join(path_root_project, 'TrojAI-data', 'round1-dataset-train')
-    # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round1-holdout-dataset')
+    # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round1-dataset-train')
+    path_root = os.path.join(path_root_project, 'TrojAI-data', 'round1-holdout-dataset')
     path_metadata = os.path.join(path_root, 'METADATA.csv')
     path_report = os.path.join(path_root, 'ics_svm', f'{os.path.basename(path_root)}_{exp_desc}.csv')
 
@@ -108,7 +108,7 @@ def main():
 
         Logger.log()
         Logger.log(exp_desc)
-        Logger.log(f'model {model_name} ({model_label})')
+        Logger.log(f'model {model_name} {model_architecture} ({model_label})')
         path_model = os.path.join(path_root, model_name)
 
         path_data_clean = os.path.join(path_model, 'example_data')
