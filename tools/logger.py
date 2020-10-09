@@ -14,7 +14,11 @@ class Logger:
         if not os.path.exists(folder):
             os.makedirs(folder)
 
-        Logger.FILE = open(file, 'a' if os.path.isfile(file) else mode)
+        if os.path.isfile(file):
+            Logger.FILE = open(file, 'a')
+            Logger.log('START APPENDING TO EXISTING FILE')
+        else:
+            Logger.FILE = open(file, mode)
 
         if log_time:
             Logger._START_TIME = datetime.now()
