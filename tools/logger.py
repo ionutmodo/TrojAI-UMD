@@ -16,7 +16,7 @@ class Logger:
 
         if os.path.isfile(file):
             Logger.FILE = open(file, 'a')
-            Logger.log('START APPENDING TO EXISTING FILE')
+            Logger.log('\nSTART APPENDING TO EXISTING FILE\n')
         else:
             Logger.FILE = open(file, mode)
 
