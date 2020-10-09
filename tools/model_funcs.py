@@ -70,15 +70,7 @@ def compute_confusion_for_light_sdn(model, loader, device='cpu'):
     with torch.no_grad():
         for batch_x, batch_y in loader:
             # activations need to be fed to SVMs (activations and out are logits - need to be probas)
-            activations, out = model.model_cnn.forward_w_acts(batch_x.to(device))
-
-            ic_predictions = []
-            for act, ic in zip(activations, model.model_ics):
-                act_np = act[0].cpu().detach().numpy()[np.newaxis, :]
-                pred_probs = ic.predict_proba(act_np)
-                ic_predictions.append(torch.tensor(pred_probs))
-            # concatenate internal activations with CNN output
-            output = ic_predictions + [torch.nn.functional.softmax(out.cpu(), dim=1)]
+            output = model(batch_x.to(device), include_cnn_out=True)
             cur_confusion = get_confusion_scores(output, None, device)
             for index in range(len(batch_x)):
                 confusion_scores.append(cur_confusion[index].cpu().numpy())
