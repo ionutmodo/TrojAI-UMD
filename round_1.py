@@ -32,7 +32,7 @@ def main():
 
     # parameters
     test_ratio = 0
-    batch_size = 1 # for confusion experiment
+    batch_size = 50 # for confusion experiment
     # device = 'cpu'
     # device = af.get_pytorch_device()
     
