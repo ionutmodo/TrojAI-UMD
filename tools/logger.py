@@ -13,7 +13,9 @@ class Logger:
         folder = file.replace(basename, '')
         if not os.path.exists(folder):
             os.makedirs(folder)
-        Logger.FILE = open(file, mode)
+
+        Logger.FILE = open(file, 'a' if os.path.isfile(file) else mode)
+
         if log_time:
             Logger._START_TIME = datetime.now()
             Logger.log(f'started at {Logger._START_TIME}')
