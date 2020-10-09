@@ -51,8 +51,8 @@ def main():
     # begin
     np.random.seed(666)
     path_root_project = get_project_root_path()
-    # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round1-dataset-train')
-    path_root = os.path.join(path_root_project, 'TrojAI-data', 'round1-holdout-dataset')
+    path_root = os.path.join(path_root_project, 'TrojAI-data', 'round1-dataset-train')
+    # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round1-holdout-dataset')
     path_metadata = os.path.join(path_root, 'METADATA.csv')
     path_report = os.path.join(path_root, 'ics_svm', f'{os.path.basename(path_root)}_{exp_desc}.csv')
 
@@ -200,4 +200,4 @@ def main():
 if __name__ == '__main__':
     main()
 
-# python3.7 -W ignore round_1.py 5
+# python3.7 -W ignore round_1.py 5 cuda:0
