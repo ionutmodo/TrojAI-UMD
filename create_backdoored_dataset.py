@@ -87,7 +87,7 @@ def main():
                 )
                 mp_mapping_params.append(mapping_param_dict)
 
-    with mp.Pool(processes=60) as pool:
+    with mp.Pool(processes=mp.cpu_count()-4) as pool:
         pool.map(create_dataset_multiprocessing, mp_mapping_params)
 
 
