@@ -6,7 +6,7 @@ import multiprocessing as mp
 from tools.logistics import get_project_root_path
 from tools.data import create_backdoored_dataset
 
-IMAGES_PER_CLASS = 50  # 50 for round 1
+IMAGES_PER_CLASS = 100  # 50 for round 1
 # IMAGES_PER_CLASS = 10  # 50 for round 2
 
 
