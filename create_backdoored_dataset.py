@@ -22,11 +22,9 @@ def create_dataset_multiprocessing(dict_params):
             return
         shutil.rmtree(path_data_backd)
 
+    print(f'started {path_data_backd}')
     create_backdoored_dataset(**params_method)
-
-    split = path_data_backd.split('\\')
-    description = os.path.join(split[-4], split[-2], split[-1])
-    print(f'done {description}')
+    print(f'done {path_data_backd}')
 
 
 def main():
