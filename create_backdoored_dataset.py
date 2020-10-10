@@ -3,7 +3,7 @@ import ast
 import shutil
 import pandas as pd
 import multiprocessing as mp
-from logistics import get_project_root_path
+from tools.logistics import get_project_root_path
 from tools.data import create_backdoored_dataset
 
 IMAGES_PER_CLASS = 50  # 50 for round 1
