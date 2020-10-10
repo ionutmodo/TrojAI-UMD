@@ -22,7 +22,6 @@ def create_dataset_multiprocessing(dict_params):
             return
         shutil.rmtree(path_data_backd)
 
-    print(f'started {path_data_backd}')
     create_backdoored_dataset(**params_method)
     print(f'done {path_data_backd}')
 
