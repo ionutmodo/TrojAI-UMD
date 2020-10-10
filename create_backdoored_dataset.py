@@ -21,6 +21,7 @@ def create_dataset_multiprocessing(dict_params):
         if files_count_in_backd_dataset == (num_classes * images_count_per_class + 1): # +1 because of csv data
             return
         shutil.rmtree(path_data_backd)
+        print(f'deleted {path_data_backd}')
 
     create_backdoored_dataset(**params_method)
     print(f'done {path_data_backd}')
