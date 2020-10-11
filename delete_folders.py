@@ -20,6 +20,7 @@ def main():
     # sdn_type, architecture_to_train = SDNConfig.Inception3, 'inceptionv3'
     # sdn_type, architecture_to_train = SDNConfig.DenseNet_attach_to_DenseBlocks, 'densenet121'
 
+    count = 0
     for index, row in metadata.iterrows():
         model_name = row['model_name']
         # model_architecture = row['model_architecture']
@@ -28,7 +29,8 @@ def main():
         ics_folder = os.path.join(root_path, model_name, 'ics_train100_test0_bs25')
         if os.path.isdir(ics_folder):
             shutil.rmtree(ics_folder)
-            print(f'deleted {ics_folder}')
+            count += 1
+            print(f'deleted ({count}) {ics_folder}')
 
 
 if __name__ == '__main__':
