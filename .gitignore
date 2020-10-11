@@ -2,3 +2,6 @@
 architectures/SDNs/__pycache__
 tools/__pycache__
 data
+notebooks/.ipynb_checkpoints
+notebooks/__pycache__/
+notebooks/old_notebooks/
