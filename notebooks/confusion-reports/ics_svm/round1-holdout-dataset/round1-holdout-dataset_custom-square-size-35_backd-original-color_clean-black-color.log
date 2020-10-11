@@ -1,0 +1,904 @@
+started at 2020-10-09 05:25:27.952209
+!!! Round 1: reversing trigger color
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000000 resnet50 (backdoor)
+creating backdoored dataset for id-00000000...done
+reading clean & backdoored datasets...done
+loading model id-00000000 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000000 took 0:08:03.439154
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000001 inceptionv3 (clean)
+creating backdoored dataset for id-00000001...done
+reading clean & backdoored datasets...done
+loading model id-00000001 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000001 took 0:06:53.730405
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000002 densenet121 (backdoor)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000002/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000002 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000002 took 0:07:29.648428
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000003 resnet50 (clean)
+creating backdoored dataset for id-00000003...done
+reading clean & backdoored datasets...done
+loading model id-00000003 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000003 took 0:08:14.816025
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000004 densenet121 (clean)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000004/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000004 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000004 took 0:07:28.844947
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000005 inceptionv3 (clean)
+creating backdoored dataset for id-00000005...done
+reading clean & backdoored datasets...done
+loading model id-00000005 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000005 took 0:06:59.361727
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000006 resnet50 (clean)
+creating backdoored dataset for id-00000006...done
+reading clean & backdoored datasets...done
+loading model id-00000006 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000006 took 0:07:40.935000
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000007 densenet121 (clean)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000007/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000007 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000007 took 0:07:31.762226
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000008 resnet50 (clean)
+creating backdoored dataset for id-00000008...done
+reading clean & backdoored datasets...done
+loading model id-00000008 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000008 took 0:07:51.157175
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000009 densenet121 (backdoor)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000009/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000009 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000009 took 0:07:31.781922
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000010 inceptionv3 (backdoor)
+creating backdoored dataset for id-00000010...done
+reading clean & backdoored datasets...done
+loading model id-00000010 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000010 took 0:07:00.231307
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000011 inceptionv3 (backdoor)
+creating backdoored dataset for id-00000011...done
+reading clean & backdoored datasets...done
+loading model id-00000011 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000011 took 0:07:31.455073
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000012 resnet50 (backdoor)
+creating backdoored dataset for id-00000012...done
+reading clean & backdoored datasets...done
+loading model id-00000012 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000012 took 0:07:38.208382
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000013 densenet121 (backdoor)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000013/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000013 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000013 took 0:07:34.331861
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000014 resnet50 (backdoor)
+creating backdoored dataset for id-00000014...done
+reading clean & backdoored datasets...done
+loading model id-00000014 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000014 took 0:07:32.042844
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000015 inceptionv3 (backdoor)
+creating backdoored dataset for id-00000015...done
+reading clean & backdoored datasets...done
+loading model id-00000015 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000015 took 0:06:35.370947
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000016 resnet50 (backdoor)
+creating backdoored dataset for id-00000016...done
+reading clean & backdoored datasets...done
+loading model id-00000016 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000016 took 0:07:36.617303
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000017 resnet50 (clean)
+creating backdoored dataset for id-00000017...done
+reading clean & backdoored datasets...done
+loading model id-00000017 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000017 took 0:07:37.439064
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000018 resnet50 (clean)
+creating backdoored dataset for id-00000018...done
+reading clean & backdoored datasets...done
+loading model id-00000018 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000018 took 0:07:29.003257
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000019 resnet50 (clean)
+creating backdoored dataset for id-00000019...done
+reading clean & backdoored datasets...done
+loading model id-00000019 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000019 took 0:07:53.596983
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000020 inceptionv3 (clean)
+creating backdoored dataset for id-00000020...done
+reading clean & backdoored datasets...done
+loading model id-00000020 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000020 took 0:06:55.884728
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000021 resnet50 (clean)
+creating backdoored dataset for id-00000021...done
+reading clean & backdoored datasets...done
+loading model id-00000021 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000021 took 0:07:38.164353
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000022 resnet50 (backdoor)
+creating backdoored dataset for id-00000022...done
+reading clean & backdoored datasets...done
+loading model id-00000022 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000022 took 0:07:40.552262
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000023 inceptionv3 (backdoor)
+creating backdoored dataset for id-00000023...done
+reading clean & backdoored datasets...done
+loading model id-00000023 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000023 took 0:06:55.032629
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000024 densenet121 (backdoor)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000024/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000024 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000024 took 0:07:19.204140
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000025 densenet121 (clean)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000025/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000025 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000025 took 0:07:09.549846
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000026 densenet121 (backdoor)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000026/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000026 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000026 took 0:07:20.956337
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000027 densenet121 (clean)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000027/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000027 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000027 took 0:07:47.354674
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000028 resnet50 (backdoor)
+creating backdoored dataset for id-00000028...done
+reading clean & backdoored datasets...done
+loading model id-00000028 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000028 took 0:07:43.867944
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000029 resnet50 (backdoor)
+creating backdoored dataset for id-00000029...done
+reading clean & backdoored datasets...done
+loading model id-00000029 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000029 took 0:07:56.077068
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000030 densenet121 (backdoor)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000030/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000030 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000030 took 0:07:27.697903
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000031 inceptionv3 (clean)
+creating backdoored dataset for id-00000031...done
+reading clean & backdoored datasets...done
+loading model id-00000031 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000031 took 0:06:54.213701
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000032 resnet50 (backdoor)
+creating backdoored dataset for id-00000032...done
+reading clean & backdoored datasets...done
+loading model id-00000032 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000032 took 0:07:44.319855
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000033 resnet50 (clean)
+creating backdoored dataset for id-00000033...done
+reading clean & backdoored datasets...done
+loading model id-00000033 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000033 took 0:07:46.369880
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000034 inceptionv3 (clean)
+creating backdoored dataset for id-00000034...done
+reading clean & backdoored datasets...done
+loading model id-00000034 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000034 took 0:06:52.522850
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000035 inceptionv3 (clean)
+creating backdoored dataset for id-00000035...done
+reading clean & backdoored datasets...done
+loading model id-00000035 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000035 took 0:07:06.144947
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000036 resnet50 (backdoor)
+creating backdoored dataset for id-00000036...done
+reading clean & backdoored datasets...done
+loading model id-00000036 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000036 took 0:07:32.678489
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000037 resnet50 (backdoor)
+creating backdoored dataset for id-00000037...done
+reading clean & backdoored datasets...done
+loading model id-00000037 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000037 took 0:07:16.517772
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000038 inceptionv3 (clean)
+creating backdoored dataset for id-00000038...done
+reading clean & backdoored datasets...done
+loading model id-00000038 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000038 took 0:06:58.084867
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000039 inceptionv3 (backdoor)
+creating backdoored dataset for id-00000039...done
+reading clean & backdoored datasets...done
+loading model id-00000039 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000039 took 0:07:09.513938
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000040 densenet121 (clean)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000040/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000040 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000040 took 0:07:30.672823
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000041 inceptionv3 (clean)
+creating backdoored dataset for id-00000041...done
+reading clean & backdoored datasets...done
+loading model id-00000041 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000041 took 0:07:00.895877
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000042 inceptionv3 (backdoor)
+creating backdoored dataset for id-00000042...done
+reading clean & backdoored datasets...done
+loading model id-00000042 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000042 took 0:07:27.109219
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000043 densenet121 (backdoor)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000043/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000043 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000043 took 0:08:10.925709
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000044 densenet121 (clean)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000044/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000044 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000044 took 0:07:37.678843
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000045 densenet121 (clean)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000045/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000045 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000045 took 0:07:22.325550
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000046 densenet121 (backdoor)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000046/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000046 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000046 took 0:07:17.127868
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000047 densenet121 (clean)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000047/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000047 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000047 took 0:07:11.413641
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000048 resnet50 (clean)
+creating backdoored dataset for id-00000048...done
+reading clean & backdoored datasets...done
+loading model id-00000048 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000048 took 0:08:07.162350
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000049 densenet121 (clean)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000049/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000049 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000049 took 0:07:08.984848
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000050 inceptionv3 (clean)
+creating backdoored dataset for id-00000050...done
+reading clean & backdoored datasets...done
+loading model id-00000050 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000050 took 0:06:31.962522
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000051 inceptionv3 (clean)
+creating backdoored dataset for id-00000051...done
+reading clean & backdoored datasets...done
+loading model id-00000051 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000051 took 0:07:09.883939
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000052 densenet121 (backdoor)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000052/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000052 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000052 took 0:07:57.895602
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000053 resnet50 (backdoor)
+creating backdoored dataset for id-00000053...done
+reading clean & backdoored datasets...done
+loading model id-00000053 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000053 took 0:07:36.726746
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000054 resnet50 (backdoor)
+creating backdoored dataset for id-00000054...done
+reading clean & backdoored datasets...done
+loading model id-00000054 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000054 took 0:07:36.965569
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000055 densenet121 (clean)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000055/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000055 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000055 took 0:07:27.538824
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000056 inceptionv3 (clean)
+creating backdoored dataset for id-00000056...done
+reading clean & backdoored datasets...done
+loading model id-00000056 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000056 took 0:07:02.368516
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000057 densenet121 (clean)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000057/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000057 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000057 took 0:07:26.260132
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000058 resnet50 (clean)
+creating backdoored dataset for id-00000058...done
+reading clean & backdoored datasets...done
+loading model id-00000058 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000058 took 0:07:49.658601
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000059 resnet50 (backdoor)
+creating backdoored dataset for id-00000059...done
+reading clean & backdoored datasets...done
+loading model id-00000059 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000059 took 0:08:03.805438
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000060 inceptionv3 (clean)
+creating backdoored dataset for id-00000060...done
+reading clean & backdoored datasets...done
+loading model id-00000060 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000060 took 0:07:00.622186
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000061 resnet50 (backdoor)
+creating backdoored dataset for id-00000061...done
+reading clean & backdoored datasets...done
+loading model id-00000061 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000061 took 0:07:52.753694
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000062 densenet121 (backdoor)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000062/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000062 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000062 took 0:07:22.763185
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000063 resnet50 (clean)
+creating backdoored dataset for id-00000063...done
+reading clean & backdoored datasets...done
+loading model id-00000063 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000063 took 0:07:36.213236
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000064 resnet50 (backdoor)
+creating backdoored dataset for id-00000064...done
+reading clean & backdoored datasets...done
+loading model id-00000064 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000064 took 0:07:59.346502
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000065 densenet121 (clean)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000065/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000065 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000065 took 0:07:16.645242
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000066 resnet50 (backdoor)
+creating backdoored dataset for id-00000066...done
+reading clean & backdoored datasets...done
+loading model id-00000066 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000066 took 0:07:52.426317
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000067 resnet50 (clean)
+creating backdoored dataset for id-00000067...done
+reading clean & backdoored datasets...done
+loading model id-00000067 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000067 took 0:08:09.696950
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000068 resnet50 (backdoor)
+creating backdoored dataset for id-00000068...done
+reading clean & backdoored datasets...done
+loading model id-00000068 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000068 took 0:07:56.431078
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000069 inceptionv3 (backdoor)
+creating backdoored dataset for id-00000069...done
+reading clean & backdoored datasets...done
+loading model id-00000069 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000069 took 0:07:20.015052
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000070 resnet50 (backdoor)
+creating backdoored dataset for id-00000070...done
+reading clean & backdoored datasets...done
+loading model id-00000070 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000070 took 0:07:41.882500
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000071 densenet121 (clean)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000071/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000071 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000071 took 0:07:47.676400
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000072 inceptionv3 (backdoor)
+creating backdoored dataset for id-00000072...done
+reading clean & backdoored datasets...done
+loading model id-00000072 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000072 took 0:08:01.625201
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000073 densenet121 (backdoor)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000073/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000073 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000073 took 0:08:11.232406
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000074 resnet50 (clean)
+creating backdoored dataset for id-00000074...done
+reading clean & backdoored datasets...done
+loading model id-00000074 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000074 took 0:08:16.207327
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000075 resnet50 (clean)
+creating backdoored dataset for id-00000075...done
+reading clean & backdoored datasets...done
+loading model id-00000075 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000075 took 0:08:35.710736
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000076 inceptionv3 (backdoor)
+creating backdoored dataset for id-00000076...done
+reading clean & backdoored datasets...done
+loading model id-00000076 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000076 took 0:07:12.063111
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000077 densenet121 (clean)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000077/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000077 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000077 took 0:07:39.803996
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000078 densenet121 (backdoor)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000078/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000078 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000078 took 0:06:52.894992
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000079 inceptionv3 (clean)
+creating backdoored dataset for id-00000079...done
+reading clean & backdoored datasets...done
+loading model id-00000079 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000079 took 0:06:50.135567
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000080 densenet121 (clean)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000080/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000080 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000080 took 0:07:15.598068
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000081 densenet121 (clean)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000081/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000081 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000081 took 0:07:20.084885
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000082 resnet50 (backdoor)
+creating backdoored dataset for id-00000082...done
+reading clean & backdoored datasets...done
+loading model id-00000082 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000082 took 0:07:44.183634
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000083 densenet121 (backdoor)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000083/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000083 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000083 took 0:08:17.010260
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000084 resnet50 (backdoor)
+creating backdoored dataset for id-00000084...done
+reading clean & backdoored datasets...done
+loading model id-00000084 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000084 took 0:07:24.309349
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000085 resnet50 (clean)
+creating backdoored dataset for id-00000085...done
+reading clean & backdoored datasets...done
+loading model id-00000085 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000085 took 0:07:38.596095
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000086 densenet121 (backdoor)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000086/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000086 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000086 took 0:07:00.397952
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000087 resnet50 (clean)
+creating backdoored dataset for id-00000087...done
+reading clean & backdoored datasets...done
+loading model id-00000087 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000087 took 0:07:50.893213
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000088 inceptionv3 (clean)
+creating backdoored dataset for id-00000088...done
+reading clean & backdoored datasets...done
+loading model id-00000088 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000088 took 0:06:59.583272
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000089 resnet50 (backdoor)
+creating backdoored dataset for id-00000089...done
+reading clean & backdoored datasets...done
+loading model id-00000089 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000089 took 0:07:39.841626
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000090 inceptionv3 (clean)
+creating backdoored dataset for id-00000090...done
+reading clean & backdoored datasets...done
+loading model id-00000090 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000090 took 0:07:12.763386
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000091 densenet121 (clean)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000091/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000091 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000091 took 0:08:05.163465
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000092 densenet121 (backdoor)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000092/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000092 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000092 took 0:07:31.740509
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000093 inceptionv3 (backdoor)
+creating backdoored dataset for id-00000093...done
+reading clean & backdoored datasets...done
+loading model id-00000093 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000093 took 0:06:56.207825
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000094 inceptionv3 (clean)
+creating backdoored dataset for id-00000094...done
+reading clean & backdoored datasets...done
+loading model id-00000094 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000094 took 0:07:16.233097
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000095 densenet121 (backdoor)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000095/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000095 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000095 took 0:07:29.912166
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000096 resnet50 (backdoor)
+creating backdoored dataset for id-00000096...done
+reading clean & backdoored datasets...done
+loading model id-00000096 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000096 took 0:07:28.690722
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000097 resnet50 (backdoor)
+creating backdoored dataset for id-00000097...done
+reading clean & backdoored datasets...done
+loading model id-00000097 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000097 took 0:07:56.425838
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000098 densenet121 (clean)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000098/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000098 (clean)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000098 took 0:07:11.985002
+
+custom-square-size-35_backd-original-color_clean-black-color
+model id-00000099 densenet121 (backdoor)
+backdoored data folder already exists /fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round1-holdout-dataset/id-00000099/backdoored_data_custom-square-size-35_backd-original-color_clean-black-color
+reading clean & backdoored datasets...done
+loading model id-00000099 (backdoor)...done
+computing confusion for clean data...done
+computing confusion for backdoored data...done
+model id-00000099 took 0:08:05.903090
+script ended
+elapsed 12:31:11.057151
