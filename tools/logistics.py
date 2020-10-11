@@ -52,11 +52,15 @@ def get_project_root_path():
     :return:
     """
     hostname = socket.gethostname()
-    hostname = 'openlab' if hostname.startswith('openlab') else hostname
+    if hostname.startswith('openlab'):
+        hostname = 'openlab'
+    elif hostname.startswith('opensub'):
+        hostname = 'opensub'
     hostname_root_dict = { # key = hostname, value = your local root path
         'ubuntu20': '/mnt/storage/Cloud/MEGA/TrojAI',  # the name of ionut's linux machine machine
         'windows10': r'D:\Cloud\MEGA\TrojAI',
-        'openlab': '/fs/sdsatumd/ionmodo/TrojAI' # name of UMD machine
+        'openlab': '/fs/sdsatumd/ionmodo/TrojAI',
+        'opensub': '/fs/sdsatumd/ionmodo/TrojAI',
     }
     print(f'Running on machine "{hostname}"')
     print()
