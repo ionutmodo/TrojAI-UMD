@@ -13,6 +13,7 @@ import tools.aux_funcs as af
 import tools.model_funcs as mf
 import tools.network_architectures as arcs
 from tools.logistics import *
+from tools.logger import Logger
 
 from architectures.SDNs.SDNConfig import SDNConfig
 from architectures.SDNs.MLP import LayerwiseClassifiers
@@ -121,6 +122,9 @@ def main():
     # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
     root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round2-train-dataset')
 
+    path_logger = os.path.join(root_path, f'{os.path.basename(root_path)}.log')
+    Logger.open(path_logger)
+
     metadata_path = os.path.join(root_path, 'METADATA.csv')
     metadata = pd.read_csv(metadata_path)
 
@@ -142,18 +146,19 @@ def main():
         'wideresnet': SDNConfig.ResNet,
     }
 
-    print('!!! Round2: opencv_format=False in TrojAI constructor!!!')
+    Logger.log('!!! Round2: opencv_format=False in TrojAI constructor!!!')
 
     for index, row in metadata.iterrows():
         model_name = row['model_name']
         # model_id = int(model_name[3:])
         model_architecture = row['model_architecture']
         num_classes = row['number_classes']
+        poisoned = 'backdoored' if bool(row['poisoned']) else 'clean'
 
         for arch_prefix, sdn_type in dict_arch_type.items():
             if model_architecture.startswith(arch_prefix):
                 model_root = os.path.join(root_path, model_name)
-                print(f'Training {model_architecture}-sdn in {model_root}')
+                Logger.log(f'Training {model_architecture}-sdn ({poisoned}) in {model_root}')
 
                 time_start = datetime.now()
 
@@ -162,12 +167,10 @@ def main():
                 train_trojai_sdn_with_svm(dataset, model, model_root, device)
 
                 time_end = datetime.now()
-                print(f'elapsed {time_end - time_start}\n')
-    print('script ended')
+                Logger.log(f'elapsed {time_end - time_start}\n')
+    Logger.log('script ended')
+    Logger.close()
 
 
 if __name__ == "__main__":
-    start_time = datetime.now()
     main()
-    end_time = datetime.now()
-    print(f'entire program took {end_time - start_time}')
