@@ -114,8 +114,8 @@ def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, devi
 def main():
     af.set_random_seeds()
 
-    # device = af.get_pytorch_device()
-    device = 'cpu'
+    device = af.get_pytorch_device()
+    # device = 'cpu'
 
     # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-dataset-train')
     # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
