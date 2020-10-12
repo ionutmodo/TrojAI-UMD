@@ -167,4 +167,7 @@ def main():
 
 
 if __name__ == "__main__":
+    start_time = datetime.now()
     main()
+    end_time = datetime.now()
+    print(f'entire program took {end_time - start_time}')
