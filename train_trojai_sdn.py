@@ -92,9 +92,9 @@ def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, devi
             list_raw_acc.append(f'{acc_raw * 100.0:.2f}')
             list_bal_acc.append(f'{acc_balanced * 100.0:.2f}')
 
-        print(f'SVM-IC-{i} Raw Acc: [{", ".join(list_raw_acc)}]')
-        print(f'SVM-IC-{i} Bal Acc: [{", ".join(list_bal_acc)}]')
-        print(f'--------------------------------------------------------------------------')
+        Logger.log(f'SVM-IC-{i} Raw Acc: [{", ".join(list_raw_acc)}]')
+        Logger.log(f'SVM-IC-{i} Bal Acc: [{", ".join(list_bal_acc)}]')
+        Logger.log(f'--------------------------------------------------------------------------')
 
         svm_ics.append(svm)
 
@@ -104,12 +104,12 @@ def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, devi
     path_svm_model = os.path.join(path_svm, 'svm_models')
     af.save_obj(obj=svm_ics, filename=path_svm_model)
     size = os.path.getsize(path_svm_model) / (2 ** 20)
-    print(f'SVM model ({size:.2f} MB) saved to {path_svm_model}')
+    Logger.log(f'SVM model ({size:.2f} MB) saved to {path_svm_model}')
 
     path_svm_dataset = os.path.join(path_svm, 'svm_dataset')
     af.save_obj(obj={'features': features, 'labels': labels}, filename=path_svm_dataset)
     size = os.path.getsize(path_svm_dataset) / (2 ** 20)
-    print(f'SVM dataset ({size:.2f} MB) saved to {path_svm_dataset}')
+    Logger.log(f'SVM dataset ({size:.2f} MB) saved to {path_svm_dataset}')
 
 
 def main():
