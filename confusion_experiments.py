@@ -76,7 +76,7 @@ def main():
                        suffix,
                        'Confusion distributions for a backdoored model',
                        test_ratio,
-                       SDNConfig.DenseNet_attach_to_DenseBlocks,
+                       SDNConfig.DenseNet_blocks,
                        device)
     print('script ended')
 

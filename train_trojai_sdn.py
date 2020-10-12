@@ -82,17 +82,19 @@ def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, devi
         svm.fit(features[i], labels)
         y_pred = svm.predict(features[i])
 
-        acc_raw_ax, acc_balanced_ax = 0, 0
+        list_raw_acc = []
+        list_bal_acc = []
         for c in range(n_classes):
             acc_raw = accuracy_score(y_true=labels[:, c], y_pred=y_pred[:, c])
             acc_balanced = balanced_accuracy_score(y_true=labels[:, c], y_pred=y_pred[:, c])
 
-            acc_raw_ax += acc_raw
-            acc_balanced_ax += acc_balanced
+            list_raw_acc.append(f'{acc_raw * 100.0:.2f}')
+            list_bal_acc.append(f'{acc_balanced * 100.0:.2f}')
 
-        mean_acc_raw = acc_raw_ax / n_classes
-        mean_acc_balanced = acc_balanced_ax / n_classes
-        print(f'SVM-IC-{i}: raw accuracy={mean_acc_raw:.3f}, balanced accuracy={mean_acc_balanced:.3f}')
+        print(f'SVM-IC-{i} Raw Acc: [{", ".join(list_raw_acc)}]')
+        print(f'SVM-IC-{i} Bal Acc: [{", ".join(list_bal_acc)}]')
+        print(f'--------------------------------------------------------------------------')
+
         svm_ics.append(svm)
 
     path_svm = os.path.join(model_root_path, 'svm')
@@ -101,25 +103,23 @@ def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, devi
     path_svm_model = os.path.join(path_svm, 'svm_models')
     af.save_obj(obj=svm_ics, filename=path_svm_model)
     size = os.path.getsize(path_svm_model) / (2 ** 20)
-    print(f'SVM model saved to {path_svm_model}')
-    print(f'SVM model has size {size:.2f} MB')
+    print(f'SVM model ({size:.2f} MB) saved to {path_svm_model}')
 
     path_svm_dataset = os.path.join(path_svm, 'svm_dataset')
     af.save_obj(obj={'features': features, 'labels': labels}, filename=path_svm_dataset)
     size = os.path.getsize(path_svm_dataset) / (2 ** 20)
-    print(f'SVM dataset saved to {path_svm_dataset}')
-    print(f'SVM dataset has size {size:.2f} MB')
+    print(f'SVM dataset ({size:.2f} MB) saved to {path_svm_dataset}')
 
 
 def main():
     af.set_random_seeds()
 
-    device = af.get_pytorch_device()
-    # device = 'cpu'
+    # device = af.get_pytorch_device()
+    device = 'cpu'
 
     # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-dataset-train')
-    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
-    # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round2-train-dataset')
+    # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
+    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round2-train-dataset')
 
     metadata_path = os.path.join(root_path, 'METADATA.csv')
     metadata = pd.read_csv(metadata_path)
@@ -131,18 +131,25 @@ def main():
     test_ratio = 0
 
     dict_arch_type = {
-        'densenet': SDNConfig.DenseNet_attach_to_DenseBlocks,
-        'resnet': SDNConfig.ResNet50,
-        'inceptionv3': SDNConfig.Inception3
+        'densenet': SDNConfig.DenseNet_blocks,
+        'googlenet': SDNConfig.GoogLeNet,
+        'inception': SDNConfig.Inception3,
+        'mobilenet': SDNConfig.MobileNet2,
+        'resnet': SDNConfig.ResNet,
+        'shufflenet': SDNConfig.ShuffleNet,
+        'squeezenet': SDNConfig.SqueezeNet,
+        'vgg': SDNConfig.VGG,
+        'wideresnet': SDNConfig.ResNet,
     }
-    # sdn_type, architecture_to_train = SDNConfig.DenseNet_attach_to_DenseBlocks, 'densenet121'
-    # sdn_type, architecture_to_train = SDNConfig.ResNet50, 'resnet50'
-    # sdn_type, architecture_to_train = SDNConfig.Inception3, 'inceptionv3'
+
+    print('!!! Round2: opencv_format=False in TrojAI constructor!!!')
 
     for index, row in metadata.iterrows():
         model_name = row['model_name']
+        # model_id = int(model_name[3:])
         model_architecture = row['model_architecture']
         num_classes = row['number_classes']
+
         for arch_prefix, sdn_type in dict_arch_type.items():
             if model_architecture.startswith(arch_prefix):
                 model_root = os.path.join(root_path, model_name)

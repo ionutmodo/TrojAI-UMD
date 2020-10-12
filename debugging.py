@@ -43,7 +43,7 @@ def test_SDN_for_TrojAI():
         trojai_model = SDNDenseNet(model,
                                    TrojAI_input_size,
                                    TrojAI_num_classes,
-                                   SDNConfig.DenseNet_attach_to_DenseLayers,
+                                   SDNConfig.DenseNet_layers,
                                    device)
         acts, out = trojai_model.forward_w_acts(torch.zeros(TrojAI_input_size).to(device))
         print(len(acts) + 1)

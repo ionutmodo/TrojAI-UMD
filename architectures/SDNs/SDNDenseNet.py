@@ -123,9 +123,9 @@ class SDNDenseNet(SDNTrojAI):
     def forward_w_acts(self, x):
         net_features, net_classifier = list(self.cnn_model.children())
 
-        if self.sdn_type == SDNConfig.DenseNet_attach_to_DenseBlocks:
+        if self.sdn_type == SDNConfig.DenseNet_blocks:
             activations, out = _forward_w_acts_for_attaching_at_DenseBlocks(x, net_features)
-        elif self.sdn_type == SDNConfig.DenseNet_attach_to_DenseLayers:
+        elif self.sdn_type == SDNConfig.DenseNet_layers:
             activations, out = _forward_w_acts_for_attaching_at_DenseLayers(x, net_features)
         else:
             raise RuntimeError('SDNDenseNet121:forward_w_acts - invalid value for parameter sdn_type')
@@ -141,9 +141,9 @@ class SDNDenseNet(SDNTrojAI):
         x = torch.zeros(self.input_size).to(self.device)  # an input image to forward through the network to get the input size of each IC
         net_features = list(self.cnn_model.children())[0] # iterate only through Sequential variable called "features" at index 0
 
-        if self.sdn_type == SDNConfig.DenseNet_attach_to_DenseBlocks:  # attach_IC_at_DenseBlock_end
+        if self.sdn_type == SDNConfig.DenseNet_blocks:  # attach_IC_at_DenseBlock_end
             return _get_layerwise_params_attaching_at_DenseBlocks(x, net_features, self.num_classes)
-        elif self.sdn_type == SDNConfig.DenseNet_attach_to_DenseLayers:  # attach_IC_at_each_DenseLayer_in_DenseBlock
+        elif self.sdn_type == SDNConfig.DenseNet_layers:  # attach_IC_at_each_DenseLayer_in_DenseBlock
             return _get_layerwise_params_attaching_at_DenseLayers(x, net_features, self.num_classes)
         else:
             raise RuntimeError('get_layerwise_model_params: Invalid sdn_type')

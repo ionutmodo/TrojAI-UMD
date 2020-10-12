@@ -56,11 +56,11 @@ class SDNInception3(SDNTrojAI):
         # N x 768 x 17 x 17
         x = self.cnn_model.Mixed_6e(x)  # Inception C
         # N x 768 x 17 x 17
-        aux_defined = self.cnn_model.training and self.cnn_model.aux_logits
-        if aux_defined:
-            aux = self.cnn_model.AuxLogits(x)
-        else:
-            aux = None
+        # aux_defined = self.cnn_model.training and self.cnn_model.aux_logits
+        # if aux_defined:
+        #     aux = self.cnn_model.AuxLogits(x)
+        # else:
+        #     aux = None
         # N x 768 x 17 x 17
         x = self.cnn_model.Mixed_7a(x)  # Inception D
 

@@ -63,7 +63,7 @@ def main():
 
     root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
     # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-dataset-train')
-    sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
+    sdn_type = SDNConfig.DenseNet_blocks
     sdn_name = 'ics_train100_test0_bs25'
     cnn_name = 'model.pt'
     device = af.get_pytorch_device()

@@ -4,8 +4,13 @@ import torch.nn as nn
 import tools.aux_funcs as af
 from architectures.SDNs.SDNConfig import SDNConfig
 from architectures.SDNs.SDNDenseNet import SDNDenseNet
-from architectures.SDNs.SDNResNet import SDNResNet
+from architectures.SDNs.SDNGoogLeNet import SDNGoogLeNet
 from architectures.SDNs.SDNInception3 import SDNInception3
+from architectures.SDNs.SDNMobileNet2 import SDNMobileNet2
+from architectures.SDNs.SDNResNet import SDNResNet
+from architectures.SDNs.SDNShuffleNet import SDNShuffleNet
+from architectures.SDNs.SDNSqueezeNet import SDNSqueezeNet
+from architectures.SDNs.SDNVGG import SDNVGG
 
 
 class LightSDN(nn.Module):
@@ -20,10 +25,14 @@ class LightSDN(nn.Module):
         super(LightSDN, self).__init__()
 
         self.dict_type_model = {
-            SDNConfig.DenseNet_attach_to_DenseBlocks: SDNDenseNet,
-            SDNConfig.DenseNet_attach_to_DenseLayers: SDNDenseNet,
-            SDNConfig.ResNet50: SDNResNet,
-            SDNConfig.Inception3: SDNInception3
+            SDNConfig.DenseNet_blocks: SDNDenseNet,
+            SDNConfig.GoogLeNet: SDNGoogLeNet,
+            SDNConfig.Inception3: SDNInception3,
+            SDNConfig.MobileNet2: SDNMobileNet2,
+            SDNConfig.ResNet: SDNResNet,
+            SDNConfig.ShuffleNet: SDNShuffleNet,
+            SDNConfig.SqueezeNet: SDNSqueezeNet,
+            SDNConfig.VGG: SDNVGG,
         }
 
         if sdn_type not in self.dict_type_model.keys():

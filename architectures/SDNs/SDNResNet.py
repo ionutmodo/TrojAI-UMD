@@ -8,7 +8,7 @@ from torchvision.models.resnet import ResNet
 class SDNResNet(SDNTrojAI):
     def __init__(self, cnn_model, input_size, num_classes, sdn_type, device):
         super(SDNResNet, self).__init__(cnn_model, input_size, num_classes, sdn_type, device)
-        assert sdn_type == SDNConfig.ResNet50, 'SDNResNet50:init - Parameter sdn_type must be SDNConfig.ResNet50'
+        assert sdn_type == SDNConfig.ResNet, 'SDNResNet50:init - Parameter sdn_type must be SDNConfig.ResNet50'
         # for c in self.model.children():
         #     print(type(c))
         # print('--------------------')

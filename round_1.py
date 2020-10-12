@@ -25,8 +25,8 @@ def main():
     device = sys.argv[2]
 
     dict_arch_type = {
-        'densenet': SDNConfig.DenseNet_attach_to_DenseBlocks,
-        'resnet': SDNConfig.ResNet50,
+        'densenet': SDNConfig.DenseNet_blocks,
+        'resnet': SDNConfig.ResNet,
         'inception': SDNConfig.Inception3
     }
 

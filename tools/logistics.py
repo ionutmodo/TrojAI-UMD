@@ -6,8 +6,13 @@ import torch
 from architectures.SDNs.SDNConfig import SDNConfig
 from tools.data import TrojAI
 from architectures.SDNs.SDNDenseNet import SDNDenseNet
-from architectures.SDNs.SDNResNet import SDNResNet
+from architectures.SDNs.SDNGoogLeNet import SDNGoogLeNet
 from architectures.SDNs.SDNInception3 import SDNInception3
+from architectures.SDNs.SDNMobileNet2 import SDNMobileNet2
+from architectures.SDNs.SDNResNet import SDNResNet
+from architectures.SDNs.SDNShuffleNet import SDNShuffleNet
+from architectures.SDNs.SDNSqueezeNet import SDNSqueezeNet
+from architectures.SDNs.SDNVGG import SDNVGG
 
 
 def _read_ground_truth(ground_truth_path):
@@ -23,15 +28,19 @@ def read_model_directory(model_root, num_classes, batch_size, test_ratio, sdn_ty
     model_path = os.path.join(model_root, 'model.pt')
 
     # print('logistics:read_model_directory - check batch_size!')
-    dataset = TrojAI(folder=dataset_path, test_ratio=test_ratio, batch_size=batch_size, device=device)
+    dataset = TrojAI(folder=dataset_path, test_ratio=test_ratio, batch_size=batch_size, device=device, opencv_format=False)
     model_label = (_read_ground_truth(ground_truth_path) == 1)
     cnn_model = torch.load(model_path, map_location=device).eval()
 
     dict_type_model = {
-        SDNConfig.DenseNet_attach_to_DenseBlocks: SDNDenseNet,
-        SDNConfig.DenseNet_attach_to_DenseLayers: SDNDenseNet,
-        SDNConfig.ResNet50: SDNResNet,
-        SDNConfig.Inception3: SDNInception3
+        SDNConfig.DenseNet_blocks: SDNDenseNet,
+        SDNConfig.GoogLeNet: SDNGoogLeNet,
+        SDNConfig.Inception3: SDNInception3,
+        SDNConfig.MobileNet2: SDNMobileNet2,
+        SDNConfig.ResNet: SDNResNet,
+        SDNConfig.ShuffleNet: SDNShuffleNet,
+        SDNConfig.SqueezeNet: SDNSqueezeNet,
+        SDNConfig.VGG: SDNVGG,
     }
 
     if sdn_type not in dict_type_model.keys():

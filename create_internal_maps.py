@@ -15,7 +15,7 @@ import torch.multiprocessing as mp
 from datetime import datetime
 
 ###### GLOBAL VARIABLES
-sdn_type = SDNConfig.DenseNet_attach_to_DenseBlocks
+sdn_type = SDNConfig.DenseNet_blocks
 sdn_name = 'ics_train100_test0_bs25'
 cnn_name = 'model.pt'
 # device = af.get_pytorch_device()
