@@ -25,11 +25,13 @@ def main():
         # model_architecture = row['model_architecture']
         # model_id_int = int(model_name[3:])
         
-        ics_folder = os.path.join(root_path, model_name, folder_name_to_delete)
-        if os.path.isdir(ics_folder):
-            shutil.rmtree(ics_folder)
+        folder = os.path.join(root_path, model_name, folder_name_to_delete)
+        if os.path.isdir(folder):
+            shutil.rmtree(folder)
             count += 1
-            print(f'deleted ({count}) {ics_folder}')
+            print(f'deleted ({count}) {folder}')
+        else:
+            print(f'!exist {folder}')
 
 
 if __name__ == '__main__':
