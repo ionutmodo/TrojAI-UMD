@@ -7,9 +7,6 @@ import multiprocessing as mp
 from tools.logistics import get_project_root_path
 from tools.data import create_backdoored_dataset
 
-IMAGES_PER_CLASS = 100  # 50 for round 1
-# IMAGES_PER_CLASS = 10  # 50 for round 2
-
 
 def create_dataset_multiprocessing(dict_params):
     images_count_per_class = dict_params['images_per_class']
@@ -54,6 +51,9 @@ def main():
         'openlab32.umiacs.umd.edu': (552, 827),
         'openlab33.umiacs.umd.edu': (828, 1103)
     }
+
+    # IMAGES_PER_CLASS = 100  # 50 for round 1
+    # IMAGES_PER_CLASS = 10  # 50 for round 2
 
     for _, row in metadata.iterrows():
         model_name = row['model_name']
