@@ -94,7 +94,8 @@ class FilterXForm(ImageTransform):
 
         src = image.clone()
         src.colorize(wand.color.Color(color), wand.color.Color('#FFFFFF'))
-        src.composite_channel('alpha', mask_src, 'copy_alpha')
+        # src.composite_channel('alpha', mask_src, 'copy_alpha')
+        src.composite_channel('alpha', mask_src, 'copy_opacity')
 
         image.composite_channel('default_channels', src, 'blend',
                                 arguments=str(dst_percent) + "," + str(100 - dst_percent))
