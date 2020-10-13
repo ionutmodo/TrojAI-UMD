@@ -20,6 +20,7 @@ def create_dataset_multiprocessing(dict_params):
     if os.path.isdir(path_data_backd):
         files_count_in_backd_dataset = len(os.listdir(path_data_backd))
         if files_count_in_backd_dataset == (num_classes * images_count_per_class + 1): # +1 because of csv data
+            print(f'already complete ({files_count_in_backd_dataset}) {path_data_backd}')
             return
         shutil.rmtree(path_data_backd)
         print(f'deleted ({files_count_in_backd_dataset}) {path_data_backd}')
@@ -45,18 +46,19 @@ def main():
     list_trigger_sizes = [20]
     list_filters = ['gotham', 'kelvin', 'lomo', 'nashville']
 
-    list_limits = {
-        'openlab30.umiacs.umd.edu': (0, 275),
-        'openlab31.umiacs.umd.edu': (276, 551),
-        'openlab32.umiacs.umd.edu': (552, 827),
-        'openlab33.umiacs.umd.edu': (828, 1103)
-    }
+    # list_limits = {
+    #     'openlab30.umiacs.umd.edu': (0, 275),
+    #     'openlab31.umiacs.umd.edu': (276, 551),
+    #     'openlab32.umiacs.umd.edu': (552, 827),
+    #     'openlab33.umiacs.umd.edu': (828, 1103)
+    # }
 
     for _, row in metadata.iterrows():
         model_name = row['model_name']
-        model_id = int(model_name[3:])
-        left, right = list_limits[socket.gethostname()]
-        if left <= model_id <= right:
+        # model_id = int(model_name[3:])
+        # left, right = list_limits[socket.gethostname()]
+        # if left <= model_id <= right:
+        if True:
             num_classes = row['number_classes']
             number_example_images = int(row['number_example_images'])
             trigger_color = row['trigger_color']
@@ -103,7 +105,8 @@ def main():
                             triggered_classes=triggered_classes,
                             trigger_target_class=trigger_target_class)
                     )
-                    mp_mapping_params.append(mapping_param_dict)
+                    # mp_mapping_params.append(mapping_param_dict)
+                    create_dataset_multiprocessing(mapping_param_dict)
 
                 # generate backdoored datasets with specific filter
                 for p_filter_name in list_filters:
@@ -122,12 +125,13 @@ def main():
                             triggered_classes=triggered_classes,
                             trigger_target_class=trigger_target_class)
                     )
-                    mp_mapping_params.append(mapping_param_dict)
+                    # mp_mapping_params.append(mapping_param_dict)
+                    create_dataset_multiprocessing(mapping_param_dict)
 
-    cpus = mp.cpu_count() - 4
-    print(f'Creating {len(mp_mapping_params)} datasets using {cpus} CPU cores')
-    with mp.Pool(processes=cpus) as pool:
-        pool.map(create_dataset_multiprocessing, mp_mapping_params)
+    # cpus = mp.cpu_count() - 4
+    # print(f'Creating {len(mp_mapping_params)} datasets using {cpus} CPU cores')
+    # with mp.Pool(processes=cpus) as pool:
+    #     pool.map(create_dataset_multiprocessing, mp_mapping_params)
 
 
 if __name__ == '__main__':
