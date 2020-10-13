@@ -1,16 +1,12 @@
 import ast
-
 import PIL.Image
 import torch
 import os, sys
-import time
 import math
 import pandas as pd
 import numpy as np
 import wand
-
 from tools.settings import TrojAI_input_size
-
 sys.path.insert(0, 'trojai')
 import tools.aux_funcs as af
 from torchvision import datasets, transforms
@@ -41,6 +37,7 @@ def _get_single_image(path, opencv_format):
     img = img / np.max(img)
     return img
 
+
 def change_color(trigger, color):
     trigger_np = np.asarray(trigger)
     new_trigger = np.copy(trigger_np)
@@ -53,39 +50,38 @@ def change_color(trigger, color):
                         new_trigger[i, j, k] = color[k]
     return PIL.Image.fromarray(new_trigger)
 
+
 def create_backdoored_dataset(dir_clean_data,
                               dir_backdoored_data,
-                              filename_trigger,
-                              triggered_fraction,
-                              triggered_classes,
-                              trigger_target_class,
+                              trigger_type,
+                              trigger_name,
                               trigger_color,
                               trigger_size,
-                              # low_size_percent=10,
-                              # high_size_percent=50,
-                              p_trigger=0.5,
-                              keep_original=False):
+                              triggered_classes,
+                              trigger_target_class):
     """
     Creates a backdoored dataset given a clean dataset.
     You can choose trigger fraction, classes to be triggered, target class.
     It also saves a csv file in the backdoored root directory giving details about backdoored images.
     :param dir_clean_data: the directory containing clean samples
     :param dir_backdoored_data: the directory where backdoored dataset will be stored
-    :param filename_trigger: the path to polygon trigger to be used
-    :param triggered_fraction: the proportion of clean images that will be poisoned (float in [0, 1])
-    :param triggered_classes: the original classes that backdooring will be applied to
-    :param trigger_target_class: the class in which backdoored images will be misclassified to
+    :param trigger_type: the type of the trigger; can be 'polygon' or 'filter'
+    :param trigger_name: 'square' for polygons and ['gotham', 'kelvin', 'lomo', 'nashville'] for filters
+    :param trigger_color: the color of the trigger to be set; only used for polygons, ignored for filters
     :param trigger_size: the size of the bounding rectangle of the trigger (the trigger might have a smaller size)
-    :param trigger_color: the color of the trigger to be set
-    :param p_trigger: probability to apply a polygon trigger. Use 0 to apply only filters or 1 to apply only polygon
-                      use a value between (0,1) to use polygon trigger with probability "p_trigger" and filter trigger with probability "1-p_trigger"
-    :param keep_original: indicates whether the original clean images will be kept in the backdoored dataset
+                         only used for polygons, ignored for filters
+    :param triggered_classes: the original classes to be backdoored (poisoned)
+    :param trigger_target_class: the class in which backdoored images will be misclassified to
     :return: nothing, but saves backdoored images on the disk at location "dir_backdoored_data"
     """
+    # assert trigger_type in ['polygon', 'filter'], 'tools.data.create_backdoored_dataset: invalid trigger type'
+    # assert trigger_name in ['square', ], 'tools.data.create_backdoored_dataset: invalid trigger type'
+
     if not os.path.isdir(dir_backdoored_data):
         os.makedirs(dir_backdoored_data)
     df = pd.DataFrame(columns=['filename_clean', 'filename_backdoored', 'original_label', 'final_label', 'triggered', 'config'])
     n = 0
+    # create the df which contains default values at first (path to clean data, original label, not triggered and no cfg)
     for f in os.listdir(dir_clean_data):
         if f.endswith('.png'):
             original_label = int(f.split('_')[1])
@@ -94,31 +90,25 @@ def create_backdoored_dataset(dir_clean_data,
             # initially, there are no triggered classes
             df.loc[n] = [basename_clean, basename_backdoored, original_label, original_label, False, 'none']
             n += 1
-    df2 = pd.DataFrame(columns=df.columns)
-    n2 = 0
+
+    # mark the classes to be triggered based on triggered_classes
     for original_label in set(df['original_label']):
+        # if the class is marked to be poisoned
         if triggered_classes == 'all' or original_label in triggered_classes:
+            # get df indexes of those classes
             mask = df['original_label'] == original_label
             df_indexes = df[mask].index
-            total_samples = len(df_indexes)
-            trojaned_indexes = np.random.choice(df_indexes, size=math.ceil(total_samples * triggered_fraction), replace=False)
 
-            for df_index in trojaned_indexes:
-                df.at[df_index, 'final_label'] = trigger_target_class
-                df.at[df_index, 'triggered'] = True
-                filename_clean = df.at[df_index, 'filename_clean']
-                basename_backdoored = os.path.basename(filename_clean)
-                # basename_backdoored = basename_clean.replace(f'class_{original_label}', f'class_{trigger_target_class}') # wrong
-                trigger = 'polygon' if np.random.rand() < p_trigger else 'filter'
-                config = {'type': trigger}
-                if trigger == 'polygon':
+            # modify the rows for the poisoned classes
+            for index in df_indexes:
+                df.at[index, 'final_label'] = trigger_target_class # the label of the image will be the target class
+                df.at[index, 'triggered'] = True # mark it as triggered
+                filename_clean = df.at[index, 'filename_clean'] # full path of clean image
+                basename_backdoored = os.path.basename(filename_clean) # create backdoored filename starting from clean filename
+                # trigger_type = 'polygon' if np.random.rand() < p_trigger else 'filter'
+                config = {'type': trigger_type}
+                if trigger_type == 'polygon':
                     basename_backdoored = basename_backdoored.replace('.png', f'_backdoor_triggered_to_{trigger_target_class}.png')
-                    # x, y, side = 85, 85, 55
-                    # # size = int(side * np.random.randint(low=low_size_percent, high=high_size_percent, dtype=np.int) / 100.0)
-                    # new_x, new_y = x - 1, y - 1
-                    # while not (x <= new_x < x + side - trigger_size) and not (y <= new_y < y + side - trigger_size):
-                    #     new_x = np.random.randint(x, x + side - trigger_size)
-                    #     new_y = np.random.randint(y, y + side - trigger_size)
 
                     # place trigger in the middle of the image (it should be in the middle of the object)
                     new_x = new_y = int(TrojAI_input_size[-1] / 2) - int(trigger_size / 2)
@@ -126,44 +116,46 @@ def create_backdoored_dataset(dir_clean_data,
                     config['y'] = new_y
                     config['size'] = trigger_size
                     config['color'] = trigger_color
-                elif trigger == 'filter':
+                elif trigger_type == 'filter':
                     basename_backdoored = basename_backdoored.replace('.png', f'_backdoor_filter_from_{original_label}.png')
-                    config['name'] = np.random.choice(['gotham', 'kelvin', 'lomo'], size=1)[0]
+                    # config['name'] = np.random.choice(['gotham', 'kelvin', 'lomo', 'nashville'], size=1)[0]
+                    config['name'] = trigger_name
+                df.at[index, 'filename_backdoored'] = os.path.join(dir_backdoored_data, basename_backdoored)
+                df.at[index, 'config'] = str(config)
 
-                df.at[df_index, 'filename_backdoored'] = os.path.join(dir_backdoored_data, basename_backdoored)
-                df.at[df_index, 'config'] = str(config)
-
-                if keep_original:
-                    basename_backdoored = os.path.join(dir_backdoored_data, os.path.basename(basename_clean))
-                    df2.loc[n2] = [filename_clean, basename_backdoored, original_label, original_label, False, 'none']
-                    n2 += 1
-
-    df = df.append(df2)
+    # df = df.append(df2)
     df.to_csv(os.path.join(dir_backdoored_data, 'info.csv'), index=False)
 
-    if filename_trigger == 'square':
-        trigger = PIL.Image.fromarray(255 * np.ones((224, 224, 4)).astype(np.uint8))
-    else:
-        trigger = PIL.Image.open(filename_trigger)
+    # prepare trigger depending on values of trigger_type and trigger_name
+    polygon_trigger = None
+    if trigger_type == 'polygon':
+        if trigger_name == 'square':
+            polygon_trigger = PIL.Image.fromarray(255 * np.ones((224, 224, 4)).astype(np.uint8))
+        else:
+            polygon_trigger = PIL.Image.open(trigger_name)
 
-    if trigger_color is not None:
-        trigger = change_color(trigger, trigger_color)
+        if trigger_color is not None:
+            polygon_trigger = change_color(polygon_trigger, trigger_color)
+    elif trigger_type == 'filter':
+        pass
+    else:
+        raise RuntimeError('tools.data.create_backdoored_dataset: invalid trigger_type')
 
     count = 0
-    n_rows = len(df)
+    # this last pass uses the dataframe created above to write down the backdoored images on disk effectively
     for _, row in df.iterrows():
         filename_clean = row['filename_clean']
         filename_backdoored = row['filename_backdoored']
         config = row['config']
         image_clean = PIL.Image.open(filename_clean)
 
-        if config == 'none': # save original image, don't apply any trigger
+        if config == 'none': # save original image with the backdoored name
             image_clean.save(filename_backdoored)
             count += 1
         else:
             config = ast.literal_eval(config)
             if config['type'] == 'polygon':
-                image_trigger = trigger.copy().resize((config['size'], config['size']))
+                image_trigger = polygon_trigger.copy().resize((config['size'], config['size']))
                 image_clean.paste(image_trigger, (config['x'], config['y']), image_trigger)
                 image_clean.save(filename_backdoored)
                 count += 1
@@ -175,11 +167,11 @@ def create_backdoored_dataset(dir_clean_data,
                     filter = instagram.KelvinFilterXForm()
                 elif config['name'] == 'lomo':
                     filter = instagram.LomoFilterXForm()
+                elif config['name'] == 'nashville':
+                    filter = instagram.NashvilleFilterXForm()
                 image_filtered = filter.filter(wand.image.Image.from_array(image_clean))
                 image_filtered.save(filename=filename_backdoored)
                 count += 1
-        # if count % 10 == 0:
-        #     print(f'progress: {count}/{n_rows}')
 
 
 class TrojAI:
