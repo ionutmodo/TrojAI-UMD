@@ -60,14 +60,17 @@ def main():
         last_model_name_in_report = None
         n_report = 0
         df_report = pd.DataFrame(columns=[
+            # preliminary info about the model
             'model_name', 'model_label', 'model_architecture',
 
+            # place differences here to visualize them easier
             'square_mean_diff', 'square_std_diff',
             'gotham_mean_diff', 'gotham_std_diff',
             'kelvin_mean_diff', 'kelvin_std_diff',
             'lomo_mean_diff', 'lomo_std_diff',
             'nashville_mean_diff', 'nashville_std_diff',
 
+            # place effective metrics from confusion distribution
             'clean_mean', 'clean_std',
             'square_mean', 'square_std',
             'gotham_mean', 'gotham_std',
@@ -75,6 +78,7 @@ def main():
             'lomo_mean', 'lomo_std',
             'nashville_mean', 'nashville_std',
 
+            # other data
             'trigger_color', 'trigger_type', 'trigger_type_option',
             'num_classes',
         ])
@@ -92,17 +96,6 @@ def main():
         trigger_type = row['trigger_type']
         trigger_type_option = row['trigger_type_option']
         num_classes = row['number_classes']
-
-        triggered_classes = row['triggered_classes']
-        if triggered_classes.lower() == 'none':
-            triggered_classes = '[]'
-        triggered_classes = ast.literal_eval(triggered_classes.replace(' ', ', '))
-
-        trigger_target_class = row['trigger_target_class']
-        trigger_target_class = int(trigger_target_class) if trigger_target_class.lower() != 'none' else 0
-
-        if len(triggered_classes) == 0:
-            triggered_classes = list(range(num_classes))
 
         if trigger_color == 'None':
             trigger_color = (0, 0, 0)  # default color
@@ -133,7 +126,6 @@ def main():
             'backdoored_data_lomo': None,
             'backdoored_data_nashville': None
         }
-
 
         # iterate through all backdoored datasets, compute and save the confusion scores
         for dataset_name in dict_dataset_confusion:
@@ -182,14 +174,17 @@ def main():
         nashville_std_diff = nashville_std - clean_std
 
         df_report.loc[n_report] = [
+            # preliminary info about the model
             model_name, model_label, model_architecture,
 
+            # place differences here to visualize them easier
             square_mean_diff, square_std_diff,
             gotham_mean_diff, gotham_std_diff,
             kelvin_mean_diff, kelvin_std_diff,
             lomo_mean_diff, lomo_std_diff,
             nashville_mean_diff, nashville_std_diff,
 
+            # place effective metrics from confusion distribution
             clean_mean, clean_std,
             square_mean, square_std,
             gotham_mean, gotham_std,
@@ -197,6 +192,7 @@ def main():
             lomo_mean, lomo_std,
             nashville_mean, nashville_std,
 
+            # other data
             trigger_color, trigger_type, trigger_type_option,
             num_classes
         ]
