@@ -68,10 +68,10 @@ def main():
             if triggered_classes.lower() == 'none':
                 triggered_classes = '[]'
             triggered_classes = ast.literal_eval(triggered_classes.replace(' ', ', '))
-            trigger_target_class = row['trigger_target_class']
 
             # default class for clean models
             # I set trigger_target_class to 0 to pass a valid parameter to method create_backdoored_dataset
+            trigger_target_class = row['trigger_target_class']
             trigger_target_class = int(trigger_target_class) if trigger_target_class.lower() != 'none' else 0
 
             if len(triggered_classes) == 0:
@@ -79,8 +79,8 @@ def main():
 
             if trigger_color.lower() == 'none':
                 trigger_color = (0, 0, 0) # default color
-            else:  # reversed because round 1 uses BGR
-                trigger_color = tuple(reversed(ast.literal_eval(row['trigger_color'].replace(' ', ', '))))
+            else: # do not reverse color anymore
+                trigger_color = tuple(ast.literal_eval(row['trigger_color'].replace(' ', ', ')))
 
             ###############################################################################################################
 
@@ -109,25 +109,25 @@ def main():
                     mp_mapping_params.append(mapping_param_dict)
                     # create_dataset_multiprocessing(mapping_param_dict)
 
-                # generate backdoored datasets with specific filter
-                for p_filter_name in list_filters:
-                    path_data_backd = os.path.join(path_model, f'backdoored_data_filter_{p_filter_name}')
-
-                    mapping_param_dict = dict(
-                        num_classes=num_classes,
-                        images_per_class=number_example_images,
-                        params_method=dict(
-                            dir_clean_data=path_data_clean,
-                            dir_backdoored_data=path_data_backd,
-                            trigger_type='filter',
-                            trigger_name=p_filter_name,
-                            trigger_color=None,
-                            trigger_size=None,
-                            triggered_classes=triggered_classes,
-                            trigger_target_class=trigger_target_class)
-                    )
-                    mp_mapping_params.append(mapping_param_dict)
-                    # create_dataset_multiprocessing(mapping_param_dict)
+                # # generate backdoored datasets with specific filter
+                # for p_filter_name in list_filters:
+                #     path_data_backd = os.path.join(path_model, f'backdoored_data_filter_{p_filter_name}')
+                #
+                #     mapping_param_dict = dict(
+                #         num_classes=num_classes,
+                #         images_per_class=number_example_images,
+                #         params_method=dict(
+                #             dir_clean_data=path_data_clean,
+                #             dir_backdoored_data=path_data_backd,
+                #             trigger_type='filter',
+                #             trigger_name=p_filter_name,
+                #             trigger_color=None,
+                #             trigger_size=None,
+                #             triggered_classes=triggered_classes,
+                #             trigger_target_class=trigger_target_class)
+                #     )
+                #     mp_mapping_params.append(mapping_param_dict)
+                #     # create_dataset_multiprocessing(mapping_param_dict)
 
     cpus = mp.cpu_count() - 4
     print(f'Creating {len(mp_mapping_params)} datasets using {cpus} CPU cores')
