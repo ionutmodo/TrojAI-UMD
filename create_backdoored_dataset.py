@@ -17,17 +17,19 @@ def create_dataset_multiprocessing(dict_params):
     params_method = dict_params['params_method']
 
     path_data_backd = params_method['dir_backdoored_data']
+    items = path_data_backd.split(os.path.sep)
+    short_path = os.path.join(items[-3], items[-2], items[-1])
+
     if os.path.isdir(path_data_backd):
         files_count_in_backd_dataset = len(os.listdir(path_data_backd))
         if files_count_in_backd_dataset == (num_classes * images_count_per_class + 1): # +1 because of csv data
-            print(f'already complete ({files_count_in_backd_dataset}) {path_data_backd}')
+            print(f'already complete ({files_count_in_backd_dataset}) {short_path}')
             return
         shutil.rmtree(path_data_backd)
         print(f'deleted ({files_count_in_backd_dataset}) {path_data_backd}')
 
     create_backdoored_dataset(**params_method)
-    items = path_data_backd.split(os.path.sep)
-    print(f'done {os.path.join(items[-3], items[-2], items[-1])}')
+    print(f'done {short_path}')
 
 
 def main():
