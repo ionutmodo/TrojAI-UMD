@@ -36,7 +36,7 @@ def main():
     # device = 'cpu'
     device = af.get_pytorch_device()
 
-    experiment_name = 'square-gotham-kelvin-lomo-nashville'
+    experiment_name = 'square20-gotham-kelvin-lomo-nashville'
     square_dataset_name = 'backdoored_data_custom-square-size-20_backd-original-color_clean-black-color'
 
     # begin
@@ -137,6 +137,7 @@ def main():
 
             Logger.log(f'computing confusion for {dataset_name}...', end='')
             dict_dataset_confusion[dataset_name] = mf.compute_confusion(sdn_light, dataset.train_loader, device)
+            Logger.log('done')
 
         # compute mean and stds for confusion distributions
         clean_mean = np.mean(dict_dataset_confusion['example_data'])
@@ -210,4 +211,4 @@ def main():
 if __name__ == '__main__':
     main()
 
-# python3.7 -W ignore round_1.py 5 cuda:0
+# python3.7 -W ignore round_2.py
