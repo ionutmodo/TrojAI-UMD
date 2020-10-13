@@ -121,10 +121,10 @@ def main():
         dict_dataset_confusion = {
             'example_data': None,
             square_dataset_name: None,
-            'backdoored_data_gotham': None,
-            'backdoored_data_kelvin': None,
-            'backdoored_data_lomo': None,
-            'backdoored_data_nashville': None
+            'backdoored_data_filter_gotham': None,
+            'backdoored_data_filter_kelvin': None,
+            'backdoored_data_filter_lomo': None,
+            'backdoored_data_filter_nashville': None
         }
 
         # iterate through all backdoored datasets, compute and save the confusion scores
