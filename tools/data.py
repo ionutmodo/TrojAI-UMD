@@ -144,34 +144,36 @@ def create_backdoored_dataset(dir_clean_data,
     count = 0
     # this last pass uses the dataframe created above to write down the backdoored images on disk effectively
     for _, row in df.iterrows():
-        filename_clean = row['filename_clean']
-        filename_backdoored = row['filename_backdoored']
-        config = row['config']
-        image_clean = PIL.Image.open(filename_clean)
+        is_triggered = row['triggered']
+        if is_triggered: # if the class is not triggered, do not transform any images
+            filename_clean = row['filename_clean']
+            filename_backdoored = row['filename_backdoored']
+            config = row['config']
+            image_clean = PIL.Image.open(filename_clean)
 
-        if config == 'none': # save original image with the backdoored name
-            image_clean.save(filename_backdoored)
-            count += 1
-        else:
-            config = ast.literal_eval(config)
-            if config['type'] == 'polygon':
-                image_trigger = polygon_trigger.copy().resize((config['size'], config['size']))
-                image_clean.paste(image_trigger, (config['x'], config['y']), image_trigger)
+            if config == 'none': # save original image with the backdoored name
                 image_clean.save(filename_backdoored)
                 count += 1
-            elif config['type'] == 'filter':
-                filter = None
-                if config['name'] == 'gotham':
-                    filter = instagram.GothamFilterXForm()
-                elif config['name'] == 'kelvin':
-                    filter = instagram.KelvinFilterXForm()
-                elif config['name'] == 'lomo':
-                    filter = instagram.LomoFilterXForm()
-                elif config['name'] == 'nashville':
-                    filter = instagram.NashvilleFilterXForm()
-                image_filtered = filter.filter(wand.image.Image.from_array(image_clean))
-                image_filtered.save(filename=filename_backdoored)
-                count += 1
+            else:
+                config = ast.literal_eval(config)
+                if config['type'] == 'polygon':
+                    image_trigger = polygon_trigger.copy().resize((config['size'], config['size']))
+                    image_clean.paste(image_trigger, (config['x'], config['y']), image_trigger)
+                    image_clean.save(filename_backdoored)
+                    count += 1
+                elif config['type'] == 'filter':
+                    filter = None
+                    if config['name'] == 'gotham':
+                        filter = instagram.GothamFilterXForm()
+                    elif config['name'] == 'kelvin':
+                        filter = instagram.KelvinFilterXForm()
+                    elif config['name'] == 'lomo':
+                        filter = instagram.LomoFilterXForm()
+                    elif config['name'] == 'nashville':
+                        filter = instagram.NashvilleFilterXForm()
+                    image_filtered = filter.filter(wand.image.Image.from_array(image_clean))
+                    image_filtered.save(filename=filename_backdoored)
+                    count += 1
 
 
 class TrojAI:
