@@ -146,17 +146,17 @@ def main():
         square_mean = np.mean(dict_dataset_confusion[square_dataset_name])
         square_std = np.std(dict_dataset_confusion[square_dataset_name])
 
-        gotham_mean = np.mean(dict_dataset_confusion['backdoored_data_gotham'])
-        gotham_std = np.std(dict_dataset_confusion['backdoored_data_gotham'])
+        gotham_mean = np.mean(dict_dataset_confusion['backdoored_data_filter_gotham'])
+        gotham_std = np.std(dict_dataset_confusion['backdoored_data_filter_gotham'])
 
-        kelvin_mean = np.mean(dict_dataset_confusion['backdoored_data_kelvin'])
-        kelvin_std = np.std(dict_dataset_confusion['backdoored_data_kelvin'])
+        kelvin_mean = np.mean(dict_dataset_confusion['backdoored_data_filter_kelvin'])
+        kelvin_std = np.std(dict_dataset_confusion['backdoored_data_filter_kelvin'])
 
-        lomo_mean = np.mean(dict_dataset_confusion['backdoored_data_lomo'])
-        lomo_std = np.std(dict_dataset_confusion['backdoored_data_lomo'])
+        lomo_mean = np.mean(dict_dataset_confusion['backdoored_data_filter_lomo'])
+        lomo_std = np.std(dict_dataset_confusion['backdoored_data_filter_lomo'])
 
-        nashville_mean = np.mean(dict_dataset_confusion['backdoored_data_nashville'])
-        nashville_std = np.std(dict_dataset_confusion['backdoored_data_nashville'])
+        nashville_mean = np.mean(dict_dataset_confusion['backdoored_data_filter_nashville'])
+        nashville_std = np.std(dict_dataset_confusion['backdoored_data_filter_nashville'])
 
         # compute differences for mean and stds between backdoored and clean
         square_mean_diff = square_mean - clean_mean
