@@ -44,7 +44,7 @@ def main():
     mp_mapping_params = []
     # list_trigger_sizes = [15, 20, 25, 40, 45, 50]
     list_trigger_sizes = [20]
-    list_filters = ['gotham', 'kelvin', 'lomo', 'nashville']
+    list_filters = ['gotham', 'kelvin', 'lomo'] #'nashville'
 
     # list_limits = {
     #     'openlab30.umiacs.umd.edu': (0, 275),
@@ -105,8 +105,8 @@ def main():
                             triggered_classes=triggered_classes,
                             trigger_target_class=trigger_target_class)
                     )
-                    # mp_mapping_params.append(mapping_param_dict)
-                    create_dataset_multiprocessing(mapping_param_dict)
+                    mp_mapping_params.append(mapping_param_dict)
+                    # create_dataset_multiprocessing(mapping_param_dict)
 
                 # generate backdoored datasets with specific filter
                 for p_filter_name in list_filters:
@@ -125,13 +125,13 @@ def main():
                             triggered_classes=triggered_classes,
                             trigger_target_class=trigger_target_class)
                     )
-                    # mp_mapping_params.append(mapping_param_dict)
-                    create_dataset_multiprocessing(mapping_param_dict)
+                    mp_mapping_params.append(mapping_param_dict)
+                    # create_dataset_multiprocessing(mapping_param_dict)
 
-    # cpus = mp.cpu_count() - 4
-    # print(f'Creating {len(mp_mapping_params)} datasets using {cpus} CPU cores')
-    # with mp.Pool(processes=cpus) as pool:
-    #     pool.map(create_dataset_multiprocessing, mp_mapping_params)
+    cpus = mp.cpu_count() - 4
+    print(f'Creating {len(mp_mapping_params)} datasets using {cpus} CPU cores')
+    with mp.Pool(processes=cpus) as pool:
+        pool.map(create_dataset_multiprocessing, mp_mapping_params)
 
 
 if __name__ == '__main__':
