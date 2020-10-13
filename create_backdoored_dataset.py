@@ -48,19 +48,18 @@ def main():
     list_trigger_sizes = [20]
     list_filters = ['gotham', 'kelvin', 'lomo'] #'nashville'
 
-    # list_limits = {
-    #     'openlab30.umiacs.umd.edu': (0, 275),
-    #     'openlab31.umiacs.umd.edu': (276, 551),
-    #     'openlab32.umiacs.umd.edu': (552, 827),
-    #     'openlab33.umiacs.umd.edu': (828, 1103)
-    # }
+    list_limits = {
+        'openlab30.umiacs.umd.edu': (0, 275),
+        'openlab31.umiacs.umd.edu': (276, 551),
+        'openlab32.umiacs.umd.edu': (552, 827),
+        'openlab33.umiacs.umd.edu': (828, 1103)
+    }
 
     for _, row in metadata.iterrows():
         model_name = row['model_name']
-        # model_id = int(model_name[3:])
-        # left, right = list_limits[socket.gethostname()]
-        # if left <= model_id <= right:
-        if True:
+        model_id = int(model_name[3:])
+        left, right = list_limits[socket.gethostname()]
+        if left <= model_id <= right:
             num_classes = row['number_classes']
             number_example_images = int(row['number_example_images'])
             trigger_color = row['trigger_color']
