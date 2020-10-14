@@ -91,9 +91,9 @@ def main():
     for _, row in metadata.iterrows():
         start_time = datetime.now()
         model_name = row['model_name']
-        model_id = int(model_name[3:])
+        # model_id = int(model_name[3:])
 
-        if last_model_name_in_report is not None and model_id > last_model_name_in_report:
+        if last_model_name_in_report is not None and model_name > last_model_name_in_report:
             model_label = 'backdoor' if row['poisoned'] else 'clean'
             model_architecture = row['model_architecture']
 
