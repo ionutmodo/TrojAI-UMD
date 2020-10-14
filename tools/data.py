@@ -66,7 +66,7 @@ def create_backdoored_dataset(dir_clean_data,
     :param dir_clean_data: the directory containing clean samples
     :param dir_backdoored_data: the directory where backdoored dataset will be stored
     :param trigger_type: the type of the trigger; can be 'polygon' or 'filter'
-    :param trigger_name: 'square' for polygons and ['gotham', 'kelvin', 'lomo', 'nashville'] for filters
+    :param trigger_name: 'square' for polygons and ['gotham', 'kelvin', 'lomo', 'nashville', 'toaster'] for filters
     :param trigger_color: the color of the trigger to be set; only used for polygons, ignored for filters
     :param trigger_size: the size of the bounding rectangle of the trigger (the trigger might have a smaller size)
                          only used for polygons, ignored for filters
@@ -171,6 +171,8 @@ def create_backdoored_dataset(dir_clean_data,
                         filter = instagram.LomoFilterXForm()
                     elif config['name'] == 'nashville':
                         filter = instagram.NashvilleFilterXForm()
+                    elif config['name'] == 'toaster':
+                        filter = instagram.ToasterXForm()
                     image_filtered = filter.filter(wand.image.Image.from_array(image_clean))
                     image_filtered.save(filename=filename_backdoored)
                     count += 1

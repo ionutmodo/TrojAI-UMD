@@ -43,15 +43,14 @@ def main():
     mp_mapping_params = []
     # list_trigger_sizes = [15, 20, 25, 40, 45, 50]
     list_trigger_sizes = [20]
-    list_filters = ['gotham', 'kelvin', 'lomo', 'nashville']
+    # list_filters = ['gotham', 'kelvin', 'lomo', 'nashville']
+    list_filters = ['toaster']
 
     list_limits = {
         # 'openlab30.umiacs.umd.edu': (0, 275),
         # 'openlab31.umiacs.umd.edu': (276, 551),
         # 'openlab30.umiacs.umd.edu': (0, 275),
-        'openlab31.umiacs.umd.edu': (0, 551),
-        'openlab32.umiacs.umd.edu': (552, 827),
-        'openlab33.umiacs.umd.edu': (828, 1103)
+        'openlab08.umiacs.umd.edu': (0, 1103)
     }
 
     # IMAGES_PER_CLASS = 100  # 50 for round 1

@@ -69,6 +69,7 @@ def main():
             'kelvin_mean_diff', 'kelvin_std_diff',
             'lomo_mean_diff', 'lomo_std_diff',
             'nashville_mean_diff', 'nashville_std_diff',
+            'toaster_mean_diff', 'toaster_std_diff',
 
             # place effective metrics from confusion distribution
             'clean_mean', 'clean_std',
@@ -77,6 +78,7 @@ def main():
             'kelvin_mean', 'kelvin_std',
             'lomo_mean', 'lomo_std',
             'nashville_mean', 'nashville_std',
+            'toaster_mean', 'toaster_std',
 
             # other data
             'trigger_color', 'trigger_type', 'trigger_type_option',
@@ -124,7 +126,8 @@ def main():
             'backdoored_data_filter_gotham': None,
             'backdoored_data_filter_kelvin': None,
             'backdoored_data_filter_lomo': None,
-            'backdoored_data_filter_nashville': None
+            'backdoored_data_filter_nashville': None,
+            'backdoored_data_filter_toaster': None
         }
 
         # iterate through all backdoored datasets, compute and save the confusion scores
@@ -158,6 +161,9 @@ def main():
         nashville_mean = np.mean(dict_dataset_confusion['backdoored_data_filter_nashville'])
         nashville_std = np.std(dict_dataset_confusion['backdoored_data_filter_nashville'])
 
+        toaster_mean = np.mean(dict_dataset_confusion['backdoored_data_filter_toaster'])
+        toaster_std = np.std(dict_dataset_confusion['backdoored_data_filter_toaster'])
+
         # compute differences for mean and stds between backdoored and clean
         square_mean_diff = square_mean - clean_mean
         square_std_diff = square_std - clean_std
@@ -174,6 +180,9 @@ def main():
         nashville_mean_diff = nashville_mean - clean_mean
         nashville_std_diff = nashville_std - clean_std
 
+        toaster_mean_diff = toaster_mean - clean_mean
+        toaster_std_diff = toaster_std - clean_std
+
         df_report.loc[n_report] = [
             # preliminary info about the model
             model_name, model_label, model_architecture,
@@ -184,6 +193,7 @@ def main():
             kelvin_mean_diff, kelvin_std_diff,
             lomo_mean_diff, lomo_std_diff,
             nashville_mean_diff, nashville_std_diff,
+            toaster_mean_diff, toaster_std_diff,
 
             # place effective metrics from confusion distribution
             clean_mean, clean_std,
@@ -192,6 +202,7 @@ def main():
             kelvin_mean, kelvin_std,
             lomo_mean, lomo_std,
             nashville_mean, nashville_std,
+            toaster_mean, toaster_std,
 
             # other data
             trigger_color, trigger_type, trigger_type_option,
