@@ -56,7 +56,9 @@ def main():
         df_report = pd.read_csv(path_report)
         n_report = len(df_report)
         last_model_name_in_report = df_report.iloc[-1]['model_name']
+        print(f'Continue training starting with id {last_model_name_in_report + 1}')
     else:
+        print('Training from scratch')
         last_model_name_in_report = None
         n_report = 0
         df_report = pd.DataFrame(columns=[
@@ -90,7 +92,7 @@ def main():
         start_time = datetime.now()
         model_id = int(model_name[3:])
 
-        if model_id > 756:
+        if last_model_name_in_report is not None and model_id > last_model_name_in_report:
             model_name = row['model_name']
             model_label = 'backdoor' if row['poisoned'] else 'clean'
             model_architecture = row['model_architecture']
