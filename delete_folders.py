@@ -44,12 +44,11 @@ def main():
         # for f_name in folder_names_to_delete:
         #     folder = os.path.join(root_path, model_name, f_name)
         #     mp_folders.append(folder)
-    for f in mp_folders:
-        print(f)
-    # cpus = mp.cpu_count() - 4
-    # print(f'Creating {len(mp_folders)} datasets using {cpus} CPU cores')
-    # with mp.Pool(processes=cpus) as pool:
-    #     pool.map(worker_delete_folder, mp_folders)
+
+    cpus = mp.cpu_count() - 4
+    print(f'Creating {len(mp_folders)} datasets using {cpus} CPU cores')
+    with mp.Pool(processes=cpus) as pool:
+        pool.map(worker_delete_folder, mp_folders)
 
 
 if __name__ == '__main__':
