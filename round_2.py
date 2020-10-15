@@ -17,6 +17,16 @@ from tools.data import create_backdoored_dataset
 from tools.logger import Logger
 
 
+def get_trigger_type_aux_value(trigger_type, trigger_type_option):
+    if trigger_type == 'instagram':
+        return trigger_type_option.replace('XForm', '').replace('Filter', '')
+    else:
+        if trigger_type == 'None':
+            return trigger_type
+        else:
+            return f'{trigger_type}-{trigger_type_option}'
+
+
 def main():
     dict_arch_type = {
         'densenet': SDNConfig.DenseNet_blocks,
@@ -32,11 +42,12 @@ def main():
 
     # parameters
     test_ratio = 0
-    batch_size = 10  # for confusion experiment
+    batch_size = 100  # for confusion experiment
     # device = 'cpu'
     device = af.get_pytorch_device()
 
-    experiment_name = 'square20-gotham-kelvin-lomo-nashville'
+    # experiment_name = 'square20-gotham-kelvin-lomo-nashville'
+    experiment_name = 'square20'
     square_dataset_name = 'backdoored_data_custom-square-size-20_backd-original-color_clean-black-color'
 
     # begin
@@ -67,19 +78,19 @@ def main():
 
             # place differences here to visualize them easier
             'square_mean_diff', 'square_std_diff',
-            'gotham_mean_diff', 'gotham_std_diff',
-            'kelvin_mean_diff', 'kelvin_std_diff',
-            'lomo_mean_diff', 'lomo_std_diff',
-            'nashville_mean_diff', 'nashville_std_diff',
+            # 'gotham_mean_diff', 'gotham_std_diff',
+            # 'kelvin_mean_diff', 'kelvin_std_diff',
+            # 'lomo_mean_diff', 'lomo_std_diff',
+            # 'nashville_mean_diff', 'nashville_std_diff',
             # 'toaster_mean_diff', 'toaster_std_diff',
 
             # place effective metrics from confusion distribution
             'clean_mean', 'clean_std',
             'square_mean', 'square_std',
-            'gotham_mean', 'gotham_std',
-            'kelvin_mean', 'kelvin_std',
-            'lomo_mean', 'lomo_std',
-            'nashville_mean', 'nashville_std',
+            # 'gotham_mean', 'gotham_std',
+            # 'kelvin_mean', 'kelvin_std',
+            # 'lomo_mean', 'lomo_std',
+            # 'nashville_mean', 'nashville_std',
             # 'toaster_mean', 'toaster_std',
 
             # other data
