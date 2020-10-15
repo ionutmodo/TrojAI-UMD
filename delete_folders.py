@@ -46,7 +46,7 @@ def main():
         #     mp_folders.append(folder)
 
     cpus = mp.cpu_count() - 4
-    print(f'Creating {len(mp_folders)} datasets using {cpus} CPU cores')
+    print(f'Deleting {len(mp_folders)} datasets using {cpus} CPU cores')
     with mp.Pool(processes=cpus) as pool:
         pool.map(worker_delete_folder, mp_folders)
 
