@@ -23,15 +23,15 @@ def main():
         # 'backdoored_data_filter_nashville'
     ]
 
-    # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-dataset-train')
+    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-dataset-train')
     # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
-    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round2-train-dataset')
+    # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round2-train-dataset')
 
     metadata_path = os.path.join(root_path, 'METADATA.csv')
     metadata = pd.read_csv(metadata_path)
 
-    # if 'train' in os.path.basename(root_path) and 'round1' in os.path.basename(root_path): # append 'models' for training dataset
-    #     root_path = os.path.join(root_path, 'models')
+    if 'train' in os.path.basename(root_path) and 'round1' in os.path.basename(root_path): # append 'models' for training dataset
+        root_path = os.path.join(root_path, 'models')
 
     mp_folders = []
     for index, row in metadata.iterrows():
@@ -44,11 +44,12 @@ def main():
         # for f_name in folder_names_to_delete:
         #     folder = os.path.join(root_path, model_name, f_name)
         #     mp_folders.append(folder)
-
-    cpus = mp.cpu_count() - 4
-    print(f'Creating {len(mp_folders)} datasets using {cpus} CPU cores')
-    with mp.Pool(processes=cpus) as pool:
-        pool.map(worker_delete_folder, mp_folders)
+    for f in mp_folders:
+        print(f)
+    # cpus = mp.cpu_count() - 4
+    # print(f'Creating {len(mp_folders)} datasets using {cpus} CPU cores')
+    # with mp.Pool(processes=cpus) as pool:
+    #     pool.map(worker_delete_folder, mp_folders)
 
 
 if __name__ == '__main__':
