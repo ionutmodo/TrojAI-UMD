@@ -41,7 +41,7 @@ def main():
         path_root = os.path.join(path_root, 'models')
 
     mp_mapping_params = []
-    list_trigger_sizes = [5, 10, 15, 25, 40, 45, 50]
+    list_trigger_sizes = [5, 10, 15, 20, 25, 40, 45, 50]
     # list_filters = ['gotham', 'kelvin', 'lomo', 'nashville', 'toaster']
 
     list_limits = {
