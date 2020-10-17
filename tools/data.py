@@ -463,7 +463,7 @@ class ManualDataset:
         self.batch_size = batch_size
 
         if device == 'cpu':
-            num_workers = 4
+            num_workers = 2
         else:
             num_workers = 0
 
