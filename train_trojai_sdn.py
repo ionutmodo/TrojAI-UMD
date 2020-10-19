@@ -168,9 +168,9 @@ def main():
 
                 time_start = datetime.now()
 
-                dataset, model = read_model_directory(model_root, num_classes, batch_size, test_ratio, sdn_type, device)
-                # train_trojai_sdn(dataset, model, model_root, device)
-                train_trojai_sdn_with_svm(dataset, model, model_root, device)
+                dataset, sdn_type, model = read_model_directory(model_root, batch_size, test_ratio, device)
+                train_trojai_sdn(dataset, model, model_root, device)
+                # train_trojai_sdn_with_svm(dataset, model, model_root, device)
 
                 time_end = datetime.now()
                 Logger.log(f'elapsed {time_end - time_start}\n')
