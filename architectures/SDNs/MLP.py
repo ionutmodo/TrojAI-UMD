@@ -59,20 +59,26 @@ class MLP(nn.Module):
         
         layers = []
         
-        layers.append(nn.Linear(input_size, hidden_sizes[0]))
-        layers.append(nn.ReLU(True))
-        layers.append(nn.Dropout(0.5))
+        self.num_classes = num_classes
 
-        cur_size = hidden_sizes[0]
-        for hidden_size in hidden_sizes[1:]:
-            layers.append(nn.Linear(cur_size, hidden_size))
+
+        if len(hidden_sizes) > 0:
+            layers.append(nn.Linear(input_size, hidden_sizes[0]))
             layers.append(nn.ReLU(True))
             layers.append(nn.Dropout(0.5))
-            cur_size = hidden_size
 
-        self.layers = nn.Sequential(*layers)
-        self.out = nn.Linear(hidden_sizes[-1], num_classes)
-        self.num_classes = num_classes
+            cur_size = hidden_sizes[0]
+            for hidden_size in hidden_sizes[1:]:
+                layers.append(nn.Linear(cur_size, hidden_size))
+                layers.append(nn.ReLU(True))
+                layers.append(nn.Dropout(0.5))
+                cur_size = hidden_size            
+
+            self.out = nn.Linear(hidden_sizes[-1], num_classes)
+
+        else: # there's no hidden layer, it is only a linear classifier
+            self.layers = nn.Sequential() # empty since there's no hidden layer
+            self.out = nn.Linear(input_size, num_classes)
 
     def forward(self, x):
         x = self.layers(x)
