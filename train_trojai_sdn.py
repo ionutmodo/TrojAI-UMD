@@ -137,7 +137,7 @@ def main():
     if 'train' in os.path.basename(root_path) and 'round1' in os.path.basename(root_path): # append 'models' for training dataset
         root_path = os.path.join(root_path, 'models')
 
-    batch_size = 1
+    batch_size = 64
     test_ratio = 0
 
     dict_arch_type = {
