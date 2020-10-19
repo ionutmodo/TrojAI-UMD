@@ -5,14 +5,14 @@ import torch
 
 from architectures.SDNs.SDNConfig import SDNConfig
 from tools.data import TrojAI
-from architectures.SDNs.SDNDenseNet import SDNDenseNet
-from architectures.SDNs.SDNGoogLeNet import SDNGoogLeNet
-from architectures.SDNs.SDNInception3 import SDNInception3
-from architectures.SDNs.SDNMobileNet2 import SDNMobileNet2
-from architectures.SDNs.SDNResNet import SDNResNet
-from architectures.SDNs.SDNShuffleNet import SDNShuffleNet
-from architectures.SDNs.SDNSqueezeNet import SDNSqueezeNet
-from architectures.SDNs.SDNVGG import SDNVGG
+from architectures.SDNs.SDNDenseNet import *#SDNDenseNet
+from architectures.SDNs.SDNGoogLeNet import *#SDNGoogLeNet
+from architectures.SDNs.SDNInception3 import *#SDNInception3
+from architectures.SDNs.SDNMobileNet2 import *#SDNMobileNet2
+from architectures.SDNs.SDNResNet import *#SDNResNet
+from architectures.SDNs.SDNShuffleNet import *#SDNShuffleNet
+from architectures.SDNs.SDNSqueezeNet import *#SDNSqueezeNet
+from architectures.SDNs.SDNVGG import *#SDNVGG
 
 
 def _read_ground_truth(ground_truth_path):
@@ -21,16 +21,45 @@ def _read_ground_truth(ground_truth_path):
         return value
 
 
-def read_model_directory(model_root, num_classes, batch_size, test_ratio, sdn_type, device):
+def read_model_directory(model_root, batch_size, test_ratio, device):
     """This method needs the full path of a model (.../id-00000001) and returns the model, its label and the dataset with images"""
     dataset_path = os.path.join(model_root, 'example_data')
-    ground_truth_path = os.path.join(model_root, 'ground_truth.csv')
+    # ground_truth_path = os.path.join(model_root, 'ground_truth.csv')
     model_path = os.path.join(model_root, 'model.pt')
 
     # print('logistics:read_model_directory - check batch_size!')
-    dataset = TrojAI(folder=dataset_path, test_ratio=test_ratio, batch_size=batch_size, device=device, opencv_format=False)
-    model_label = (_read_ground_truth(ground_truth_path) == 1)
+    clean_dataset = TrojAI(folder=dataset_path, test_ratio=test_ratio, batch_size=batch_size, device=device, opencv_format=False)
+    # model_label = (_read_ground_truth(ground_truth_path) == 1)
     cnn_model = torch.load(model_path, map_location=device).eval()
+
+    sdn_type = -1
+    if isinstance(cnn_model, densenet.DenseNet):
+        sdn_type = SDNConfig.DenseNet_blocks
+        # ctor = SDNDenseNet
+    elif isinstance(cnn_model, GoogLeNet):
+        sdn_type = SDNConfig.GoogLeNet
+        # ctor = SDNGoogLeNet
+    elif isinstance(cnn_model, Inception3):
+        sdn_type = SDNConfig.Inception3
+        # ctor = SDNInception3
+    elif isinstance(cnn_model, MobileNetV2):
+        sdn_type = SDNConfig.MobileNet2
+        # ctor = SDNMobileNet2
+    elif isinstance(cnn_model, ResNet):
+        sdn_type = SDNConfig.ResNet
+        # ctor = SDNResNet
+    elif isinstance(cnn_model, ShuffleNetV2):
+        sdn_type = SDNConfig.ShuffleNet
+        # ctor = SDNShuffleNet
+    elif isinstance(cnn_model, SqueezeNet):
+        sdn_type = SDNConfig.SqueezeNet
+        # ctor = SDNSqueezeNet
+    elif isinstance(cnn_model, VGG):
+        sdn_type = SDNConfig.VGG
+        # ctor = SDNVGG
+
+    # if ctor is None:
+    #     raise RuntimeError('tools.logistics.read_model_directory: invalid model instance')
 
     dict_type_model = {
         SDNConfig.DenseNet_blocks: SDNDenseNet,
@@ -44,14 +73,17 @@ def read_model_directory(model_root, num_classes, batch_size, test_ratio, sdn_ty
     }
 
     if sdn_type not in dict_type_model.keys():
-        raise RuntimeError('The SDN type is not yet implemented!')
+        raise RuntimeError('tools.logistics.read_model_directory: invalid model instance')
+
+    # if sdn_type not in dict_type_model.keys():
+    #     raise RuntimeError('The SDN type is not yet implemented!')
 
     cnn_model = dict_type_model[sdn_type](cnn_model,
                                           input_size=(1, 3, 224, 224),
-                                          num_classes=num_classes,
+                                          num_classes=clean_dataset.num_classes,
                                           sdn_type=sdn_type,
                                           device=device)
-    return dataset, model_label, cnn_model
+    return clean_dataset, sdn_type, cnn_model
 
 
 def get_project_root_path():

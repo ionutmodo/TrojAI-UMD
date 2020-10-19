@@ -182,12 +182,13 @@ class TrojAI:
     def __init__(self, folder, batch_size=128, num_classes=5, test_ratio=0.2, opencv_format=True, img_format='png', device='cuda'):
         """opencv_format will be True for rounds 0 and 1 and False for all others"""
         self.batch_size = batch_size
-        self.num_classes = num_classes
         self.test_ratio = test_ratio
 
         num_workers = 2 if device == 'cpu' else 0
 
         X, y = self._get_images(folder, opencv_format, img_format)
+
+        self.num_classes = len(set(y))
 
         if test_ratio == 0:
             X_train, X_test, y_train, y_test = X, X, y, y

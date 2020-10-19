@@ -53,7 +53,7 @@ def train_trojai_sdn(dataset, trojai_model_w_ics, model_root_path, device):
     arcs.save_model(ics, params, model_root_path, f'ics_train{train_proc}_test{test_proc}_bs{bs}', epoch=-1)
 
 
-def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, device):
+def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, device, log=False):
     ic_count = len(trojai_model_w_ics.get_layerwise_model_params())
     trojai_model_w_ics.eval().to(device)
 
@@ -81,22 +81,23 @@ def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, devi
         svm = OneVsRestClassifier(estimator=SVC(kernel='linear', probability=True, random_state=0),
                                   n_jobs=n_classes)
         svm.fit(features[i], labels)
-        y_pred = svm.predict(features[i])
-
-        list_raw_acc = []
-        list_bal_acc = []
-        for c in range(n_classes):
-            acc_raw = accuracy_score(y_true=labels[:, c], y_pred=y_pred[:, c])
-            acc_balanced = balanced_accuracy_score(y_true=labels[:, c], y_pred=y_pred[:, c])
-
-            list_raw_acc.append(f'{acc_raw * 100.0:.2f}')
-            list_bal_acc.append(f'{acc_balanced * 100.0:.2f}')
-
-        Logger.log(f'SVM-IC-{i} Raw Acc: [{", ".join(list_raw_acc)}]')
-        Logger.log(f'SVM-IC-{i} Bal Acc: [{", ".join(list_bal_acc)}]')
-        Logger.log(f'--------------------------------------------------------------------------')
 
         svm_ics.append(svm)
+        if log:
+            y_pred = svm.predict(features[i])
+
+            list_raw_acc = []
+            list_bal_acc = []
+            for c in range(n_classes):
+                acc_raw = accuracy_score(y_true=labels[:, c], y_pred=y_pred[:, c])
+                acc_balanced = balanced_accuracy_score(y_true=labels[:, c], y_pred=y_pred[:, c])
+
+                list_raw_acc.append(f'{acc_raw * 100.0:.2f}')
+                list_bal_acc.append(f'{acc_balanced * 100.0:.2f}')
+
+            Logger.log(f'SVM-IC-{i} Raw Acc: [{", ".join(list_raw_acc)}]')
+            Logger.log(f'SVM-IC-{i} Bal Acc: [{", ".join(list_bal_acc)}]')
+            Logger.log(f'--------------------------------------------------------------------------')
 
     path_svm = os.path.join(model_root_path, 'svm')
     af.create_path(path_svm)
@@ -104,12 +105,14 @@ def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, devi
     path_svm_model = os.path.join(path_svm, 'svm_models')
     af.save_obj(obj=svm_ics, filename=path_svm_model)
     size = os.path.getsize(path_svm_model) / (2 ** 20)
-    Logger.log(f'SVM model ({size:.2f} MB) saved to {path_svm_model}')
+    if log:
+        Logger.log(f'SVM model ({size:.2f} MB) saved to {path_svm_model}')
 
     path_svm_dataset = os.path.join(path_svm, 'svm_dataset')
     af.save_obj(obj={'features': features, 'labels': labels}, filename=path_svm_dataset)
     size = os.path.getsize(path_svm_dataset) / (2 ** 20)
-    Logger.log(f'SVM dataset ({size:.2f} MB) saved to {path_svm_dataset}')
+    if log:
+        Logger.log(f'SVM dataset ({size:.2f} MB) saved to {path_svm_dataset}')
 
 
 def main():
@@ -162,7 +165,7 @@ def main():
 
                 time_start = datetime.now()
 
-                dataset, model_label, model = read_model_directory(model_root, num_classes, batch_size, test_ratio, sdn_type, device)
+                dataset, model = read_model_directory(model_root, num_classes, batch_size, test_ratio, sdn_type, device)
                 # train_trojai_sdn(dataset, model, model_root, device)
                 train_trojai_sdn_with_svm(dataset, model, model_root, device)
 
