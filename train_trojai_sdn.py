@@ -23,7 +23,8 @@ def train_trojai_sdn(dataset, trojai_model_w_ics, model_root_path, device):
     output_params = trojai_model_w_ics.get_layerwise_model_params()
 
     mlp_num_layers = 2
-    mlp_architecture_param = [2, 2] # use [2] if it takes too much time
+    # mlp_architecture_param =  [2, 2] # use [2] if it takes too much time
+    mlp_architecture_param = [] # empty architecture param means that the MLP won't have any hidden layers, it will be a linear perceptron
     # think about simplifying ICs architecture
     architecture_params = (mlp_num_layers, mlp_architecture_param)
 
