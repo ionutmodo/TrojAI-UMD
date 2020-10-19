@@ -25,6 +25,7 @@ from architectures.SDNs.LightSDN import LightSDN
 import tools.model_funcs as mf
 import tools.aux_funcs as af
 import numpy as np
+import argparse
 
 
 def get_mean_std_diffs(confusion, clean_mean, clean_std, use_abs):
@@ -57,11 +58,11 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     ################################################################################
     #################### STEP 1: train SDN
     ################################################################################
-    clean_dataset, sdn_type, model = read_model_directory(model_root=model_filepath, batch_size=batch_size, test_ratio=0, device=device)
-    num_classes = clean_dataset.num_classes
+    dataset_clean, sdn_type, model = read_model_directory(model_root=model_filepath, batch_size=batch_size, test_ratio=0, device=device)
+    num_classes = dataset_clean.num_classes
 
     # this method saves the SVM-ICs to "scratch_dirpath"/svm/svm_models (the file has no extension)
-    train_trojai_sdn_with_svm(dataset=clean_dataset, trojai_model_w_ics=model, model_root_path=scratch_dirpath, device=device, log=False)
+    train_trojai_sdn_with_svm(dataset=dataset_clean, trojai_model_w_ics=model, model_root_path=scratch_dirpath, device=device, log=False)
 
     ################################################################################
     #################### STEP 2: create backdoored datasets
@@ -91,52 +92,51 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     #################### STEP 3: create backdoored datasets
     ################################################################################
     # create paths
-    path_clean = examples_dirpath
-    path_polygon = os.path.join(scratch_dirpath, f'backdoored_data_polygon_{trigger_size}')
-    path_gotham = os.path.join(scratch_dirpath, f'backdoored_data_filter_gotham')
-    path_kelvin = os.path.join(scratch_dirpath, f'backdoored_data_filter_kelvin')
-    path_lomo = os.path.join(scratch_dirpath, f'backdoored_data_filter_lomo')
+    path_polygon   = os.path.join(scratch_dirpath, f'backdoored_data_polygon_{trigger_size}')
+    path_gotham    = os.path.join(scratch_dirpath, f'backdoored_data_filter_gotham')
+    path_kelvin    = os.path.join(scratch_dirpath, f'backdoored_data_filter_kelvin')
+    path_lomo      = os.path.join(scratch_dirpath, f'backdoored_data_filter_lomo')
     path_nashville = os.path.join(scratch_dirpath, f'backdoored_data_filter_nashville')
-    path_toaster = os.path.join(scratch_dirpath, f'backdoored_data_filter_toaster')
+    path_toaster   = os.path.join(scratch_dirpath, f'backdoored_data_filter_toaster')
 
-    dataset_clean = TrojAI(folder=path_clean, test_ratio=0, batch_size=batch_size, device=device, opencv_format=False)
-    dataset_polygon = TrojAI(folder=path_polygon, test_ratio=0, batch_size=batch_size, device=device, opencv_format=False)
-    dataset_gotham = TrojAI(folder=path_gotham, test_ratio=0, batch_size=batch_size, device=device, opencv_format=False)
-    dataset_kelvin = TrojAI(folder=path_kelvin, test_ratio=0, batch_size=batch_size, device=device, opencv_format=False)
-    dataset_lomo = TrojAI(folder=path_lomo, test_ratio=0, batch_size=batch_size, device=device, opencv_format=False)
+    # the clean dataset is loaded at the beginning
+    dataset_polygon   = TrojAI(folder=path_polygon,   test_ratio=0, batch_size=batch_size, device=device, opencv_format=False)
+    dataset_gotham    = TrojAI(folder=path_gotham,    test_ratio=0, batch_size=batch_size, device=device, opencv_format=False)
+    dataset_kelvin    = TrojAI(folder=path_kelvin,    test_ratio=0, batch_size=batch_size, device=device, opencv_format=False)
+    dataset_lomo      = TrojAI(folder=path_lomo,      test_ratio=0, batch_size=batch_size, device=device, opencv_format=False)
     dataset_nashville = TrojAI(folder=path_nashville, test_ratio=0, batch_size=batch_size, device=device, opencv_format=False)
-    dataset_toaster = TrojAI(folder=path_toaster, test_ratio=0, batch_size=batch_size, device=device, opencv_format=False)
+    dataset_toaster   = TrojAI(folder=path_toaster,   test_ratio=0, batch_size=batch_size, device=device, opencv_format=False)
 
     # load model
-    path_model_cnn = os.path.join(path_root, 'model.pt')
-    path_model_ics = os.path.join(path_root, 'svm', 'svm_models')
+    path_model_cnn = model_filepath
+    path_model_ics = os.path.join(scratch_dirpath, 'svm', 'svm_models')
     sdn_light = LightSDN(path_model_cnn, path_model_ics, sdn_type, num_classes, device)
 
     # step a)
-    confusion_clean = mf.compute_confusion(sdn_light, dataset_clean.train_loader, device)
-    confusion_polygon = mf.compute_confusion(sdn_light, dataset_polygon.train_loader, device)
-    confusion_gotham = mf.compute_confusion(sdn_light, dataset_gotham.train_loader, device)
-    confusion_kelvin = mf.compute_confusion(sdn_light, dataset_kelvin.train_loader, device)
-    confusion_lomo = mf.compute_confusion(sdn_light, dataset_lomo.train_loader, device)
+    confusion_clean     = mf.compute_confusion(sdn_light, dataset_clean.train_loader,     device)
+    confusion_polygon   = mf.compute_confusion(sdn_light, dataset_polygon.train_loader,   device)
+    confusion_gotham    = mf.compute_confusion(sdn_light, dataset_gotham.train_loader,    device)
+    confusion_kelvin    = mf.compute_confusion(sdn_light, dataset_kelvin.train_loader,    device)
+    confusion_lomo      = mf.compute_confusion(sdn_light, dataset_lomo.train_loader,      device)
     confusion_nashville = mf.compute_confusion(sdn_light, dataset_nashville.train_loader, device)
-    confusion_toaster = mf.compute_confusion(sdn_light, dataset_toaster.train_loader, device)
+    confusion_toaster   = mf.compute_confusion(sdn_light, dataset_toaster.train_loader,   device)
 
     # step b)
-    clean_mean, clean_std = get_mean_std_diffs(confusion_clean, 0, 0, use_abs=use_abs_for_diff_features)  # with 0, 0 computes the plain mean and std
-    mean_diff_polygon, std_diff_polygon = get_mean_std_diffs(confusion_polygon, clean_mean, clean_std, use_abs=use_abs_for_diff_features)
-    mean_diff_gotham, std_diff_gotham = get_mean_std_diffs(confusion_gotham, clean_mean, clean_std, use_abs=use_abs_for_diff_features)
-    mean_diff_kelvin, std_diff_kelvin = get_mean_std_diffs(confusion_kelvin, clean_mean, clean_std, use_abs=use_abs_for_diff_features)
-    mean_diff_lomo, std_diff_lomo = get_mean_std_diffs(confusion_lomo, clean_mean, clean_std, use_abs=use_abs_for_diff_features)
+    clean_mean,          clean_std          = get_mean_std_diffs(confusion_clean, 0, 0, use_abs=use_abs_for_diff_features)  # with 0, 0 computes the plain mean and std
+    mean_diff_polygon,   std_diff_polygon   = get_mean_std_diffs(confusion_polygon,   clean_mean, clean_std, use_abs=use_abs_for_diff_features)
+    mean_diff_gotham,    std_diff_gotham    = get_mean_std_diffs(confusion_gotham,    clean_mean, clean_std, use_abs=use_abs_for_diff_features)
+    mean_diff_kelvin,    std_diff_kelvin    = get_mean_std_diffs(confusion_kelvin,    clean_mean, clean_std, use_abs=use_abs_for_diff_features)
+    mean_diff_lomo,      std_diff_lomo      = get_mean_std_diffs(confusion_lomo,      clean_mean, clean_std, use_abs=use_abs_for_diff_features)
     mean_diff_nashville, std_diff_nashville = get_mean_std_diffs(confusion_nashville, clean_mean, clean_std, use_abs=use_abs_for_diff_features)
-    mean_diff_toaster, std_diff_toaster = get_mean_std_diffs(confusion_toaster, clean_mean, clean_std, use_abs=use_abs_for_diff_features)
+    mean_diff_toaster,   std_diff_toaster   = get_mean_std_diffs(confusion_toaster,   clean_mean, clean_std, use_abs=use_abs_for_diff_features)
 
     features = np.array([
-        mean_diff_polygon, std_diff_polygon,
-        mean_diff_gotham, std_diff_gotham,
-        mean_diff_kelvin, std_diff_kelvin,
-        mean_diff_lomo, std_diff_lomo,
+        mean_diff_polygon,   std_diff_polygon,
+        mean_diff_gotham,    std_diff_gotham,
+        mean_diff_kelvin,    std_diff_kelvin,
+        mean_diff_lomo,      std_diff_lomo,
         mean_diff_nashville, std_diff_nashville,
-        mean_diff_toaster, std_diff_toaster
+        mean_diff_toaster,   std_diff_toaster
     ])
 
     ################################################################################
@@ -150,13 +150,11 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
 
 
 if __name__ == "__main__":
-    import argparse
-
     parser = argparse.ArgumentParser(description='Fake Trojan Detector to Demonstrate Test and Evaluation Infrastructure.')
-    parser.add_argument('--model_filepath', type=str, help='File path to the pytorch model file to be evaluated.', default='./model.pt')
-    parser.add_argument('--result_filepath', type=str, help='File path to the file where output result should be written. After execution this file should contain a single line with a single floating point trojan probability.', default='./output')
-    parser.add_argument('--scratch_dirpath', type=str, help='File path to the folder where scratch disk space exists. This folder will be empty at execution start and will be deleted at completion of execution.', default='./scratch')
-    parser.add_argument('--examples_dirpath', type=str, help='File path to the folder of examples which might be useful for determining whether a model is poisoned.', default='./example')
+    parser.add_argument('--model_filepath',   type=str, default='./model.pt', help='File path to the pytorch model file to be evaluated.')
+    parser.add_argument('--result_filepath',  type=str, default='./output',   help='File path to the file where output result should be written. After execution this file should contain a single line with a single floating point trojan probability.')
+    parser.add_argument('--scratch_dirpath',  type=str, default='./scratch',  help='File path to the folder where scratch disk space exists. This folder will be empty at execution start and will be deleted at completion of execution.')
+    parser.add_argument('--examples_dirpath', type=str, default='./example',  help='File path to the folder of examples which might be useful for determining whether a model is poisoned.')
 
     args = parser.parse_args()
     trojan_detector_umd(args.model_filepath, args.result_filepath, args.scratch_dirpath, args.examples_dirpath)
