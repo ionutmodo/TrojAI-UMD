@@ -359,11 +359,11 @@ def train_layerwise_classifiers(layerwise_classifiers, data, epochs, optimizer, 
 
         if epoch in [1, epochs]:
             print('Epoch : {}'.format(epoch))
-            layerwise_ics_test_accs = layerwise_classifiers_test(layerwise_classifiers, data.test_loader, device)
-            print('Layerwise ICs Test Accs: {}'.format(layerwise_ics_test_accs))
+            # layerwise_ics_test_accs = layerwise_classifiers_test(layerwise_classifiers, data.test_loader, device)
+            # print('Layerwise ICs Test Accs: {}'.format(layerwise_ics_test_accs))
 
             layerwise_ics_train_accs = layerwise_classifiers_test(layerwise_classifiers, data.train_loader, device)
-            print('Layerwise ICs Train Accs: {}\n'.format(layerwise_ics_train_accs))
+            print('Layerwise ICs Train=Test Accs: {}\n'.format(layerwise_ics_train_accs))
             sys.stdout.flush()
 
         scheduler.step()
