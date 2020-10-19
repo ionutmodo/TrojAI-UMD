@@ -68,7 +68,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     ################################################################################
     ### the speed can be improved by creating the datasets using multiprocessing (1 process for each dataset to be created)
     # create polygon dataset and save it to disk
-    create_backdoored_dataset(dir_clean_data=os.path.join(examples_dirpath, 'example_data'),
+    create_backdoored_dataset(dir_clean_data=examples_dirpath,
                               dir_backdoored_data=os.path.join(scratch_dirpath, f'backdoored_data_polygon_{trigger_size}'),
                               trigger_type='polygon',
                               trigger_name='square',
@@ -78,7 +78,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
                               trigger_target_class=trigger_target_class)
     # create filters dataset and save it to disk
     for p_filter in list_filters:
-        create_backdoored_dataset(dir_clean_data=os.path.join(examples_dirpath, 'example_data'),
+        create_backdoored_dataset(dir_clean_data=examples_dirpath,
                                   dir_backdoored_data=os.path.join(scratch_dirpath, f'backdoored_data_filter_{p_filter}'),
                                   trigger_type='filter',
                                   trigger_name=p_filter,
@@ -91,13 +91,13 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     #################### STEP 3: create backdoored datasets
     ################################################################################
     # create paths
-    path_clean = os.path.join(path_root, 'example_data')
-    path_polygon = os.path.join(path_root, f'backdoored_data_polygon_{trigger_size}')
-    path_gotham = os.path.join(path_root, f'backdoored_data_filter_gotham')
-    path_kelvin = os.path.join(path_root, f'backdoored_data_filter_kelvin')
-    path_lomo = os.path.join(path_root, f'backdoored_data_filter_lomo')
-    path_nashville = os.path.join(path_root, f'backdoored_data_filter_nashville')
-    path_toaster = os.path.join(path_root, f'backdoored_data_filter_toaster')
+    path_clean = examples_dirpath
+    path_polygon = os.path.join(scratch_dirpath, f'backdoored_data_polygon_{trigger_size}')
+    path_gotham = os.path.join(scratch_dirpath, f'backdoored_data_filter_gotham')
+    path_kelvin = os.path.join(scratch_dirpath, f'backdoored_data_filter_kelvin')
+    path_lomo = os.path.join(scratch_dirpath, f'backdoored_data_filter_lomo')
+    path_nashville = os.path.join(scratch_dirpath, f'backdoored_data_filter_nashville')
+    path_toaster = os.path.join(scratch_dirpath, f'backdoored_data_filter_toaster')
 
     dataset_clean = TrojAI(folder=path_clean, test_ratio=0, batch_size=batch_size, device=device, opencv_format=False)
     dataset_polygon = TrojAI(folder=path_polygon, test_ratio=0, batch_size=batch_size, device=device, opencv_format=False)
