@@ -53,16 +53,16 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     list_filters = ['gotham', 'kelvin', 'lomo', 'nashville', 'toaster']
     path_meta_model = 'TO-BE-FILLED'
     batch_size = 50
-    device = af.get_pytorch_device()
+    _device = af.get_pytorch_device()
 
     ################################################################################
     #################### STEP 1: train SDN
     ################################################################################
-    dataset_clean, sdn_type, model = read_model_directory(model_root=model_filepath, batch_size=batch_size, test_ratio=0, device=device)
+    dataset_clean, sdn_type, model = read_model_directory(model_root=model_filepath, batch_size=batch_size, test_ratio=0, device=_device)
     num_classes = dataset_clean.num_classes
 
     # this method saves the SVM-ICs to "scratch_dirpath"/svm/svm_models (the file has no extension)
-    train_trojai_sdn_with_svm(dataset=dataset_clean, trojai_model_w_ics=model, model_root_path=scratch_dirpath, device=device, log=False)
+    train_trojai_sdn_with_svm(dataset=dataset_clean, trojai_model_w_ics=model, model_root_path=scratch_dirpath, device=_device, log=False)
 
     ################################################################################
     #################### STEP 2: create backdoored datasets
@@ -100,26 +100,26 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     path_toaster   = os.path.join(scratch_dirpath, f'backdoored_data_filter_toaster')
 
     # the clean dataset is loaded at the beginning
-    dataset_polygon   = TrojAI(folder=path_polygon,   test_ratio=0, batch_size=batch_size, device=device, opencv_format=False)
-    dataset_gotham    = TrojAI(folder=path_gotham,    test_ratio=0, batch_size=batch_size, device=device, opencv_format=False)
-    dataset_kelvin    = TrojAI(folder=path_kelvin,    test_ratio=0, batch_size=batch_size, device=device, opencv_format=False)
-    dataset_lomo      = TrojAI(folder=path_lomo,      test_ratio=0, batch_size=batch_size, device=device, opencv_format=False)
-    dataset_nashville = TrojAI(folder=path_nashville, test_ratio=0, batch_size=batch_size, device=device, opencv_format=False)
-    dataset_toaster   = TrojAI(folder=path_toaster,   test_ratio=0, batch_size=batch_size, device=device, opencv_format=False)
+    dataset_polygon   = TrojAI(folder=path_polygon,   test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
+    dataset_gotham    = TrojAI(folder=path_gotham,    test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
+    dataset_kelvin    = TrojAI(folder=path_kelvin,    test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
+    dataset_lomo      = TrojAI(folder=path_lomo,      test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
+    dataset_nashville = TrojAI(folder=path_nashville, test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
+    dataset_toaster   = TrojAI(folder=path_toaster,   test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
 
     # load model
     path_model_cnn = model_filepath
     path_model_ics = os.path.join(scratch_dirpath, 'svm', 'svm_models')
-    sdn_light = LightSDN(path_model_cnn, path_model_ics, sdn_type, num_classes, device)
+    sdn_light = LightSDN(path_model_cnn, path_model_ics, sdn_type, num_classes, _device)
 
     # step a)
-    confusion_clean     = mf.compute_confusion(sdn_light, dataset_clean.train_loader,     device)
-    confusion_polygon   = mf.compute_confusion(sdn_light, dataset_polygon.train_loader,   device)
-    confusion_gotham    = mf.compute_confusion(sdn_light, dataset_gotham.train_loader,    device)
-    confusion_kelvin    = mf.compute_confusion(sdn_light, dataset_kelvin.train_loader,    device)
-    confusion_lomo      = mf.compute_confusion(sdn_light, dataset_lomo.train_loader,      device)
-    confusion_nashville = mf.compute_confusion(sdn_light, dataset_nashville.train_loader, device)
-    confusion_toaster   = mf.compute_confusion(sdn_light, dataset_toaster.train_loader,   device)
+    confusion_clean     = mf.compute_confusion(sdn_light, dataset_clean.train_loader,     _device)
+    confusion_polygon   = mf.compute_confusion(sdn_light, dataset_polygon.train_loader,   _device)
+    confusion_gotham    = mf.compute_confusion(sdn_light, dataset_gotham.train_loader,    _device)
+    confusion_kelvin    = mf.compute_confusion(sdn_light, dataset_kelvin.train_loader,    _device)
+    confusion_lomo      = mf.compute_confusion(sdn_light, dataset_lomo.train_loader,      _device)
+    confusion_nashville = mf.compute_confusion(sdn_light, dataset_nashville.train_loader, _device)
+    confusion_toaster   = mf.compute_confusion(sdn_light, dataset_toaster.train_loader,   _device)
 
     # step b)
     clean_mean,          clean_std          = get_mean_std_diffs(confusion_clean, 0, 0, use_abs=use_abs_for_diff_features)  # with 0, 0 computes the plain mean and std
@@ -159,4 +159,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     trojan_detector_umd(args.model_filepath, args.result_filepath, args.scratch_dirpath, args.examples_dirpath)
 
-# TODO: set a limit for the number of images per class when reading them from disk
+# TODO: set a limit for the number of images per class when reading them from disk (Sanghyun's idea with 1,3,5 images per class)
