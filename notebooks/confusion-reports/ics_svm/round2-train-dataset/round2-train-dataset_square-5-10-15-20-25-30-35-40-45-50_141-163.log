@@ -1,0 +1,647 @@
+started at 2020-10-16 15:44:27.678741
+!!! Round 2: USE RGB COLORS
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000141 squeezenetv1_0 (clean)
+loading model id-00000141 (clean)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+model id-00000141 took 0:02:02.034417
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000142 shufflenet1_0 (clean)
+loading model id-00000142 (clean)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+model id-00000142 took 0:01:00.911024
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000143 vgg11bn (backdoor)
+loading model id-00000143 (backdoor)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+model id-00000143 took 0:01:07.092309
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000144 squeezenetv1_1 (clean)
+loading model id-00000144 (clean)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+model id-00000144 took 0:00:52.714687
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000145 resnet18 (backdoor)
+loading model id-00000145 (backdoor)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+model id-00000145 took 0:00:19.376511
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000146 densenet201 (backdoor)
+loading model id-00000146 (backdoor)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+model id-00000146 took 0:01:24.182193
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000147 squeezenetv1_0 (clean)
+loading model id-00000147 (clean)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+model id-00000147 took 0:01:56.414289
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000148 resnet152 (backdoor)
+loading model id-00000148 (backdoor)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+model id-00000148 took 0:02:30.849098
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000149 mobilenetv2 (backdoor)
+loading model id-00000149 (backdoor)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+model id-00000149 took 0:01:00.844919
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000150 vgg11bn (clean)
+loading model id-00000150 (clean)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+model id-00000150 took 0:03:09.619373
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000151 densenet169 (clean)
+loading model id-00000151 (clean)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+model id-00000151 took 0:04:52.089701
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000152 shufflenet2_0 (backdoor)
+loading model id-00000152 (backdoor)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+model id-00000152 took 0:02:00.254620
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000153 densenet201 (clean)
+loading model id-00000153 (clean)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+model id-00000153 took 0:07:21.625254
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000154 densenet121 (clean)
+loading model id-00000154 (clean)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+model id-00000154 took 0:02:30.890364
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000155 densenet121 (clean)
+loading model id-00000155 (clean)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+model id-00000155 took 0:06:19.067131
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000156 densenet121 (backdoor)
+loading model id-00000156 (backdoor)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...
+START APPENDING TO EXISTING FILE
+
+started at 2020-10-16 16:41:41.981427
+!!! Round 2: USE RGB COLORS
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000156 densenet121 (backdoor)
+loading model id-00000156 (backdoor)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+model id-00000156 took 0:01:32.645840
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000157 resnet34 (backdoor)
+loading model id-00000157 (backdoor)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+model id-00000157 took 0:00:31.346600
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000158 resnet152 (backdoor)
+loading model id-00000158 (backdoor)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+model id-00000158 took 0:16:12.709926
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000159 densenet121 (clean)
+loading model id-00000159 (clean)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+model id-00000159 took 0:09:55.321187
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000160 inceptionv3 (clean)
+loading model id-00000160 (clean)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+model id-00000160 took 0:03:34.127204
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000161 inceptionv3 (clean)
+loading model id-00000161 (clean)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+model id-00000161 took 0:03:31.659061
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000162 resnet152 (backdoor)
+loading model id-00000162 (backdoor)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+model id-00000162 took 0:01:57.554777
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000163 mobilenetv2 (clean)
+loading model id-00000163 (clean)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-10_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-15_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-20_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-25_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-30_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-35_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-40_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-45_backd-original-color_clean-black-color...done
+reading dataset backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-50_backd-original-color_clean-black-color...done
+model id-00000163 took 0:02:34.647953
+
+square-5-10-15-20-25-30-35-40-45-50_141-552
+model id-00000164 densenet161 (backdoor)
+loading model id-00000164 (backdoor)...done
+reading dataset example_data...done
+computing confusion for example_data...done
+reading dataset backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...done
+computing confusion for backdoored_data_custom-square-size-5_backd-original-color_clean-black-color...
