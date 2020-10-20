@@ -17,13 +17,17 @@
        b) compute mean_diff and std_diff statistics between each confusion distribution and clean one
     4. use the values from step 5 to get a prediction using the binary meta-classifier
 """
-
+import sys
+sys.path.append('architectures')
+sys.path.append('tools')
+sys.path.append('trojai')
 from tools.logistics import *
 from train_trojai_sdn import train_trojai_sdn_with_svm
 from tools.data import create_backdoored_dataset
 from architectures.SDNs.LightSDN import LightSDN
 import tools.model_funcs as mf
 import tools.aux_funcs as af
+from datetime import datetime
 import numpy as np
 import argparse
 
@@ -46,29 +50,37 @@ def write_prediction(filepath, backd_proba):
 
 
 def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, examples_dirpath):
+    time_start = datetime.now()
+    print_messages = True
     use_abs_for_diff_features = False
     trigger_size = 20 # for polygon dataset
     trigger_color = (0, 0, 0) # also try (127, 127, 127) or random (R, G, B) files
     trigger_target_class = 0 # can be anything, its used just for the new file name
     list_filters = ['gotham', 'kelvin', 'lomo', 'nashville', 'toaster']
-    path_meta_model = 'TO-BE-FILLED'
+    path_meta_model = '/metamodels/metamodel_square25_filters_black_square.pickle'
     batch_size = 50
     _device = af.get_pytorch_device()
 
     ################################################################################
     #################### STEP 1: train SDN
     ################################################################################
+    if print_messages:
+        print('[info] reading clean dataset & model')
     dataset_clean, sdn_type, model = read_model_directory(model_root=model_filepath, batch_size=batch_size, test_ratio=0, device=_device)
     num_classes = dataset_clean.num_classes
 
+    if print_messages:
+        print('[info] training SDN with SVM ICs')
     # this method saves the SVM-ICs to "scratch_dirpath"/svm/svm_models (the file has no extension)
-    train_trojai_sdn_with_svm(dataset=dataset_clean, trojai_model_w_ics=model, model_root_path=scratch_dirpath, device=_device, log=False)
+    train_trojai_sdn_with_svm(dataset=dataset_clean, trojai_model_w_ics=model, model_root_path=scratch_dirpath, device=_device, log=print_messages)
 
     ################################################################################
     #################### STEP 2: create backdoored datasets
     ################################################################################
     ### the speed can be improved by creating the datasets using multiprocessing (1 process for each dataset to be created)
     # create polygon dataset and save it to disk
+    if print_messages:
+        print('[info] creating polygon dataset')
     create_backdoored_dataset(dir_clean_data=examples_dirpath,
                               dir_backdoored_data=os.path.join(scratch_dirpath, f'backdoored_data_polygon_{trigger_size}'),
                               trigger_type='polygon',
@@ -79,6 +91,8 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
                               trigger_target_class=trigger_target_class)
     # create filters dataset and save it to disk
     for p_filter in list_filters:
+        if print_messages:
+            print('[info] creating dataset for filter', p_filter)
         create_backdoored_dataset(dir_clean_data=examples_dirpath,
                                   dir_backdoored_data=os.path.join(scratch_dirpath, f'backdoored_data_filter_{p_filter}'),
                                   trigger_type='filter',
@@ -99,6 +113,8 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     path_nashville = os.path.join(scratch_dirpath, f'backdoored_data_filter_nashville')
     path_toaster   = os.path.join(scratch_dirpath, f'backdoored_data_filter_toaster')
 
+    if print_messages:
+        print('[info] loading backdoored datasets')
     # the clean dataset is loaded at the beginning
     dataset_polygon   = TrojAI(folder=path_polygon,   test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
     dataset_gotham    = TrojAI(folder=path_gotham,    test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
@@ -108,11 +124,15 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     dataset_toaster   = TrojAI(folder=path_toaster,   test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
 
     # load model
+    if print_messages:
+        print('[info] loading SDN')
     path_model_cnn = model_filepath
     path_model_ics = os.path.join(scratch_dirpath, 'svm', 'svm_models')
     sdn_light = LightSDN(path_model_cnn, path_model_ics, sdn_type, num_classes, _device)
 
     # step a)
+    if print_messages:
+        print('[info] computing confusion distributions')
     confusion_clean     = mf.compute_confusion(sdn_light, dataset_clean.train_loader,     _device)
     confusion_polygon   = mf.compute_confusion(sdn_light, dataset_polygon.train_loader,   _device)
     confusion_gotham    = mf.compute_confusion(sdn_light, dataset_gotham.train_loader,    _device)
@@ -122,6 +142,8 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     confusion_toaster   = mf.compute_confusion(sdn_light, dataset_toaster.train_loader,   _device)
 
     # step b)
+    if print_messages:
+        print('[info] computing mean and std diffs')
     clean_mean,          clean_std          = get_mean_std_diffs(confusion_clean, 0, 0, use_abs=use_abs_for_diff_features)  # with 0, 0 computes the plain mean and std
     mean_diff_polygon,   std_diff_polygon   = get_mean_std_diffs(confusion_polygon,   clean_mean, clean_std, use_abs=use_abs_for_diff_features)
     mean_diff_gotham,    std_diff_gotham    = get_mean_std_diffs(confusion_gotham,    clean_mean, clean_std, use_abs=use_abs_for_diff_features)
@@ -142,11 +164,16 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     ################################################################################
     #################### STEP 4: predict backdoor probability
     ################################################################################
+    if print_messages:
+        print('[info] predicting backd proba')
     meta_model = af.load_obj(filename=path_meta_model)
     backd_proba = meta_model.predict_proba(features)
 
     ### write prediction to file
     write_prediction(result_filepath, backd_proba)
+    time_end = datetime.now()
+    if print_messages:
+        print(f'[info] script ended (elapsed {time_end - time_start})')
 
 
 if __name__ == "__main__":
@@ -160,3 +187,4 @@ if __name__ == "__main__":
     trojan_detector_umd(args.model_filepath, args.result_filepath, args.scratch_dirpath, args.examples_dirpath)
 
 # TODO: set a limit for the number of images per class when reading them from disk (Sanghyun's idea with 1,3,5 images per class)
+# --model_filepath /home/ionut/trojai/TrojAI-test/id-1100/model.pt --result_filepath /home/ionut/trojai/TrojAI-test/id-1100_result.txt --scratch_dirpath /home/ionut/trojai/TrojAI-test/id-1100_scratch --examples_dirpath /home/ionut/trojai/TrojAI-test/id-1100/example_data
