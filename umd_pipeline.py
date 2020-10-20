@@ -53,11 +53,11 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     time_start = datetime.now()
     print_messages = True
     use_abs_for_diff_features = False
-    trigger_size = 20 # for polygon dataset
+    trigger_size = 25 # for polygon dataset
     trigger_color = (0, 0, 0) # also try (127, 127, 127) or random (R, G, B) files
     trigger_target_class = 0 # can be anything, its used just for the new file name
     list_filters = ['gotham', 'kelvin', 'lomo', 'nashville', 'toaster']
-    path_meta_model = '/metamodels/metamodel_square25_filters_black_square.pickle'
+    path_meta_model = '/metamodels/metamodel_svm_square25_filters_black_square.pickle'
     batch_size = 50
     _device = af.get_pytorch_device()
 
