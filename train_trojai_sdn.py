@@ -154,26 +154,31 @@ def main():
 
     Logger.log('!!! Round2: opencv_format=False in TrojAI constructor!!!')
 
+    lim_left = 69
+    lim_right = 552
+
+    Logger.log(f'lim_left={lim_left}, lim_right={lim_right}')
+
     for index, row in metadata.iterrows():
         model_name = row['model_name']
-        # model_id = int(model_name[3:])
-        model_architecture = row['model_architecture']
-        num_classes = row['number_classes']
-        poisoned = 'backdoored' if bool(row['poisoned']) else 'clean'
+        model_id = int(model_name[3:])
+        if lim_left <= model_id <= lim_right:
+            model_architecture = row['model_architecture']
+            poisoned = 'backdoored' if bool(row['poisoned']) else 'clean'
 
-        for arch_prefix, sdn_type in dict_arch_type.items():
-            if model_architecture.startswith(arch_prefix):
-                model_root = os.path.join(root_path, model_name)
-                Logger.log(f'Training {model_architecture}-sdn ({poisoned}) in {model_root}')
+            for arch_prefix, sdn_type in dict_arch_type.items():
+                if model_architecture.startswith(arch_prefix):
+                    model_root = os.path.join(root_path, model_name)
+                    Logger.log(f'Training {model_architecture}-sdn ({poisoned}) in {model_root}')
 
-                time_start = datetime.now()
+                    time_start = datetime.now()
 
-                dataset, sdn_type, model = read_model_directory(model_root, batch_size, test_ratio, device)
-                train_trojai_sdn(dataset, model, model_root, device)
-                # train_trojai_sdn_with_svm(dataset, model, model_root, device)
+                    dataset, sdn_type, model = read_model_directory(model_root, batch_size, test_ratio, device)
+                    train_trojai_sdn(dataset, model, model_root, device)
+                    # train_trojai_sdn_with_svm(dataset, model, model_root, device)
 
-                time_end = datetime.now()
-                Logger.log(f'elapsed {time_end - time_start}\n')
+                    time_end = datetime.now()
+                    Logger.log(f'elapsed {time_end - time_start}\n')
     Logger.log('script ended')
     Logger.close()
 
