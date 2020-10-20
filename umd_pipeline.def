@@ -1,0 +1,22 @@
+Bootstrap: docker
+From: pytorch/pytorch:latest
+
+%files
+    ./metamodels/ /
+    ./tools/ /
+    ./architectures/SDNs/ /
+    ./trojai/ /
+    ./umd_pipeline.py /
+
+%post
+    pip install pandas
+    pip install numpy
+    pip install pillow
+    pip install scipy
+    pip install seaborn
+    pip install wand
+    pip install scikit-learn
+    pip install scikit-image
+
+%runscript
+    exec python3 /umd_pipeline.py "$@"
