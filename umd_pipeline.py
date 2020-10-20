@@ -18,9 +18,10 @@
     4. use the values from step 5 to get a prediction using the binary meta-classifier
 """
 import sys
-sys.path.append('architectures')
-sys.path.append('tools')
-sys.path.append('trojai')
+for folder in ['/umd/architectures', '/umd/tools', '/umd/trojai']:
+    if folder not in sys.path:
+        sys.path.append(folder)
+
 from tools.logistics import *
 from train_trojai_sdn import train_trojai_sdn_with_svm
 from tools.data import create_backdoored_dataset

@@ -1,4 +1,8 @@
 import sys
+for folder in ['/umd/architectures', '/umd/tools', '/umd/trojai']:
+    if folder not in sys.path:
+        sys.path.append(folder)
+
 import numpy as np
 import pandas as pd
 

@@ -1,9 +1,11 @@
+import sys
+for folder in ['/umd/architectures', '/umd/tools', '/umd/trojai']:
+    if folder not in sys.path:
+        sys.path.append(folder)
+
 import os
 import socket
 
-import torch
-
-from architectures.SDNs.SDNConfig import SDNConfig
 from tools.data import TrojAI
 from architectures.SDNs.SDNDenseNet import *#SDNDenseNet
 from architectures.SDNs.SDNGoogLeNet import *#SDNGoogLeNet

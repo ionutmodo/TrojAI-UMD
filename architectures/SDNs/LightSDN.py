@@ -1,4 +1,8 @@
-import numpy as np
+import sys
+for folder in ['/umd/architectures', '/umd/tools', '/umd/trojai']:
+    if folder not in sys.path:
+        sys.path.append(folder)
+
 import torch
 import torch.nn as nn
 import tools.aux_funcs as af

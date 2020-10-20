@@ -1,12 +1,15 @@
 Bootstrap: docker
 From: pytorch/pytorch:latest
 
+%setup
+    mkdir /umd
+
 %files
-    ./metamodels/ /
-    ./tools/ /
-    ./architectures/SDNs/ /
-    ./trojai/ /
-    ./umd_pipeline.py /
+    ./metamodels/ /umd
+    ./tools/ /umd
+    ./architectures/SDNs/ /umd
+    ./trojai/ /umd
+    ./umd_pipeline.py /umd
 
 %post
     pip install pandas
@@ -19,4 +22,4 @@ From: pytorch/pytorch:latest
     pip install scikit-image
 
 %runscript
-    exec python3 /umd_pipeline.py "$@"
+    exec python3 /umd/umd_pipeline.py "$@"

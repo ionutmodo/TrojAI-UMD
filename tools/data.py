@@ -1,8 +1,12 @@
+import sys
+for folder in ['/umd/architectures', '/umd/tools', '/umd/trojai']:
+    if folder not in sys.path:
+        sys.path.append(folder)
+
 import ast
 import PIL.Image
 import torch
-import os, sys
-import math
+import os
 import pandas as pd
 import numpy as np
 import wand
