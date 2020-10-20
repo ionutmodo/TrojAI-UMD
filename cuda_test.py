@@ -1,10 +1,9 @@
-import numpy as np
 import torch
 import torchvision
 import os
 from tools.logistics import get_project_root_path
-from tools.network_architectures import load_trojai_model, load_model, load_params
-from architectures.SDNs.MLP import LayerwiseClassifiers
+from tools.network_architectures import load_params
+from MLP import LayerwiseClassifiers
 
 print(f'torch version: {torch.__version__}')
 print(f'torchvision version: {torchvision.__version__}')

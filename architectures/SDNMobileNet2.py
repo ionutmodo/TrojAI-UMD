@@ -6,9 +6,9 @@ for folder in ['/umd/architectures', '/umd/tools', '/umd/trojai']:
 import torch
 from torch import nn
 import tools.aux_funcs as af
-from architectures.SDNs.SDNConfig import SDNConfig
-from architectures.SDNs.SDNTrojAI import SDNTrojAI
-from torchvision.models.mobilenet import MobileNetV2, InvertedResidual
+from SDNConfig import SDNConfig
+from SDNTrojAI import SDNTrojAI
+from torchvision.models.mobilenet import InvertedResidual
 
 
 class SDNMobileNet2(SDNTrojAI):

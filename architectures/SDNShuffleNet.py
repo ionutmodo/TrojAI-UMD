@@ -4,11 +4,9 @@ for folder in ['/umd/architectures', '/umd/tools', '/umd/trojai']:
         sys.path.append(folder)
 
 import torch
-from torch import nn
 import tools.aux_funcs as af
-from architectures.SDNs.SDNConfig import SDNConfig
-from architectures.SDNs.SDNTrojAI import SDNTrojAI
-from torchvision.models.shufflenetv2 import ShuffleNetV2
+from SDNConfig import SDNConfig
+from SDNTrojAI import SDNTrojAI
 
 
 class SDNShuffleNet(SDNTrojAI):

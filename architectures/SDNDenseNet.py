@@ -7,8 +7,8 @@ import torch
 import torch.nn.functional as F
 from torchvision.models import densenet
 import tools.aux_funcs as af
-from architectures.SDNs.SDNTrojAI import SDNTrojAI
-from architectures.SDNs.SDNConfig import SDNConfig
+from SDNTrojAI import SDNTrojAI
+from SDNConfig import SDNConfig
 
 
 def _forward_w_acts_for_attaching_at_DenseBlocks(x, net_features):

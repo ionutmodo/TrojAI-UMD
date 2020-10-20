@@ -6,10 +6,8 @@ for folder in ['/umd/architectures', '/umd/tools', '/umd/trojai']:
 import torch
 import torch.nn.functional as F
 import tools.aux_funcs as af
-from architectures.SDNs.SDNConfig import SDNConfig
-from architectures.SDNs.SDNTrojAI import SDNTrojAI
-from torchvision.models.inception import Inception3
-from torchvision.models.inception import InceptionA, InceptionB, InceptionC, InceptionD, InceptionE
+from SDNConfig import SDNConfig
+from SDNTrojAI import SDNTrojAI
 
 
 class SDNInception3(SDNTrojAI):

@@ -1,18 +1,10 @@
-import sys
-import os
 import ast
-import math
-import pickle
-import shutil
 import numpy as np
 import pandas as pd
 from datetime import datetime
 
-import tools.aux_funcs as af
 import tools.model_funcs as mf
-from architectures.SDNs.LightSDN import LightSDN
-from tools.network_architectures import load_trojai_model
-from architectures.SDNs.SDNConfig import SDNConfig
+from LightSDN import LightSDN
 
 from tools.logistics import *
 from tools.data import create_backdoored_dataset

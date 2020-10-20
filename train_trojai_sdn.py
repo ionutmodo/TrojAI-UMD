@@ -8,19 +8,17 @@ import pandas as pd
 
 from sklearn.svm import SVC
 from sklearn.multiclass import OneVsRestClassifier
-from sklearn.metrics import roc_auc_score, roc_curve, auc
 from sklearn.preprocessing import label_binarize
 from sklearn.metrics import accuracy_score, balanced_accuracy_score
 
 from datetime import datetime
-import tools.aux_funcs as af
 import tools.model_funcs as mf
 import tools.network_architectures as arcs
 from tools.logistics import *
 from tools.logger import Logger
 
-from architectures.SDNs.SDNConfig import SDNConfig
-from architectures.SDNs.MLP import LayerwiseClassifiers
+from SDNConfig import SDNConfig
+from MLP import LayerwiseClassifiers
 
 
 def train_trojai_sdn(dataset, trojai_model_w_ics, model_root_path, device):

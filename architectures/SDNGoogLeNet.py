@@ -5,9 +5,8 @@ for folder in ['/umd/architectures', '/umd/tools', '/umd/trojai']:
 
 import torch
 import tools.aux_funcs as af
-from architectures.SDNs.SDNConfig import SDNConfig
-from architectures.SDNs.SDNTrojAI import SDNTrojAI
-from torchvision.models.googlenet import GoogLeNet, Inception
+from SDNConfig import SDNConfig
+from SDNTrojAI import SDNTrojAI
 
 
 class SDNGoogLeNet(SDNTrojAI):

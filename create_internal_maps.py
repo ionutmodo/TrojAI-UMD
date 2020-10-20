@@ -1,18 +1,14 @@
 import matplotlib
 matplotlib.use('tkagg')
-import matplotlib.pyplot as plt
 import os
 import sys
 import torch
 import numpy as np
 import pandas as pd
 import tools.aux_funcs as af
-from tools.settings import *
 from tools.logistics import get_project_root_path
 from tools.network_architectures import load_trojai_model
-from architectures.SDNs.SDNConfig import SDNConfig
-import torch.multiprocessing as mp
-from datetime import datetime
+from SDNConfig import SDNConfig
 
 ###### GLOBAL VARIABLES
 sdn_type = SDNConfig.DenseNet_blocks

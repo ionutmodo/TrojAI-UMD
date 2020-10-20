@@ -15,11 +15,11 @@ import os.path
 # from encoder import LayerwiseAutoencoders
 from torchvision.models import densenet, inception, resnet
 
-from architectures.SDNs.MLP import LayerwiseClassifiers
+from MLP import LayerwiseClassifiers
 
-from architectures.SDNs.SDNDenseNet import SDNDenseNet
-from architectures.SDNs.SDNResNet import SDNResNet
-from architectures.SDNs.SDNInception3 import SDNInception3
+from SDNDenseNet import SDNDenseNet
+from SDNResNet import SDNResNet
+from SDNInception3 import SDNInception3
 from tools.settings import TrojAI_input_size
 
 

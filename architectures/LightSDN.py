@@ -6,15 +6,15 @@ for folder in ['/umd/architectures', '/umd/tools', '/umd/trojai']:
 import torch
 import torch.nn as nn
 import tools.aux_funcs as af
-from architectures.SDNs.SDNConfig import SDNConfig
-from architectures.SDNs.SDNDenseNet import SDNDenseNet
-from architectures.SDNs.SDNGoogLeNet import SDNGoogLeNet
-from architectures.SDNs.SDNInception3 import SDNInception3
-from architectures.SDNs.SDNMobileNet2 import SDNMobileNet2
-from architectures.SDNs.SDNResNet import SDNResNet
-from architectures.SDNs.SDNShuffleNet import SDNShuffleNet
-from architectures.SDNs.SDNSqueezeNet import SDNSqueezeNet
-from architectures.SDNs.SDNVGG import SDNVGG
+from SDNConfig import SDNConfig
+from SDNDenseNet import SDNDenseNet
+from SDNGoogLeNet import SDNGoogLeNet
+from SDNInception3 import SDNInception3
+from SDNMobileNet2 import SDNMobileNet2
+from SDNResNet import SDNResNet
+from SDNShuffleNet import SDNShuffleNet
+from SDNSqueezeNet import SDNSqueezeNet
+from SDNVGG import SDNVGG
 
 
 class LightSDN(nn.Module):

@@ -6,8 +6,8 @@ for folder in ['/umd/architectures', '/umd/tools', '/umd/trojai']:
 import time
 import numpy as np
 
-from architectures.SDNs.LightSDN import LightSDN
-from architectures.SDNs.MLP import MLP
+from LightSDN import LightSDN
+from MLP import MLP
 import tools.aux_funcs as af
 import tools.data as data_module
 import torch

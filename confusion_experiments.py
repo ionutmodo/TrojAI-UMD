@@ -1,14 +1,12 @@
 import os
-import socket
 
-import numpy as np
 import torch
 
 import tools.aux_funcs as af
 import tools.model_funcs as mf
 import tools.network_architectures as arcs
-from architectures.SDNs.SDNConfig import SDNConfig
-from architectures.SDNs.SDNDenseNet import SDNDenseNet
+from SDNConfig import SDNConfig
+from SDNDenseNet import SDNDenseNet
 from tools.logistics import get_project_root_path
 from tools.data import TrojAI
 

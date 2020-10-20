@@ -1,20 +1,14 @@
-import os, sys
-import socket
+import sys
 
-import pandas as pd
-import numpy as np
 sys.path.insert(0, 'trojai')
-import cv2
-import torch
 from glob import glob
 
 import PIL
-import io
 import wand.image
 
 from tools import network_architectures as arcs
-from architectures.SDNs.SDNConfig import SDNConfig
-from architectures.SDNs.SDNDenseNet import SDNDenseNet
+from SDNConfig import SDNConfig
+from SDNDenseNet import SDNDenseNet
 from tools.data import *
 from tools.settings import *
 import skimage.io
@@ -26,7 +20,7 @@ import trojai.datagen.xform_merge_pipeline as tdx
 import trojai.datagen.instagram_xforms as tinstx
 import trojai.datagen.merge_interface as td_merge
 from trojai.datagen.image_entity import GenericImageEntity
-from trojai.datagen.insert_merges import InsertAtRandomLocation, InsertAtLocation
+from trojai.datagen.insert_merges import InsertAtLocation
 
 
 def test_SDN_for_TrojAI():

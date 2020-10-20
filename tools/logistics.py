@@ -7,14 +7,14 @@ import os
 import socket
 
 from tools.data import TrojAI
-from architectures.SDNs.SDNDenseNet import *#SDNDenseNet
-from architectures.SDNs.SDNGoogLeNet import *#SDNGoogLeNet
-from architectures.SDNs.SDNInception3 import *#SDNInception3
-from architectures.SDNs.SDNMobileNet2 import *#SDNMobileNet2
-from architectures.SDNs.SDNResNet import *#SDNResNet
-from architectures.SDNs.SDNShuffleNet import *#SDNShuffleNet
-from architectures.SDNs.SDNSqueezeNet import *#SDNSqueezeNet
-from architectures.SDNs.SDNVGG import *#SDNVGG
+from SDNDenseNet import *#SDNDenseNet
+from SDNGoogLeNet import *#SDNGoogLeNet
+from SDNInception3 import *#SDNInception3
+from SDNMobileNet2 import *#SDNMobileNet2
+from SDNResNet import *#SDNResNet
+from SDNShuffleNet import *#SDNShuffleNet
+from SDNSqueezeNet import *#SDNSqueezeNet
+from SDNVGG import *#SDNVGG
 
 
 def _read_ground_truth(ground_truth_path):

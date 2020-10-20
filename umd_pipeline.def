@@ -2,6 +2,7 @@ Bootstrap: docker
 From: pytorch/pytorch:latest
 
 %setup
+    rm -rf /umd
     mkdir /umd
 
 %files
@@ -14,12 +15,14 @@ From: pytorch/pytorch:latest
 %post
     pip install pandas
     pip install numpy
+    pip install matplotlib
     pip install pillow
     pip install scipy
     pip install seaborn
     pip install wand
     pip install scikit-learn
     pip install scikit-image
+    pip install dill
 
 %runscript
     exec python3 /umd/umd_pipeline.py "$@"
