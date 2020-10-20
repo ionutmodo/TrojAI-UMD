@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 import wand
 from tools.settings import TrojAI_input_size
-sys.path.insert(0, 'trojai')
+sys.path.append('trojai')
 import tools.aux_funcs as af
 from torchvision import datasets, transforms
 from torch.utils.data import sampler, random_split
