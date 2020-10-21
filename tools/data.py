@@ -1,8 +1,3 @@
-import sys
-for folder in ['/umd/architectures', '/umd/tools', '/umd/trojai']:
-    if folder not in sys.path:
-        sys.path.append(folder)
-
 import ast
 import PIL.Image
 import torch
@@ -11,6 +6,7 @@ import pandas as pd
 import numpy as np
 import wand
 from tools.settings import TrojAI_input_size
+import sys
 sys.path.append('trojai')
 import tools.aux_funcs as af
 from torchvision import datasets, transforms

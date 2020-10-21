@@ -1,20 +1,15 @@
-import sys
-for folder in ['/umd/architectures', '/umd/tools', '/umd/trojai']:
-    if folder not in sys.path:
-        sys.path.append(folder)
-
 import torch
 import torch.nn as nn
 import tools.aux_funcs as af
-from SDNConfig import SDNConfig
-from SDNDenseNet import SDNDenseNet
-from SDNGoogLeNet import SDNGoogLeNet
-from SDNInception3 import SDNInception3
-from SDNMobileNet2 import SDNMobileNet2
-from SDNResNet import SDNResNet
-from SDNShuffleNet import SDNShuffleNet
-from SDNSqueezeNet import SDNSqueezeNet
-from SDNVGG import SDNVGG
+from architectures.SDNConfig import SDNConfig
+from architectures.SDNDenseNet import SDNDenseNet
+from architectures.SDNGoogLeNet import SDNGoogLeNet
+from architectures.SDNInception3 import SDNInception3
+from architectures.SDNMobileNet2 import SDNMobileNet2
+from architectures.SDNResNet import SDNResNet
+from architectures.SDNShuffleNet import SDNShuffleNet
+from architectures.SDNSqueezeNet import SDNSqueezeNet
+from architectures.SDNVGG import SDNVGG
 
 
 class LightSDN(nn.Module):

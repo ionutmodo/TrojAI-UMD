@@ -7,8 +7,8 @@ import PIL
 import wand.image
 
 from tools import network_architectures as arcs
-from SDNConfig import SDNConfig
-from SDNDenseNet import SDNDenseNet
+from architectures.SDNConfig import SDNConfig
+from architectures.SDNDenseNet import SDNDenseNet
 from tools.data import *
 from tools.settings import *
 import skimage.io

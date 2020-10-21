@@ -11,7 +11,7 @@ from tools.logistics import get_project_root_path
 from tools.data import ManualData
 from tools.network_architectures import load_trojai_model, get_label_and_confidence_from_logits
 from tools.settings import *
-from SDNConfig import SDNConfig
+from architectures.SDNConfig import SDNConfig
 
 def show_label_confidence_for_sdn_outputs(outputs):
     for out in outputs:

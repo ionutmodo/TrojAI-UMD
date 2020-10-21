@@ -1,24 +1,16 @@
-import sys
-for folder in ['/umd/architectures', '/umd/tools', '/umd/trojai']:
-    if folder not in sys.path:
-        sys.path.append(folder)
-
 import numpy as np
 import pandas as pd
-
 from sklearn.svm import SVC
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.preprocessing import label_binarize
 from sklearn.metrics import accuracy_score, balanced_accuracy_score
-
 from datetime import datetime
 import tools.model_funcs as mf
 import tools.network_architectures as arcs
 from tools.logistics import *
 from tools.logger import Logger
-
-from SDNConfig import SDNConfig
-from MLP import LayerwiseClassifiers
+from architectures.SDNConfig import SDNConfig
+from architectures.MLP import LayerwiseClassifiers
 
 
 def train_trojai_sdn(dataset, trojai_model_w_ics, model_root_path, device):

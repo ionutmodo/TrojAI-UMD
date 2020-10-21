@@ -1,28 +1,18 @@
 Bootstrap: docker
 From: pytorch/pytorch:latest
 
-%setup
-    rm -rf /umd
-    mkdir /umd
-
 %files
-    ./metamodels/ /umd
-    ./tools/ /umd
-    ./architectures/SDNs/ /umd
-    ./trojai/ /umd
-    ./umd_pipeline.py /umd
+    ./metamodel* /
+    ./tools/ /
+    ./architectures/ /
+    ./trojai/ /
+    ./umd_pipeline.py /
 
 %post
-    pip install pandas
-    pip install numpy
-    pip install matplotlib
-    pip install pillow
-    pip install scipy
-    pip install seaborn
-    pip install wand
-    pip install scikit-learn
-    pip install scikit-image
-    pip install dill
+    apt-get update
+    apt-get install -y libsm6 libxext6 libxrender-dev libgtk2.0-dev libmagickwand-dev
+    pip install --no-cache-dir opencv-python pandas numpy matplotlib pillow scipy seaborn wand scikit-learn scikit-image dill pyllist nltk tqdm
+    chmod 777 /umd_pipeline.py
 
 %runscript
-    exec python3 /umd/umd_pipeline.py "$@"
+    exec python3 /umd_pipeline.py "$@"

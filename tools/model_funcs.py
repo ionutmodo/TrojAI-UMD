@@ -1,13 +1,7 @@
-import sys
-for folder in ['/umd/architectures', '/umd/tools', '/umd/trojai']:
-    if folder not in sys.path:
-        sys.path.append(folder)
-
 import time
 import numpy as np
-
-from LightSDN import LightSDN
-from MLP import MLP
+from architectures.LightSDN import LightSDN
+from architectures.MLP import MLP
 import tools.aux_funcs as af
 import tools.data as data_module
 import torch

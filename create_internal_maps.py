@@ -8,7 +8,7 @@ import pandas as pd
 import tools.aux_funcs as af
 from tools.logistics import get_project_root_path
 from tools.network_architectures import load_trojai_model
-from SDNConfig import SDNConfig
+from architectures.SDNConfig import SDNConfig
 
 ###### GLOBAL VARIABLES
 sdn_type = SDNConfig.DenseNet_blocks

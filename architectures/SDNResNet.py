@@ -1,12 +1,7 @@
-import sys
-for folder in ['/umd/architectures', '/umd/tools', '/umd/trojai']:
-    if folder not in sys.path:
-        sys.path.append(folder)
-
 import torch
 import tools.aux_funcs as af
-from SDNConfig import SDNConfig
-from SDNTrojAI import SDNTrojAI
+from architectures.SDNConfig import SDNConfig
+from architectures.SDNTrojAI import SDNTrojAI
 
 
 class SDNResNet(SDNTrojAI):

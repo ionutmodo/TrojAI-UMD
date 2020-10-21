@@ -1,8 +1,3 @@
-import sys
-for folder in ['/umd/architectures', '/umd/tools', '/umd/trojai']:
-    if folder not in sys.path:
-        sys.path.append(folder)
-
 import torch
 import numpy as np
 import torch.nn as nn
@@ -14,14 +9,11 @@ import sys
 import pickle
 import dill
 import math
-
 import matplotlib
 matplotlib.use('Agg')
-
 import matplotlib.pyplot as plt
 plt.rcParams.update({'font.size': 13})
 plt.rcParams.update({'figure.autolayout': True})
-
 from bisect import bisect_right
 from torch.optim import SGD, Adam
 from torch.optim.lr_scheduler import _LRScheduler
@@ -31,7 +23,6 @@ from pathlib import Path
 from random import sample 
 from ast import literal_eval
 from numpy.linalg import norm
-
 import tools.network_architectures as arcs
 
 # from tools.data import CIFAR10, CIFAR100, TinyImagenet

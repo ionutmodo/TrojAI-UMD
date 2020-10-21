@@ -18,19 +18,25 @@
     4. use the values from step 5 to get a prediction using the binary meta-classifier
 """
 import sys
-for folder in ['/umd/architectures', '/umd/tools', '/umd/trojai']:
+for folder in ['/', '/architectures/', '/tools/', '/trojai/', '/trojai/trojai/']:
     if folder not in sys.path:
         sys.path.append(folder)
+        sys.path.append('.' + folder)
 
 from tools.logistics import *
-from train_trojai_sdn import train_trojai_sdn_with_svm
 from tools.data import create_backdoored_dataset
-from LightSDN import LightSDN
+from architectures.LightSDN import LightSDN
 import tools.model_funcs as mf
 import tools.aux_funcs as af
 from datetime import datetime
 import numpy as np
 import argparse
+import os
+from sklearn.svm import SVC
+from sklearn.multiclass import OneVsRestClassifier
+from sklearn.preprocessing import label_binarize
+from sklearn.metrics import accuracy_score, balanced_accuracy_score
+from tools.logger import Logger
 
 
 def get_mean_std_diffs(confusion, clean_mean, clean_std, use_abs):
@@ -50,6 +56,58 @@ def write_prediction(filepath, backd_proba):
         w.write(backd_proba)
 
 
+def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, device, log=False):
+    ic_count = len(trojai_model_w_ics.get_layerwise_model_params())
+    trojai_model_w_ics.eval().to(device)
+
+    # list to save the features for each IC
+    # features[i] = the dataset to train the SVM for IC_i
+    features = [[] for _ in range(ic_count)]
+    labels = []
+
+    for batch_x, batch_y in dataset.train_loader:
+        activations, out = trojai_model_w_ics.forward_w_acts(batch_x)
+        for i, act in enumerate(activations):
+            features[i].append(act[0].cpu().detach().numpy())
+        for y in batch_y:
+            labels.append(y.item())
+
+    classes = list(set(labels))
+    n_classes = len(classes)
+    labels = label_binarize(labels, classes=sorted(classes))
+
+    for i in range(ic_count):
+        features[i] = np.array(features[i])
+
+    svm_ics = []
+    for i in range(ic_count):
+        svm = OneVsRestClassifier(estimator=SVC(kernel='linear', probability=True, random_state=0), n_jobs=n_classes)
+        svm.fit(features[i], labels)
+
+        svm_ics.append(svm)
+        if log:
+            y_pred = svm.predict(features[i])
+
+            list_raw_acc = []
+            list_bal_acc = []
+            for c in range(n_classes):
+                acc_raw = accuracy_score(y_true=labels[:, c], y_pred=y_pred[:, c])
+                acc_balanced = balanced_accuracy_score(y_true=labels[:, c], y_pred=y_pred[:, c])
+
+                list_raw_acc.append(f'{acc_raw * 100.0:.2f}')
+                list_bal_acc.append(f'{acc_balanced * 100.0:.2f}')
+
+            Logger.log(f'SVM-IC-{i} Raw Acc: [{", ".join(list_raw_acc)}]')
+            Logger.log(f'SVM-IC-{i} Bal Acc: [{", ".join(list_bal_acc)}]')
+            Logger.log(f'--------------------------------------------------------------------------')
+
+    path_svm_model = os.path.join(model_root_path, 'ics_svm.model')
+    af.save_obj(obj=svm_ics, filename=path_svm_model)
+    size = os.path.getsize(path_svm_model) / (2 ** 20)
+    if log:
+        Logger.log(f'SVM model ({size:.2f} MB) saved to {path_svm_model}')
+
+
 def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, examples_dirpath):
     time_start = datetime.now()
     print_messages = True
@@ -58,16 +116,22 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     trigger_color = (0, 0, 0) # also try (127, 127, 127) or random (R, G, B) files
     trigger_target_class = 0 # can be anything, its used just for the new file name
     list_filters = ['gotham', 'kelvin', 'lomo', 'nashville', 'toaster']
-    path_meta_model = '/metamodels/metamodel_svm_square25_filters_black_square.pickle'
-    batch_size = 50
+    path_meta_model = '/metamodel_svm_square25_filters_black_square.pickle'
+    batch_size = 16
     _device = af.get_pytorch_device()
 
     ################################################################################
     #################### STEP 1: train SDN
     ################################################################################
     if print_messages:
-        print('[info] reading clean dataset & model')
-    dataset_clean, sdn_type, model = read_model_directory(model_root=model_filepath, batch_size=batch_size, test_ratio=0, device=_device)
+        print(f'[info] reading clean dataset & model')
+        print(f'[info] current folder is {os.getcwd()}')
+        print(f'[info] model_filepath is {model_filepath}')
+        print(f'[info] result_filepath is {result_filepath}')
+        print(f'[info] scratch_dirpath is {scratch_dirpath}')
+        print(f'[info] examples_dirpath is {examples_dirpath}')
+
+    dataset_clean, sdn_type, model = read_model_directory(model_filepath, examples_dirpath, batch_size=batch_size, test_ratio=0, device=_device)
     num_classes = dataset_clean.num_classes
 
     if print_messages:
@@ -128,7 +192,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     if print_messages:
         print('[info] loading SDN')
     path_model_cnn = model_filepath
-    path_model_ics = os.path.join(scratch_dirpath, 'svm', 'svm_models')
+    path_model_ics = os.path.join(scratch_dirpath, 'ics_svm.model')
     sdn_light = LightSDN(path_model_cnn, path_model_ics, sdn_type, num_classes, _device)
 
     # step a)
@@ -188,4 +252,7 @@ if __name__ == "__main__":
     trojan_detector_umd(args.model_filepath, args.result_filepath, args.scratch_dirpath, args.examples_dirpath)
 
 # TODO: set a limit for the number of images per class when reading them from disk (Sanghyun's idea with 1,3,5 images per class)
-# --model_filepath /home/ionut/trojai/TrojAI-test/id-1100/model.pt --result_filepath /home/ionut/trojai/TrojAI-test/id-1100_result.txt --scratch_dirpath /home/ionut/trojai/TrojAI-test/id-1100_scratch --examples_dirpath /home/ionut/trojai/TrojAI-test/id-1100/example_data
+# sudo singularity build umd_pipeline.simg umd_pipeline.def
+# sudo singularity run --nv umd_pipeline.simg --model_filepath /home/ionut/trojai/TrojAI-test/id-1100/model.pt --result_filepath /home/ionut/trojai/TrojAI-test/id-1100_result.txt --scratch_dirpath /home/ionut/trojai/TrojAI-test/id-1100_scratch --examples_dirpath /home/ionut/trojai/TrojAI-test/id-1100/example_data
+# sudo singularity run --nv umd_pipeline.simg --model_filepath ../TrojAI-test/id-1100/model.pt --result_filepath ../TrojAI-test/id-1100_result.txt --scratch_dirpath ../TrojAI-test/id-1100_scratch --examples_dirpath ../TrojAI-test/id-1100/example_data
+# sudo singularity run --nv umd_pipeline.simg --model_filepath /id-1100/model.pt --result_filepath /id-1100_result.txt --scratch_dirpath /id-1100_scratch --examples_dirpath /id-1100/example_data

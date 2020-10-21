@@ -1,25 +1,13 @@
-import sys
-for folder in ['/umd/architectures', '/umd/tools', '/umd/trojai']:
-    if folder not in sys.path:
-        sys.path.append(folder)
-
 import torch
 import pickle
 import os
 import os.path
-
-# from architectures.CNNs.VGG import VGG
-# from architectures.CNNs.resnet import ResNet50
-# from architectures.CNNs.wideresnet import WideResNet
-
 # from encoder import LayerwiseAutoencoders
 from torchvision.models import densenet, inception, resnet
-
-from MLP import LayerwiseClassifiers
-
-from SDNDenseNet import SDNDenseNet
-from SDNResNet import SDNResNet
-from SDNInception3 import SDNInception3
+from architectures.MLP import LayerwiseClassifiers
+from architectures.SDNDenseNet import SDNDenseNet
+from architectures.SDNResNet import SDNResNet
+from architectures.SDNInception3 import SDNInception3
 from tools.settings import TrojAI_input_size
 
 
@@ -29,7 +17,6 @@ def get_label_and_confidence_from_logits(logits):
     confidence = torch.max(softmax).item()
     return label, confidence
 
-# def load_trojai_model_svm(model_path, )
 
 def load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, device):
     """

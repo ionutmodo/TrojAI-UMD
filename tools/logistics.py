@@ -1,20 +1,22 @@
-import sys
-for folder in ['/umd/architectures', '/umd/tools', '/umd/trojai']:
-    if folder not in sys.path:
-        sys.path.append(folder)
-
 import os
 import socket
-
 from tools.data import TrojAI
-from SDNDenseNet import *#SDNDenseNet
-from SDNGoogLeNet import *#SDNGoogLeNet
-from SDNInception3 import *#SDNInception3
-from SDNMobileNet2 import *#SDNMobileNet2
-from SDNResNet import *#SDNResNet
-from SDNShuffleNet import *#SDNShuffleNet
-from SDNSqueezeNet import *#SDNSqueezeNet
-from SDNVGG import *#SDNVGG
+from architectures.SDNDenseNet import *#SDNDenseNet
+from architectures.SDNGoogLeNet import *#SDNGoogLeNet
+from architectures.SDNInception3 import *#SDNInception3
+from architectures.SDNMobileNet2 import *#SDNMobileNet2
+from architectures.SDNResNet import *#SDNResNet
+from architectures.SDNShuffleNet import *#SDNShuffleNet
+from architectures.SDNSqueezeNet import *#SDNSqueezeNet
+from architectures.SDNVGG import *#SDNVGG
+from torchvision.models import densenet
+from torchvision.models.googlenet import GoogLeNet
+from torchvision.models.inception import Inception3
+from torchvision.models.mobilenet import MobileNetV2
+from torchvision.models.resnet import ResNet
+from torchvision.models.shufflenetv2 import ShuffleNetV2
+from torchvision.models.squeezenet import SqueezeNet
+from torchvision.models.vgg import VGG
 
 
 def _read_ground_truth(ground_truth_path):
@@ -23,12 +25,7 @@ def _read_ground_truth(ground_truth_path):
         return value
 
 
-def read_model_directory(model_root, batch_size, test_ratio, device):
-    """This method needs the full path of a model (.../id-00000001) and returns the model, its label and the dataset with images"""
-    dataset_path = os.path.join(model_root, 'example_data')
-    # ground_truth_path = os.path.join(model_root, 'ground_truth.csv')
-    model_path = os.path.join(model_root, 'model.pt')
-
+def read_model_directory(model_path, dataset_path, batch_size=128, test_ratio=0, device='cpu'):
     # print('logistics:read_model_directory - check batch_size!')
     clean_dataset = TrojAI(folder=dataset_path, test_ratio=test_ratio, batch_size=batch_size, device=device, opencv_format=False)
     # model_label = (_read_ground_truth(ground_truth_path) == 1)

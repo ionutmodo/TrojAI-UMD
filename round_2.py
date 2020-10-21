@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import datetime
 
 import tools.model_funcs as mf
-from LightSDN import LightSDN
+from architectures.LightSDN import LightSDN
 
 from tools.logistics import *
 from tools.logger import Logger

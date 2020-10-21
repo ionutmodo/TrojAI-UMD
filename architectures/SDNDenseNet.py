@@ -1,14 +1,9 @@
-import sys
-for folder in ['/umd/architectures', '/umd/tools', '/umd/trojai']:
-    if folder not in sys.path:
-        sys.path.append(folder)
-
 import torch
 import torch.nn.functional as F
 from torchvision.models import densenet
 import tools.aux_funcs as af
-from SDNTrojAI import SDNTrojAI
-from SDNConfig import SDNConfig
+from architectures.SDNTrojAI import SDNTrojAI
+from architectures.SDNConfig import SDNConfig
 
 
 def _forward_w_acts_for_attaching_at_DenseBlocks(x, net_features):

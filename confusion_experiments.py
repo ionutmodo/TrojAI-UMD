@@ -5,8 +5,8 @@ import torch
 import tools.aux_funcs as af
 import tools.model_funcs as mf
 import tools.network_architectures as arcs
-from SDNConfig import SDNConfig
-from SDNDenseNet import SDNDenseNet
+from architectures.SDNConfig import SDNConfig
+from architectures.SDNDenseNet import SDNDenseNet
 from tools.logistics import get_project_root_path
 from tools.data import TrojAI
 
