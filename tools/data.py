@@ -184,7 +184,7 @@ class TrojAI:
         self.batch_size = batch_size
         self.test_ratio = test_ratio
 
-        num_workers = 2 if device == 'cpu' else 0
+        num_workers = 4 if device == 'cpu' else 0
 
         X, y = self._get_images(folder, opencv_format, img_format)
 

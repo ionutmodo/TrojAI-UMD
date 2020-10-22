@@ -261,6 +261,7 @@ def generate_random_target_labels(true_labels, num_classes):
 
     return np.array(target_labels)
 
+
 def shift_labels(true_labels, num_classes, shift_seed):
     target_labels = []
     for label in true_labels:
@@ -270,28 +271,34 @@ def shift_labels(true_labels, num_classes, shift_seed):
 
     return np.array(target_labels)
 
+
 def safe_list_get(l, idx):
     try:
         return l[idx]
     except IndexError:
         return None
 
+
 def get_pred_single(model, img):
     prep_img = Variable(torch.from_numpy(img.reshape(1,1,28,28)).float(), requires_grad=True)
     output = model(prep_img)
     return output.max(1, keepdim=True)[1].numpy()[0][0]
 
+
 def model_exists(models_path, model_name):
     return os.path.isdir(models_path+'/'+model_name)
 
+
 def file_exists(filename):
     return os.path.isfile(filename) 
+
 
 def get_lr(optimizers):
     if isinstance(optimizers, dict):
         return optimizers[list(optimizers.keys())[-1]].param_groups[-1]['lr']
     else:
         return optimizers.param_groups[-1]['lr']
+
 
 def get_optimizer(model, lr_params, stepsize_params, optimizer='sgd'):
     lr=lr_params[0]
@@ -309,6 +316,7 @@ def get_optimizer(model, lr_params, stepsize_params, optimizer='sgd'):
     scheduler = MultiStepMultiLR(optimizer, milestones=milestones, gammas=gammas)
 
     return optimizer, scheduler
+
 
 def get_pytorch_device():
     device = 'cpu'
@@ -335,12 +343,15 @@ def normalize(data, normalization_data, normalization_type):
 
     return data
 
+
 def find_overlap_idx_two_lists(list1, list2):
     both = set(list1).intersection(list2)
     return [list1.index(x) for x in both]
-        
+
+
 def get_loss_criterion():
     return CrossEntropyLoss()
+
 
 def get_encoder_loss_criterion(train=True):
     if train:
@@ -348,12 +359,14 @@ def get_encoder_loss_criterion(train=True):
     else:
         return MSELoss()
 
+
 def get_list_of_samples_from_list(l, num_samples, sample_size):
     samples = []
     for _ in range(num_samples):
         samples.append(sample(l, sample_size))
 
     return samples
+
 
 def get_network_structure(input_size, num_layers, structure_params):
     hidden_sizes = []
@@ -363,6 +376,7 @@ def get_network_structure(input_size, num_layers, structure_params):
         hidden_sizes.append(cur_hidden_size)
 
     return hidden_sizes
+
 
 def get_all_trained_models_info(models_path, use_profiler=False, device='gpu'):
     print('Testing all models in: {}'.format(models_path))
@@ -420,6 +434,7 @@ def save_tinyimagenet_classname():
     with open(filename, 'wb') as f:
         pickle.dump(tinyimagenet_classes, f, pickle.HIGHEST_PROTOCOL)
 
+
 def get_tinyimagenet_classes(prediction=None):
     filename = 'tinyimagenet_classes'
     with open(filename, 'rb') as f:
@@ -429,6 +444,7 @@ def get_tinyimagenet_classes(prediction=None):
         return tinyimagenet_classes[prediction]
 
     return tinyimagenet_classes
+
 
 def get_task_num_classes(task):
     if task == 'cifar10':
@@ -441,7 +457,8 @@ def get_task_num_classes(task):
 
 def save_obj(obj, filename):
     with open(filename, 'wb') as handle:
-        pickle.dump(obj, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump(obj, handle)
+
 
 def load_obj(filename):
     if not pickle_exists(filename):
@@ -452,6 +469,7 @@ def load_obj(filename):
         obj = pickle.load(handle)
     return obj
 
+
 def loader_inst_counter(loader, batches_range=None):
     num_instances = 0
     for batch_idx, batch in enumerate(loader):
@@ -460,6 +478,7 @@ def loader_inst_counter(loader, batches_range=None):
         num_instances += len(batch[1])
     
     return num_instances
+
 
 def loader_batch_counter(loader):
     num_batches = 0
@@ -475,11 +494,14 @@ def load_np(file_name):
         return False    
     return np.load('{}.npz'.format(file_name), allow_pickle=True)
 
+
 def np_exists(file_name):
     return file_exists('{}.npz'.format(file_name)) 
 
+
 def pickle_exists(file_name):
     return file_exists(file_name)
+
 
 def loader_get_labels(loader, batches_range=None):
     labels = []
@@ -489,7 +511,6 @@ def loader_get_labels(loader, batches_range=None):
         labels.extend(batch[1])
     
     return np.array(labels)
-
 
 
 # soft nearest neighbor distance func
