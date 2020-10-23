@@ -1,9 +1,10 @@
 .idea
-architectures/SDNs/__pycache__
-tools/__pycache__
-data
+architectures/__pycache__/
+architectures/SDNs/__pycache__/
+tools/__pycache__/
+data/
 notebooks/.ipynb_checkpoints
 notebooks/__pycache__/
 notebooks/old_notebooks/
-confusion_experiments
-internal_maps
+confusion_experiments/
+internal_maps/
