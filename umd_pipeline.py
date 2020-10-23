@@ -120,7 +120,7 @@ def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, devi
 def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, examples_dirpath):
     time_start = datetime.now()
     print_messages = True
-    use_abs_for_diff_features = False
+    use_abs_for_diff_features = True
     trigger_size = 25 # for polygon dataset
     trigger_color = (0, 0, 0) # also try (127, 127, 127) or random (R, G, B) files
     trigger_target_class = 0 # can be anything, its used just for the new file name
@@ -133,6 +133,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     #################### STEP 1: train SDN
     ################################################################################
     if print_messages:
+        print()
         print(f'[info] reading clean dataset & model')
         print(f'[info] current folder is {os.getcwd()}')
         print(f'[info] model_filepath is {model_filepath}')
@@ -160,6 +161,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     ### the speed can be improved by creating the datasets using multiprocessing (1 process for each dataset to be created)
     # create polygon dataset and save it to disk
     if print_messages:
+        print()
         print('[info] creating polygon dataset')
     t = now()
     create_backdoored_dataset(dir_clean_data=examples_dirpath,
@@ -201,7 +203,8 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     path_toaster   = os.path.join(scratch_dirpath, f'backdoored_data_filter_toaster')
 
     if print_messages:
-        print('[info] loading backdoored datasets')
+        print()
+        print('[info] STEP 3: loading backdoored datasets')
     # the clean dataset is loaded at the beginning
     t = now()
     dataset_polygon   = TrojAI(folder=path_polygon,   test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
@@ -241,7 +244,8 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     if print_messages:
         print('[info] computing mean and std diffs')
     t = now()
-    clean_mean,          clean_std          = get_mean_std_diffs(confusion_clean, 0, 0, use_abs=use_abs_for_diff_features)  # with 0, 0 computes the plain mean and std
+    # with 0, 0 computes the plain mean and std
+    clean_mean,          clean_std          = get_mean_std_diffs(confusion_clean,              0,         0, use_abs=use_abs_for_diff_features)
     mean_diff_polygon,   std_diff_polygon   = get_mean_std_diffs(confusion_polygon,   clean_mean, clean_std, use_abs=use_abs_for_diff_features)
     mean_diff_gotham,    std_diff_gotham    = get_mean_std_diffs(confusion_gotham,    clean_mean, clean_std, use_abs=use_abs_for_diff_features)
     mean_diff_kelvin,    std_diff_kelvin    = get_mean_std_diffs(confusion_kelvin,    clean_mean, clean_std, use_abs=use_abs_for_diff_features)
@@ -258,19 +262,35 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         mean_diff_lomo,      std_diff_lomo,
         mean_diff_nashville, std_diff_nashville,
         mean_diff_toaster,   std_diff_toaster
-    ])
+    ]).reshape(1, -1)
+
+    if print_messages:
+        print(f'[info] computed features (mean_diff, std_diff):')
+        print('polygon:', mean_diff_polygon, std_diff_polygon)
+        print('gotham:', mean_diff_gotham, std_diff_gotham)
+        print('kelvin:', mean_diff_kelvin, std_diff_kelvin)
+        print('lomo:', mean_diff_lomo, std_diff_lomo)
+        print('nashville:', mean_diff_nashville, std_diff_nashville)
+        print('toaster:', mean_diff_toaster, std_diff_toaster)
+        print('all:', features)
 
     ################################################################################
     #################### STEP 4: predict backdoor probability
     ################################################################################
     if print_messages:
-        print('[info] predicting backd proba')
+        print()
+        print('[info] STEP 4: predicting backd proba')
+
     meta_model = af.load_obj(filename=path_meta_model)
-    backd_proba = meta_model.predict_proba(features)
-    print(f'Backdoored probability: {backd_proba}')
+    probabilities = meta_model.predict_proba(features)
+    backd_proba = probabilities[0][1]
+
+    if print_messages:
+        print(f'[info] probability distribution: {probabilities}')
+        print(f'[info] predicted backdoor probability: {backd_proba}')
 
     ### write prediction to file
-    write_prediction(result_filepath, backd_proba)
+    write_prediction(result_filepath, str(backd_proba))
     time_end = now()
     if print_messages:
         print(f'[info] script ended (elapsed {time_end - time_start})')
