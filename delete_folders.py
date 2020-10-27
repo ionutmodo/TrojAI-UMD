@@ -28,7 +28,8 @@ def main():
         'backdoored_data_filter_gotham',
         'backdoored_data_filter_kelvin',
         'backdoored_data_filter_lomo',
-        'backdoored_data_filter_nashville'
+        'backdoored_data_filter_nashville',
+        'backdoored_data_filter_toaster'
     ]
 
     # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-dataset-train')
