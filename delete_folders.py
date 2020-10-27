@@ -8,8 +8,8 @@ def worker_delete_folder(path):
     if os.path.isdir(path):
         shutil.rmtree(path)
         print(f'deleted {path}')
-    else:
-        print(f'!exist {path}')
+    # else:
+    #     print(f'!exist {path}')
 
 
 def main():
