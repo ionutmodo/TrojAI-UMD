@@ -1,4 +1,3 @@
-import os
 import shutil
 import pandas as pd
 from tools.logistics import *
