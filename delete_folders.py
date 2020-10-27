@@ -25,6 +25,7 @@ def main():
         'backdoored_data_custom-square-size-40_backd-original-color_clean-black-color',
         'backdoored_data_custom-square-size-45_backd-original-color_clean-black-color',
         'backdoored_data_custom-square-size-50_backd-original-color_clean-black-color',
+        'backdoored_data_square-25',
         'backdoored_data_filter_gotham',
         'backdoored_data_filter_kelvin',
         'backdoored_data_filter_lomo',
