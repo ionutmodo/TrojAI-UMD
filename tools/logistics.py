@@ -29,7 +29,8 @@ def read_model_directory(model_path, dataset_path, batch_size=128, test_ratio=0,
     # print('logistics:read_model_directory - check batch_size!')
     clean_dataset = TrojAI(folder=dataset_path, test_ratio=test_ratio, batch_size=batch_size, device=device, opencv_format=False)
     # model_label = (_read_ground_truth(ground_truth_path) == 1)
-    cnn_model = torch.load(model_path, map_location=device).eval()
+    cnn_model = torch.load(model_path, map_location=device)
+    cnn_model = cnn_model.eval()
 
     sdn_type = -1
     if isinstance(cnn_model, densenet.DenseNet):
