@@ -188,7 +188,7 @@ class TrojAI:
 
         X, y = self._get_images(folder, opencv_format, img_format)
 
-        self.num_classes = len(set(y))
+        self.num_classes = 1 + max(y)
 
         if test_ratio == 0:
             X_train, X_test, y_train, y_test = X, X, y, y
