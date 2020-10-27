@@ -19,6 +19,7 @@ def main():
         'backdoored_data_custom-square-size-5_backd-original-color_clean-black-color',
         'backdoored_data_custom-square-size-10_backd-original-color_clean-black-color',
         'backdoored_data_custom-square-size-15_backd-original-color_clean-black-color',
+        'backdoored_data_custom-square-size-20_backd-original-color_clean-black-color',
         'backdoored_data_custom-square-size-25_backd-original-color_clean-black-color',
         'backdoored_data_custom-square-size-30_backd-original-color_clean-black-color',
         'backdoored_data_custom-square-size-35_backd-original-color_clean-black-color',
