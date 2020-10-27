@@ -5,8 +5,9 @@ import multiprocessing as mp
 
 
 def worker_delete_folder(path):
-    shutil.rmtree(path)
-    print(f'deleted {path}')
+    if os.path.isdir(path):
+        shutil.rmtree(path)
+        print(f'deleted {path}')
 
 
 def main():
@@ -49,8 +50,7 @@ def main():
 
         for f_name in folder_names_to_delete:
             folder = os.path.join(root_path, model_name, f_name)
-            if os.path.isdir(folder):
-                mp_folders.append(folder)
+            mp_folders.append(folder)
 
     cpus = mp.cpu_count() - 4
     print(f'Deleting {len(mp_folders)} datasets using {cpus} CPU cores')
