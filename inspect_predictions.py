@@ -7,19 +7,13 @@ import os
 from tools.logistics import get_project_root_path
 
 
-def get_predicted_label(model, image, device):
-    output = model(image.to(device))
-    # softmax = nn.functional.softmax(output[0].cpu(), dim=0)
-    pred_label = output.max(1)[1].item()
-    return pred_label
-
-
 def get_confusion_matrix(model, path_dataset, device):
     dataset = TrojAI(folder=path_dataset, test_ratio=0, batch_size=1, device=device, opencv_format=False)
 
     matrix_labels = [[0] * dataset.num_classes for _ in range(dataset.num_classes)]
     for image, label_true in dataset.train_loader:
-        label_pred = get_predicted_label(model, image, device)
+        output = model(image.to(device))
+        label_pred = output.max(1)[1].item()
         matrix_labels[label_true.item()][label_pred] += 1
     return matrix_labels
 
@@ -33,10 +27,10 @@ def print_confusion_matrix(message, matrix):
     proba = column_mean / column_mean.sum()
     print('mean', [f'{x:.02f}' for x in column_mean.tolist()])
     print('prob', [f'{x:.02f}' for x in proba.tolist()])
-    print(f' H={entropy(proba):.010f}')
-    uniform = np.ones_like(proba) / proba.shape[0]
-    print(f'KL(p,u)={entropy(proba, uniform):.010f}')
-    print(f'KL(u,p)={entropy(uniform, proba):.010f}')
+    nc = proba.shape[0]
+    uniform = np.ones_like(proba) / nc
+    print(f'H={entropy(proba) / nc:.010f}')
+    print(f'KL(p,u)={entropy(proba, uniform) / nc:.010f}')
     print()
 
 
