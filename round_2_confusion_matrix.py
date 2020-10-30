@@ -22,15 +22,15 @@ def get_trigger_type_aux_value(trigger_type, trigger_type_option):
 
 
 def get_confusion_matrix_stats(model, device, path_dataset):
-    dataset = TrojAI(folder=path_dataset, test_ratio=0, batch_size=1, device=device, opencv_format=False)
+    dataset = TrojAI(folder=path_dataset, test_ratio=0, batch_size=50, device=device, opencv_format=False)
     nc = dataset.num_classes
 
-    # matrix = [[0] * nc for _ in range(nc)]
     matrix = np.zeros((nc, nc), dtype=np.int64)
     for image, label_true in dataset.train_loader:
-        output = model(image.to(device))
-        label_pred = output.max(1)[1].item()
-        matrix[label_true.item(), label_pred] += 1
+        outputs = model(image.to(device))
+        for i, out in enumerate(outputs):
+            label_pred = out.unsqueeze(0).max(1)[1].item()
+            matrix[label_true[i].item(), label_pred] += 1
 
     column_mean = matrix.mean(axis=0)
     proba = column_mean / column_mean.sum()
