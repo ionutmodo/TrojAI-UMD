@@ -22,7 +22,7 @@ def get_trigger_type_aux_value(trigger_type, trigger_type_option):
 
 
 def get_confusion_matrix_stats(model, device, path_dataset):
-    dataset = TrojAI(folder=path_dataset, test_ratio=0, batch_size=50, device=device, opencv_format=False)
+    dataset = TrojAI(folder=path_dataset, test_ratio=0, batch_size=32, device=device, opencv_format=False)
     nc = dataset.num_classes
 
     matrix = np.zeros((nc, nc), dtype=np.int64)
