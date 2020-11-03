@@ -12,9 +12,10 @@ def get_confusion_matrix(model, path_dataset, device):
 
     matrix_labels = [[0] * dataset.num_classes for _ in range(dataset.num_classes)]
     for image, label_true in dataset.train_loader:
-        output = model(image.to(device))
-        label_pred = output.max(1)[1].item()
-        matrix_labels[label_true.item()][label_pred] += 1
+        outputs = model(image.to(device))
+        for i, out in enumerate(outputs):
+            label_pred = out.unsqueeze(0).max(1)[1].item()
+            matrix_labels[label_true[i].item()][label_pred] += 1
     return matrix_labels
 
 
