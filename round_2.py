@@ -46,7 +46,8 @@ def main():
     # begin
     np.random.seed(666)
     path_root_project = get_project_root_path()
-    path_root = os.path.join(path_root_project, 'TrojAI-data', 'round2-train-dataset')
+    # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round2-train-dataset')
+    path_root = os.path.join(path_root_project, 'TrojAI-data', 'round2-holdout-dataset')
     path_metadata = os.path.join(path_root, 'METADATA.csv')
     path_report_conf_dist = os.path.join(path_root, 'ics_svm', f'{os.path.basename(path_root)}_{experiment_name}.csv')
     path_logger = os.path.join(path_root, 'ics_svm', f'{os.path.basename(path_root)}_{experiment_name}.log')

@@ -49,9 +49,11 @@ def main():
         # model_architecture = row['model_architecture']
         # model_id_int = int(model_name[3:])
 
-        for f_name in folder_names_to_delete:
-            folder = os.path.join(root_path, model_name, f_name)
-            mp_folders.append(folder)
+        mp_folders.append(os.path.join(root_path, model_name)) # use this to delete all folders id-0000abcd
+
+        # for f_name in folder_names_to_delete:
+        #     folder = os.path.join(root_path, model_name, f_name)
+        #     mp_folders.append(folder)
 
     cpus = mp.cpu_count() - 4
     print(f'Deleting {len(mp_folders)} datasets using {cpus} CPU cores')
