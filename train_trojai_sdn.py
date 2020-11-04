@@ -133,7 +133,7 @@ def main():
     if 'train' in os.path.basename(root_path) and 'round1' in os.path.basename(root_path): # append 'models' for training dataset
         root_path = os.path.join(root_path, 'models')
 
-    batch_size = 64
+    batch_size = 1 #64
     test_ratio = 0
 
     dict_arch_type = {
@@ -163,14 +163,16 @@ def main():
 
         for arch_prefix, sdn_type in dict_arch_type.items():
             if model_architecture.startswith(arch_prefix):
-                model_root = os.path.join(root_path, model_name)
-                Logger.log(f'Training {model_architecture}-sdn ({poisoned}) in {model_root}')
+                root = os.path.join(root_path, model_name)
+                model_path = os.path.join(root, 'model.pt')
+                data_path = os.path.join(root, 'example_data')
+                Logger.log(f'Training {model_architecture}-sdn ({poisoned}) in {root}')
 
                 time_start = datetime.now()
 
-                dataset, sdn_type, model = read_model_directory(model_root, batch_size, test_ratio, device)
-                # train_trojai_sdn(dataset, model, model_root, device)
-                train_trojai_sdn_with_svm(dataset, model, model_root, device, log=True)
+                dataset, sdn_type, model = read_model_directory(model_path, data_path, batch_size, test_ratio, device)
+                # train_trojai_sdn(dataset, model, root, device)
+                train_trojai_sdn_with_svm(dataset, model, root, device, log=True)
 
                 time_end = datetime.now()
                 Logger.log(f'elapsed {time_end - time_start}\n')
