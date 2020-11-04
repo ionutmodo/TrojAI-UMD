@@ -13,16 +13,16 @@ def worker_delete_folder(path):
 def main():
     folder_names_to_delete = [
         # 'ics_train100_test0_bs25',
-        'backdoored_data_custom-square-size-5_backd-original-color_clean-black-color',
-        'backdoored_data_custom-square-size-10_backd-original-color_clean-black-color',
-        'backdoored_data_custom-square-size-15_backd-original-color_clean-black-color',
-        'backdoored_data_custom-square-size-20_backd-original-color_clean-black-color',
-        'backdoored_data_custom-square-size-25_backd-original-color_clean-black-color',
-        'backdoored_data_custom-square-size-30_backd-original-color_clean-black-color',
-        'backdoored_data_custom-square-size-35_backd-original-color_clean-black-color',
-        'backdoored_data_custom-square-size-40_backd-original-color_clean-black-color',
-        'backdoored_data_custom-square-size-45_backd-original-color_clean-black-color',
-        'backdoored_data_custom-square-size-50_backd-original-color_clean-black-color',
+        # 'backdoored_data_custom-square-size-5_backd-original-color_clean-black-color',
+        # 'backdoored_data_custom-square-size-10_backd-original-color_clean-black-color',
+        # 'backdoored_data_custom-square-size-15_backd-original-color_clean-black-color',
+        # 'backdoored_data_custom-square-size-20_backd-original-color_clean-black-color',
+        # 'backdoored_data_custom-square-size-25_backd-original-color_clean-black-color',
+        # 'backdoored_data_custom-square-size-30_backd-original-color_clean-black-color',
+        # 'backdoored_data_custom-square-size-35_backd-original-color_clean-black-color',
+        # 'backdoored_data_custom-square-size-40_backd-original-color_clean-black-color',
+        # 'backdoored_data_custom-square-size-45_backd-original-color_clean-black-color',
+        # 'backdoored_data_custom-square-size-50_backd-original-color_clean-black-color',
         'backdoored_data_square-25',
         'backdoored_data_filter_gotham',
         'backdoored_data_filter_kelvin',
@@ -33,7 +33,8 @@ def main():
 
     # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-dataset-train')
     # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
-    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round2-train-dataset')
+    # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round2-train-dataset')
+    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round2-holdout-dataset')
 
     metadata_path = os.path.join(root_path, 'METADATA.csv')
     metadata = pd.read_csv(metadata_path)
