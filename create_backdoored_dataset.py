@@ -33,7 +33,8 @@ def main():
     path_root_project = get_project_root_path()
     # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round1-dataset-train')
     # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round1-holdout-dataset')
-    path_root = os.path.join(path_root_project, 'TrojAI-data', 'round2-train-dataset')
+    # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round2-train-dataset')
+    path_root = os.path.join(path_root_project, 'TrojAI-data', 'round2-holdout-dataset')
     path_metadata = os.path.join(path_root, 'METADATA.csv')
     metadata = pd.read_csv(path_metadata)
 
