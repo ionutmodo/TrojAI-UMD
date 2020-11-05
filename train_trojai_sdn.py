@@ -131,7 +131,7 @@ def main():
     metadata_path = os.path.join(root_path, 'METADATA.csv')
     metadata = pd.read_csv(metadata_path)
 
-    batch_size = 32
+    batch_size = 1 # do not change this
     test_ratio = 0
 
     dict_arch_type = {
