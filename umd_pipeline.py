@@ -125,7 +125,13 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     trigger_color = (127, 127, 127) # also try (127, 127, 127) or random (R, G, B) files
     trigger_target_class = 0 # can be anything, its used just for the new file name
     list_filters = ['gotham', 'kelvin', 'lomo', 'nashville', 'toaster']
-    path_meta_model = 'metamodel_svm_square25_filters_black_square.pickle' # will be loaded from current directory, whatever it is
+
+    # # baseline (black squares for clean models, only triggered images, colored squares for backdoored models)
+    # path_meta_model = 'metamodel_svm_round2_square25_filters_black_square.pickle'
+
+    # baseline (gray (127,127,127) squares for all models, all images)
+    path_meta_model = 'metamodel_svm_round2_square25_filters_all-classes_gray.pickle'
+
     batch_size = 1 # do not change this!
     _device = af.get_pytorch_device()
 
