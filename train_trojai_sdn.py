@@ -122,7 +122,8 @@ def main():
     # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-dataset-train')
     # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
     # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round2-train-dataset')
-    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round2-holdout-dataset')
+    # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round2-holdout-dataset')
+    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round3-train-dataset')
 
     path_logger = os.path.join(root_path, f'{os.path.basename(root_path)}.log')
     Logger.open(path_logger)
@@ -130,10 +131,7 @@ def main():
     metadata_path = os.path.join(root_path, 'METADATA.csv')
     metadata = pd.read_csv(metadata_path)
 
-    if 'train' in os.path.basename(root_path) and 'round1' in os.path.basename(root_path): # append 'models' for training dataset
-        root_path = os.path.join(root_path, 'models')
-
-    batch_size = 1 #64
+    batch_size = 32
     test_ratio = 0
 
     dict_arch_type = {
@@ -165,7 +163,7 @@ def main():
             if model_architecture.startswith(arch_prefix):
                 root = os.path.join(root_path, model_name)
                 model_path = os.path.join(root, 'model.pt')
-                data_path = os.path.join(root, 'example_data')
+                data_path = os.path.join(root, 'clean_example_data')
                 Logger.log(f'Training {model_architecture}-sdn ({poisoned}) in {root}')
 
                 time_start = datetime.now()
