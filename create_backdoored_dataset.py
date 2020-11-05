@@ -34,15 +34,13 @@ def main():
     # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round1-dataset-train')
     # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round1-holdout-dataset')
     # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round2-train-dataset')
-    path_root = os.path.join(path_root_project, 'TrojAI-data', 'round2-holdout-dataset')
+    # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round2-holdout-dataset')
+    path_root = os.path.join(path_root_project, 'TrojAI-data', 'round3-train-dataset')
     path_metadata = os.path.join(path_root, 'METADATA.csv')
     metadata = pd.read_csv(path_metadata)
 
-    if 'train' in os.path.basename(path_root) and 'round1' in os.path.basename(path_root): # append 'models' for training dataset
-        path_root = os.path.join(path_root, 'models')
-
     mp_mapping_params = []
-    # list_trigger_sizes = [5, 10, 15, 20, 25, 40, 45, 50]
+    # list_trigger_sizes = [15, 20, 25, 30]
     list_trigger_sizes = [25]
     list_filters = ['gotham', 'kelvin', 'lomo', 'nashville', 'toaster']
 
@@ -58,7 +56,7 @@ def main():
 
     for _, row in metadata.iterrows():
         model_name = row['model_name']
-        model_id = int(model_name[3:])
+        # model_id = int(model_name[3:])
         # left, right = list_limits[socket.gethostname()]
         # if left <= model_id <= right:
         # if os.path.isdir(os.path.join(path_root, model_name)) and str(row['trigger_color']) != 'None':
@@ -91,7 +89,7 @@ def main():
 
             path_model = os.path.join(path_root, model_name)
             if os.path.isdir(path_model):
-                path_data_clean = os.path.join(path_model, 'example_data')
+                path_data_clean = os.path.join(path_model, 'clean_example_data')
                 # for a path_data_clean, generate a path_data_backd with a for a specific size for square trigger
                 # generate backdoored datasets with square trigger with specific size
                 for p_trigger_size in list_trigger_sizes:
