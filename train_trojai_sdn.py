@@ -114,6 +114,12 @@ def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, devi
 
 
 def main():
+    if len(sys.argv) == 1: # no command line args, just script name:
+        last_trained_model_id = -1
+    elif len(sys.argv) == 2:
+        last_trained_model_id = int(sys.argv[1])
+    print(f'last_trained_model_id is {last_trained_model_id}, first to train is {last_trained_model_id+1}')
+
     af.set_random_seeds()
 
     device = af.get_pytorch_device()
@@ -154,26 +160,27 @@ def main():
 
     for index, row in metadata.iterrows():
         model_name = row['model_name']
-        # model_id = int(model_name[3:])
+        model_id = int(model_name[3:])
         # if lim_left <= model_id <= lim_right:
-        model_architecture = row['model_architecture']
-        poisoned = 'backdoored' if bool(row['poisoned']) else 'clean'
+        if model_id > last_trained_model_id:
+            model_architecture = row['model_architecture']
+            poisoned = 'backdoored' if bool(row['poisoned']) else 'clean'
 
-        for arch_prefix, sdn_type in dict_arch_type.items():
-            if model_architecture.startswith(arch_prefix):
-                root = os.path.join(root_path, model_name)
-                model_path = os.path.join(root, 'model.pt')
-                data_path = os.path.join(root, 'clean_example_data')
-                Logger.log(f'Training {model_architecture}-sdn ({poisoned}) in {root}')
+            for arch_prefix, sdn_type in dict_arch_type.items():
+                if model_architecture.startswith(arch_prefix):
+                    root = os.path.join(root_path, model_name)
+                    model_path = os.path.join(root, 'model.pt')
+                    data_path = os.path.join(root, 'clean_example_data')
+                    Logger.log(f'Training {model_architecture}-sdn ({poisoned}) in {root}')
 
-                time_start = datetime.now()
+                    time_start = datetime.now()
 
-                dataset, sdn_type, model = read_model_directory(model_path, data_path, batch_size, test_ratio, device)
-                # train_trojai_sdn(dataset, model, root, device)
-                train_trojai_sdn_with_svm(dataset, model, root, device, log=True)
+                    dataset, sdn_type, model = read_model_directory(model_path, data_path, batch_size, test_ratio, device)
+                    # train_trojai_sdn(dataset, model, root, device)
+                    train_trojai_sdn_with_svm(dataset, model, root, device, log=True)
 
-                time_end = datetime.now()
-                Logger.log(f'elapsed {time_end - time_start}\n')
+                    time_end = datetime.now()
+                    Logger.log(f'elapsed {time_end - time_start}\n')
     Logger.log('script ended')
     Logger.close()
 
