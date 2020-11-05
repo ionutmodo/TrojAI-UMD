@@ -118,7 +118,6 @@ def main():
         last_trained_model_id = -1
     elif len(sys.argv) == 2:
         last_trained_model_id = int(sys.argv[1])
-    print(f'last_trained_model_id is {last_trained_model_id}, first to train is {last_trained_model_id+1}')
 
     af.set_random_seeds()
 
