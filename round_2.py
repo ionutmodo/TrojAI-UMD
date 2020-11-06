@@ -1,3 +1,4 @@
+import sys
 import ast
 import numpy as np
 import pandas as pd
@@ -33,9 +34,14 @@ def main():
         'wideresnet': SDNConfig.ResNet,
     }
 
-    # parameters
-    lim_left, lim_right = 0, 503
-    # lim_left, lim_right = 504, 1007
+    if len(sys.argv) != 3:
+        lim_left, lim_right = 0, 503
+        # lim_left, lim_right = 504, 1007
+    else:
+        lim_left, lim_right = int(sys.argv[1]), int(sys.argv[2])
+
+    print(lim_left, lim_right)
+    return
 
     test_ratio = 0
     batch_size = 16  # for confusion experiment
