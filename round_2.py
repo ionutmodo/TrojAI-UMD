@@ -41,13 +41,14 @@ def main():
 
     default_trigger_color = (127, 127, 127)
     square_dataset_name = 'backdoored_data_square-25'
-    experiment_name = f'square-25-gotham-kelvin-lomo-nashville-toaster-all-classes-gray'
+    experiment_name = f'square-25-filters-all-classes-gray'
 
     # begin
     np.random.seed(666)
     path_root_project = get_project_root_path()
     # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round2-train-dataset')
-    path_root = os.path.join(path_root_project, 'TrojAI-data', 'round2-holdout-dataset')
+    # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round2-holdout-dataset')
+    path_root = os.path.join(path_root_project, 'TrojAI-data', 'round3-train-dataset')
     path_metadata = os.path.join(path_root, 'METADATA.csv')
     path_report_conf_dist = os.path.join(path_root, 'ics_svm', f'{os.path.basename(path_root)}_{experiment_name}.csv')
     path_logger = os.path.join(path_root, 'ics_svm', f'{os.path.basename(path_root)}_{experiment_name}.log')
@@ -147,7 +148,7 @@ def main():
             # the keys will store the confusion distribution values for specific dataset
             # add it here in for because I am deleting it at the end of the loop to save memory
             dict_dataset_confusion = {
-                'example_data': None,
+                'clean_example_data': None,
                 square_dataset_name: None,
                 'backdoored_data_filter_gotham': None,
                 'backdoored_data_filter_kelvin': None,
@@ -168,8 +169,8 @@ def main():
                 Logger.log('done')
 
             # compute mean and stds for confusion distributions
-            clean_mean = np.mean(dict_dataset_confusion['example_data'])
-            clean_std = np.std(dict_dataset_confusion['example_data'])
+            clean_mean = np.mean(dict_dataset_confusion['clean_example_data'])
+            clean_std = np.std(dict_dataset_confusion['clean_example_data'])
 
             square_mean = np.mean(dict_dataset_confusion[square_dataset_name])
             square_std = np.std(dict_dataset_confusion[square_dataset_name])
