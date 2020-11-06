@@ -318,3 +318,36 @@ if __name__ == "__main__":
 # sudo singularity run --nv umd_pipeline.simg --model_filepath ../TrojAI-test/id-1100/model.pt --result_filepath ../TrojAI-test/id-1100_result.txt --scratch_dirpath ../TrojAI-test/id-1100_scratch --examples_dirpath ../TrojAI-test/id-1100/example_data
 # sudo singularity run --nv umd_pipeline.simg --model_filepath /id-1100/model.pt --result_filepath /id-1100_result.txt --scratch_dirpath /id-1100_scratch --examples_dirpath /id-1100/example_data
 # py38 -W ignore umd_pipeline.py --model_filepath ../TrojAI-data/round2-train-dataset/id-00000000/model.pt --result_filepath ../TrojAI-data/round2-train-dataset/id-00000000/scratch/result.txt --scratch_dirpath TrojAI-data/round2-train-dataset/id-00000000/scratch --examples_dirpath ../TrojAI-data/round2-train-dataset/id-00000000/example_data
+
+# if print_messages:
+#     print()
+#     print('[info] creating polygon dataset')
+# t = now()
+# mp_mapping_params = [dict(
+#     dir_clean_data=examples_dirpath,
+#     dir_backdoored_data=os.path.join(scratch_dirpath, f'backdoored_data_polygon_{trigger_size}'),
+#     trigger_type='polygon',
+#     trigger_name='square',
+#     trigger_color=trigger_color,
+#     trigger_size=trigger_size,
+#     triggered_classes='all',
+#     trigger_target_class=trigger_target_class)]
+#
+# # create filters dataset and save it to disk
+# for p_filter in list_filters:
+#     mp_mapping_params.append(dict(
+#         dir_clean_data=examples_dirpath,
+#         dir_backdoored_data=os.path.join(scratch_dirpath, f'backdoored_data_filter_{p_filter}'),
+#         trigger_type='filter',
+#         trigger_name=p_filter,
+#         trigger_color=None,
+#         trigger_size=None,
+#         triggered_classes='all',
+#         trigger_target_class=trigger_target_class)
+#     )
+#
+# with mp.Pool(processes=len(mp_mapping_params)) as pool:
+#     pool.map(worker_create_dataset, mp_mapping_params)
+#
+# if print_messages:
+#     print(f'[info] STEP 2: creating backdoored datasets tool {now() - t}')
