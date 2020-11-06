@@ -170,9 +170,9 @@ def main():
                 for dataset_name in dict_dataset_confusion:
                     path_data = os.path.join(path_model, dataset_name)
 
-                    Logger.log(f'reading dataset {dataset_name}...', end='')
+                    # Logger.log(f'reading dataset {dataset_name}...', end='')
                     dataset = TrojAI(folder=path_data, test_ratio=test_ratio, batch_size=batch_size, device=device, opencv_format=False)
-                    Logger.log('done')
+                    # Logger.log('done')
 
                     Logger.log(f'computing confusion for {dataset_name}...', end='')
                     dict_dataset_confusion[dataset_name] = mf.compute_confusion(sdn_light, dataset.train_loader, device)
