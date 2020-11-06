@@ -41,7 +41,6 @@ def main():
         lim_left, lim_right = int(sys.argv[1]), int(sys.argv[2])
 
     print(lim_left, lim_right)
-    return
 
     test_ratio = 0
     batch_size = 16  # for confusion experiment
