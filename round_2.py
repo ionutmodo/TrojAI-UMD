@@ -131,7 +131,7 @@ def main():
                 trigger_color = row['trigger_color']
                 trigger_type = row['trigger_type']
                 # trigger_type_option = row['trigger_type_option'] # round 2
-                trigger_type_option = row['instagram_filter_type']  # round 2
+                trigger_type_option = row['polygon_side_count']  # round 2
                 trigger_type_aux = get_trigger_type_aux_value(trigger_type, trigger_type_option)
                 num_classes = row['number_classes']
 
