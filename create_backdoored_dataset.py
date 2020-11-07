@@ -40,16 +40,15 @@ def main():
     metadata = pd.read_csv(path_metadata)
 
     mp_mapping_params = []
-    # list_trigger_sizes = [15, 20, 25, 30]
-    list_trigger_sizes = [25]
+    list_trigger_sizes = [20, 30, 35, 40, 45, 50]
     list_filters = ['gotham', 'kelvin', 'lomo', 'nashville', 'toaster']
 
-    list_limits = {
-        # 'openlab30.umiacs.umd.edu': (0, 275),
-        # 'openlab31.umiacs.umd.edu': (276, 551),
-        # 'openlab30.umiacs.umd.edu': (0, 275),
-        'openlab08.umiacs.umd.edu': (0, 1103)
-    }
+    # list_limits = {
+    #     # 'openlab30.umiacs.umd.edu': (0, 275),
+    #     # 'openlab31.umiacs.umd.edu': (276, 551),
+    #     # 'openlab30.umiacs.umd.edu': (0, 275),
+    #     'openlab08.umiacs.umd.edu': (0, 1103)
+    # }
 
     # IMAGES_PER_CLASS = 100  # 50 for round 1
     # IMAGES_PER_CLASS = 10  # 50 for round 2
@@ -113,26 +112,26 @@ def main():
                     mp_mapping_params.append(mapping_param_dict)
                     # create_dataset_multiprocessing(mapping_param_dict)
 
-                # generate backdoored datasets with specific filter
-                for p_filter_name in list_filters:
-                    path_data_backd = os.path.join(path_model, f'backdoored_data_filter_{p_filter_name}')
-
-                    mapping_param_dict = dict(
-                        num_classes=num_classes,
-                        images_per_class=number_example_images,
-                        params_method=dict(
-                            dir_clean_data=path_data_clean,
-                            dir_backdoored_data=path_data_backd,
-                            trigger_type='filter',
-                            trigger_name=p_filter_name,
-                            trigger_color=None,
-                            trigger_size=None,
-                            # triggered_classes=triggered_classes,
-                            triggered_classes='all',
-                            trigger_target_class=trigger_target_class)
-                    )
-                    mp_mapping_params.append(mapping_param_dict)
-                    # create_dataset_multiprocessing(mapping_param_dict)
+                # # generate backdoored datasets with specific filter
+                # for p_filter_name in list_filters:
+                #     path_data_backd = os.path.join(path_model, f'backdoored_data_filter_{p_filter_name}')
+                #
+                #     mapping_param_dict = dict(
+                #         num_classes=num_classes,
+                #         images_per_class=number_example_images,
+                #         params_method=dict(
+                #             dir_clean_data=path_data_clean,
+                #             dir_backdoored_data=path_data_backd,
+                #             trigger_type='filter',
+                #             trigger_name=p_filter_name,
+                #             trigger_color=None,
+                #             trigger_size=None,
+                #             # triggered_classes=triggered_classes,
+                #             triggered_classes='all',
+                #             trigger_target_class=trigger_target_class)
+                #     )
+                #     mp_mapping_params.append(mapping_param_dict)
+                #     # create_dataset_multiprocessing(mapping_param_dict)
 
     cpus = mp.cpu_count() - 4
     print(f'Creating {len(mp_mapping_params)} datasets using {cpus} CPU cores')
