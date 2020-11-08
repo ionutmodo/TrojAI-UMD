@@ -5,6 +5,7 @@ import pandas as pd
 from datetime import datetime
 import multiprocessing as mp
 from concurrent.futures import ProcessPoolExecutor as Pool
+# from multiprocessing import Pool
 
 import tools.model_funcs as mf
 from architectures.LightSDN import LightSDN
@@ -37,7 +38,10 @@ def find_last_processed_model(temp_dir):
 def worker_process_model(params):
     start_time = datetime.now()
     temp_dir, model_name, model_architecture, model_label, trigger_type_aux, trigger_color, path_model, test_ratio, batch_size, path_model_cnn, path_model_ics, sdn_type, num_classes, _device = params
+
     print(f'Running model {model_name}')
+    sys.stdout.flush()
+
     # the keys will store the confusion distribution values for specific dataset
     # add it here in for because I am deleting it at the end of the loop to save memory
     dict_dataset_confusion = {
@@ -63,9 +67,9 @@ def worker_process_model(params):
         path_data = os.path.join(path_model, dataset_name)
         dataset = TrojAI(folder=path_data, test_ratio=test_ratio, batch_size=batch_size, device=_device, opencv_format=False)
         dict_dataset_confusion[dataset_name] = mf.compute_confusion(sdn_light, dataset.train_loader, _device)
-        del dataset
+        # del dataset
 
-    del sdn_light
+    # del sdn_light
 
     # compute mean and stds for confusion distributions
     clean_mean = np.mean(dict_dataset_confusion['clean_example_data'])
@@ -195,6 +199,7 @@ def worker_process_model(params):
 
     af.save_obj(result_to_return, os.path.join(temp_dir, f'{model_name}'))
     end_time = datetime.now()
+
     print(f'Processing model {model_name} took {end_time - start_time}')
     sys.stdout.flush()
 
@@ -227,6 +232,7 @@ def main():
         lim_left, lim_right = int(sys.argv[1]), int(sys.argv[2])
 
     print(f'lim_left={lim_left}, lim_right={lim_right}')
+    sys.stdout.flush()
 
     test_ratio = 0
     batch_size = 1  # for confusion experiment
@@ -285,7 +291,9 @@ def main():
             mp_mapping_params.append(params)
 
     print(f'Total models to process: {len(mp_mapping_params)}')
-    with Pool(mp.cpu_count() - 1) as pool:
+    sys.stdout.flush()
+
+    with Pool(max_workers=mp.cpu_count() - 1) as pool:
         mp_result = pool.map(worker_process_model, mp_mapping_params)
         df = pd.DataFrame(
             data=mp_result,
@@ -335,4 +343,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-
+    print('script ended')
