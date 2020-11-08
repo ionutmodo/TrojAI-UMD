@@ -37,6 +37,7 @@ def find_last_processed_model(temp_dir):
 def worker_process_model(params):
     start_time = datetime.now()
     temp_dir, model_name, model_architecture, model_label, trigger_type_aux, trigger_color, path_model, test_ratio, batch_size, path_model_cnn, path_model_ics, sdn_type, num_classes, _device = params
+    print(f'Running model {model_name}')
     # the keys will store the confusion distribution values for specific dataset
     # add it here in for because I am deleting it at the end of the loop to save memory
     dict_dataset_confusion = {
@@ -194,7 +195,8 @@ def worker_process_model(params):
 
     af.save_obj(result_to_return, os.path.join(temp_dir, f'{model_name}'))
     end_time = datetime.now()
-    print(f'processing model {model_name} took {end_time - start_time}')
+    print(f'Processing model {model_name} took {end_time - start_time}')
+    sys.stdout.flush()
 
     return result_to_return
 
@@ -282,6 +284,7 @@ def main():
             params = (path_temp_dir, model_name, model_architecture, model_label, trigger_type_aux, trigger_color, path_model, test_ratio, batch_size, path_model_cnn, path_model_ics, sdn_type, num_classes, _device)
             mp_mapping_params.append(params)
 
+    print(f'Total models to process: {len(mp_mapping_params)}')
     with Pool(mp.cpu_count() - 1) as pool:
         mp_result = pool.map(worker_process_model, mp_mapping_params)
         df = pd.DataFrame(
