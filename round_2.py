@@ -24,12 +24,12 @@ def get_trigger_type_aux_value(trigger_type, trigger_type_option):
 
 def worker_confusion_distribution(params):
     dict_params_dataset, dict_params_model = params
-    device = dict_params_model['device']
+    _device = dict_params_model['device']
     dataset = TrojAI(**dict_params_dataset)
     sdn_light = LightSDN(**dict_params_model)
 
-    dataset_name = os.path.basename(dict_params_dataset['path_data'])
-    conf_dist = mf.compute_confusion(sdn_light, dataset.train_loader, device)
+    dataset_name = os.path.basename(dict_params_dataset['folder'])
+    conf_dist = mf.compute_confusion(sdn_light, dataset.train_loader, _device)
 
     return dataset_name, conf_dist
 
@@ -57,12 +57,12 @@ def main():
     test_ratio = 0
     batch_size = 16  # for confusion experiment
     # device = 'cpu'
-    device = af.get_pytorch_device()
+    _device = af.get_pytorch_device()
 
     default_trigger_color = (127, 127, 127)
     # square_dataset_name = 'backdoored_data_square-25'
 
-    experiment_name = f'squares-all-classes-gray_{device.upper()}_{lim_left}-{lim_right}'
+    experiment_name = f'squares-all-classes-gray_{_device.upper()}_{lim_left}-{lim_right}'
 
     # begin
     np.random.seed(666)
@@ -136,7 +136,7 @@ def main():
         'openlab33.umiacs.umd.edu': (751, 1007),
     }
     lim_left, lim_right = list_limits[socket.gethostname()]
-    
+
     for _, row in metadata.iterrows():
         start_time = datetime.now()
         model_name = row['model_name']
@@ -169,7 +169,7 @@ def main():
                 sdn_type = [v for k, v in dict_arch_type.items() if model_architecture.startswith(k)][0]
                 path_model_cnn = os.path.join(path_model, 'model.pt')
                 path_model_ics = os.path.join(path_model, 'svm', 'svm_models')
-                sdn_light = LightSDN(path_model_cnn, path_model_ics, sdn_type, num_classes, device)
+                sdn_light = LightSDN(path_model_cnn, path_model_ics, sdn_type, num_classes, _device)
                 Logger.log('done')
 
                 # the keys will store the confusion distribution values for specific dataset
@@ -192,24 +192,24 @@ def main():
                     # 'backdoored_data_filter_toaster': None
                 }
 
-                if device == 'cuda':
+                if _device == 'cuda':
                     for dataset_name in dict_dataset_confusion:
                         path_data = os.path.join(path_model, dataset_name)
 
                         # Logger.log(f'reading dataset {dataset_name}...', end='')
-                        dataset = TrojAI(folder=path_data, test_ratio=test_ratio, batch_size=batch_size, device=device, opencv_format=False)
+                        dataset = TrojAI(folder=path_data, test_ratio=test_ratio, batch_size=batch_size, device=_device, opencv_format=False)
                         # Logger.log('done')
 
                         Logger.log(f'computing confusion for {dataset_name}...', end='')
-                        dict_dataset_confusion[dataset_name] = mf.compute_confusion(sdn_light, dataset.train_loader, device)
+                        dict_dataset_confusion[dataset_name] = mf.compute_confusion(sdn_light, dataset.train_loader, _device)
                         Logger.log('done')
-                elif device == 'cpu':
+                elif _device == 'cpu':
                     Logger.log(f'computing confusion for all datasets...', end='')
                     mp_mapping_params = []
                     for dataset_name in dict_dataset_confusion:
                         path_data = os.path.join(path_model, dataset_name)
-                        dict_params_dataset = dict(folder=path_data, test_ratio=test_ratio, batch_size=batch_size, device=device, opencv_format=False)
-                        dict_params_model = dict(path_model_cnn=path_model_cnn, path_model_ics=path_model_ics, sdn_type=sdn_type, num_classes=num_classes, device=device)
+                        dict_params_dataset = dict(folder=path_data, test_ratio=test_ratio, batch_size=batch_size, device=_device, opencv_format=False)
+                        dict_params_model = dict(path_model_cnn=path_model_cnn, path_model_ics=path_model_ics, sdn_type=sdn_type, num_classes=num_classes, device=_device)
                         mp_mapping_params.append((dict_params_dataset, dict_params_model))
                     with mp.Pool(processes=len(mp_mapping_params)) as pool:
                         mp_result = pool.map(worker_confusion_distribution, mp_mapping_params)
