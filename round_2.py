@@ -203,6 +203,7 @@ def main():
                         Logger.log(f'computing confusion for {dataset_name}...', end='')
                         dict_dataset_confusion[dataset_name] = mf.compute_confusion(sdn_light, dataset.train_loader, _device)
                         Logger.log('done')
+                    del sdn_light
                 else:
                     Logger.log(f'computing confusion for all datasets...', end='')
                     mp_mapping_params = []
@@ -349,7 +350,7 @@ def main():
                 df_report_conf_dist.to_csv(path_report_conf_dist, index=False)
                 end_time = datetime.now()
 
-                del sdn_light, dict_dataset_confusion
+                del dict_dataset_confusion
                 torch.cuda.empty_cache()
 
                 Logger.log(f'model {model_name} took {end_time - start_time}')
