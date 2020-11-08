@@ -3,6 +3,7 @@ import ast
 import numpy as np
 import pandas as pd
 from datetime import datetime
+import multiprocessing as mp
 
 import tools.model_funcs as mf
 from architectures.LightSDN import LightSDN
@@ -21,6 +22,18 @@ def get_trigger_type_aux_value(trigger_type, trigger_type_option):
             return f'{trigger_type}-{trigger_type_option}'
 
 
+def worker_confusion_distribution(params):
+    dict_params_dataset, dict_params_model = params
+    device = dict_params_model['device']
+    dataset = TrojAI(**dict_params_dataset)
+    sdn_light = LightSDN(**dict_params_model)
+
+    dataset_name = os.path.basename(dict_params_dataset['path_data'])
+    conf_dist = mf.compute_confusion(sdn_light, dataset.train_loader, device)
+
+    return dataset_name, conf_dist
+
+
 def main():
     dict_arch_type = {
         'densenet': SDNConfig.DenseNet_blocks,
@@ -35,8 +48,7 @@ def main():
     }
 
     if len(sys.argv) != 3:
-        lim_left, lim_right = 0, 503
-        # lim_left, lim_right = 504, 1007
+        lim_left, lim_right = 0, 1007
     else:
         lim_left, lim_right = int(sys.argv[1]), int(sys.argv[2])
 
@@ -49,7 +61,8 @@ def main():
 
     default_trigger_color = (127, 127, 127)
     # square_dataset_name = 'backdoored_data_square-25'
-    experiment_name = f'squares-all-classes-gray_{lim_left}-{lim_right}'
+
+    experiment_name = f'squares-all-classes-gray_{device.upper()}_{lim_left}-{lim_right}'
 
     # begin
     np.random.seed(666)
@@ -80,7 +93,6 @@ def main():
             'model_name', 'model_architecture', 'model_label', 'trigger_type_aux',
 
             ## place differences first to visualize them easier
-            # 'square5_mean_diff', 'square5_std_diff',
             'square10_mean_diff', 'square10_std_diff',
             'square15_mean_diff', 'square15_std_diff',
             'square20_mean_diff', 'square20_std_diff',
@@ -98,7 +110,6 @@ def main():
 
             # place effective metrics from confusion distribution
             'clean_mean', 'clean_std',
-            # 'square5_mean', 'square5_std',
             'square10_mean', 'square10_std',
             'square15_mean', 'square15_std',
             'square20_mean', 'square20_std',
@@ -118,7 +129,14 @@ def main():
             'trigger_color', 'num_classes'
         ])
 
-    Logger.log('!!! Round 2: USE RGB COLORS')
+    list_limits = {
+        'openlab30.umiacs.umd.edu': (0, 250),
+        'openlab31.umiacs.umd.edu': (251, 500),
+        'openlab32.umiacs.umd.edu': (501, 750),
+        'openlab33.umiacs.umd.edu': (751, 1007),
+    }
+    lim_left, lim_right = list_limits[socket.gethostname()]
+    
     for _, row in metadata.iterrows():
         start_time = datetime.now()
         model_name = row['model_name']
@@ -174,16 +192,29 @@ def main():
                     # 'backdoored_data_filter_toaster': None
                 }
 
-                for dataset_name in dict_dataset_confusion:
-                    path_data = os.path.join(path_model, dataset_name)
+                if device == 'cuda':
+                    for dataset_name in dict_dataset_confusion:
+                        path_data = os.path.join(path_model, dataset_name)
 
-                    # Logger.log(f'reading dataset {dataset_name}...', end='')
-                    dataset = TrojAI(folder=path_data, test_ratio=test_ratio, batch_size=batch_size, device=device, opencv_format=False)
-                    # Logger.log('done')
+                        # Logger.log(f'reading dataset {dataset_name}...', end='')
+                        dataset = TrojAI(folder=path_data, test_ratio=test_ratio, batch_size=batch_size, device=device, opencv_format=False)
+                        # Logger.log('done')
 
-                    Logger.log(f'computing confusion for {dataset_name}...', end='')
-                    dict_dataset_confusion[dataset_name] = mf.compute_confusion(sdn_light, dataset.train_loader, device)
-                    Logger.log('done')
+                        Logger.log(f'computing confusion for {dataset_name}...', end='')
+                        dict_dataset_confusion[dataset_name] = mf.compute_confusion(sdn_light, dataset.train_loader, device)
+                        Logger.log('done')
+                elif device == 'cpu':
+                    Logger.log(f'computing confusion for all datasets...', end='')
+                    mp_mapping_params = []
+                    for dataset_name in dict_dataset_confusion:
+                        path_data = os.path.join(path_model, dataset_name)
+                        dict_params_dataset = dict(folder=path_data, test_ratio=test_ratio, batch_size=batch_size, device=device, opencv_format=False)
+                        dict_params_model = dict(path_model_cnn=path_model_cnn, path_model_ics=path_model_ics, sdn_type=sdn_type, num_classes=num_classes, device=device)
+                        mp_mapping_params.append((dict_params_dataset, dict_params_model))
+                    with mp.Pool(processes=len(mp_mapping_params)) as pool:
+                        mp_result = pool.map(worker_confusion_distribution, mp_mapping_params)
+                    Logger.log(f'done')
+                    dict_dataset_confusion = dict(mp_result)
 
                 # compute mean and stds for confusion distributions
                 clean_mean = np.mean(dict_dataset_confusion['clean_example_data'])
@@ -216,7 +247,6 @@ def main():
                 square50_mean = np.mean(dict_dataset_confusion['backdoored_data_square-50'])
                 square50_std = np.std(dict_dataset_confusion['backdoored_data_square-50'])
 
-                #
                 # gotham_mean = np.mean(dict_dataset_confusion['backdoored_data_filter_gotham'])
                 # gotham_std = np.std(dict_dataset_confusion['backdoored_data_filter_gotham'])
                 #
