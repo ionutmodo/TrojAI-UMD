@@ -3,7 +3,6 @@ import ast
 import numpy as np
 import pandas as pd
 from datetime import datetime
-import multiprocessing as mp
 from concurrent.futures import ProcessPoolExecutor as Pool
 # from multiprocessing import Pool
 
@@ -65,7 +64,13 @@ def worker_process_model(params):
 
     for dataset_name in dict_dataset_confusion:
         path_data = os.path.join(path_model, dataset_name)
+
+        print(f'[{model_name}] loading dataset')
+        sys.stdout.flush()
         dataset = TrojAI(folder=path_data, test_ratio=test_ratio, batch_size=batch_size, device=_device, opencv_format=False)
+
+        print(f'[{model_name}] computing confusion')
+        sys.stdout.flush()
         dict_dataset_confusion[dataset_name] = mf.compute_confusion(sdn_light, dataset.train_loader, _device)
         # del dataset
 
@@ -197,7 +202,7 @@ def worker_process_model(params):
         trigger_color, num_classes
     ]
 
-    af.save_obj(result_to_return, os.path.join(temp_dir, f'{model_name}'))
+    af.save_obj(result_to_return, os.path.join(temp_dir, model_name))
     end_time = datetime.now()
 
     print(f'Processing model {model_name} took {end_time - start_time}')
@@ -225,6 +230,8 @@ def main():
         'openlab32.umiacs.umd.edu': (731, 799),
         'openlab33.umiacs.umd.edu': (825, 900),
     }
+
+    cpu_count = 31 if socket.gethostname() == 'openlab08.umiacs.umd.edu' else 63
 
     if len(sys.argv) != 3:
         lim_left, lim_right = list_limits[socket.gethostname()]
@@ -293,7 +300,7 @@ def main():
     print(f'Total models to process: {len(mp_mapping_params)}')
     sys.stdout.flush()
 
-    with Pool(max_workers=mp.cpu_count() - 1) as pool:
+    with Pool(max_workers=cpu_count) as pool:
         mp_result = pool.map(worker_process_model, mp_mapping_params)
         df = pd.DataFrame(
             data=mp_result,
