@@ -231,7 +231,7 @@ def main():
         'openlab33.umiacs.umd.edu': (825, 900),
     }
 
-    cpu_count = 32 if socket.gethostname() == 'openlab08.umiacs.umd.edu' else 62
+    cpu_count = 20 if socket.gethostname() == 'openlab08.umiacs.umd.edu' else 45
 
     if len(sys.argv) != 3:
         lim_left, lim_right = list_limits[socket.gethostname()]
