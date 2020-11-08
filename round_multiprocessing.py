@@ -242,7 +242,7 @@ def main():
     sys.stdout.flush()
 
     test_ratio = 0
-    batch_size = 1  # for confusion experiment
+    batch_size = 16  # for confusion experiment
     _device = 'cpu'
     # _device = af.get_pytorch_device()
 
