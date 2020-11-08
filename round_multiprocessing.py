@@ -38,8 +38,8 @@ def worker_process_model(params):
     start_time = datetime.now()
     temp_dir, model_name, model_architecture, model_label, trigger_type_aux, trigger_color, path_model, test_ratio, batch_size, path_model_cnn, path_model_ics, sdn_type, num_classes, _device = params
 
-    print(f'Running model {model_name}')
-    sys.stdout.flush()
+    # print(f'Running model {model_name}')
+    # sys.stdout.flush()
 
     # the keys will store the confusion distribution values for specific dataset
     # add it here in for because I am deleting it at the end of the loop to save memory
@@ -65,12 +65,12 @@ def worker_process_model(params):
     for dataset_name in dict_dataset_confusion:
         path_data = os.path.join(path_model, dataset_name)
 
-        print(f'[{model_name}] loading dataset')
-        sys.stdout.flush()
+        # print(f'[{model_name}] loading dataset')
+        # sys.stdout.flush()
         dataset = TrojAI(folder=path_data, test_ratio=test_ratio, batch_size=batch_size, device=_device, opencv_format=False)
 
-        print(f'[{model_name}] computing confusion for {dataset_name}')
-        sys.stdout.flush()
+        # print(f'[{model_name}] computing confusion for {dataset_name}')
+        # sys.stdout.flush()
         dict_dataset_confusion[dataset_name] = mf.compute_confusion(sdn_light, dataset.train_loader, _device)
         # del dataset
 
@@ -205,7 +205,7 @@ def worker_process_model(params):
     af.save_obj(result_to_return, os.path.join(temp_dir, model_name))
     end_time = datetime.now()
 
-    print(f'Processing model {model_name} took {end_time - start_time}')
+    print(f'{model_name} took {end_time - start_time}')
     sys.stdout.flush()
 
     return result_to_return
