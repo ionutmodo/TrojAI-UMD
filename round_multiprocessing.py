@@ -69,7 +69,7 @@ def worker_process_model(params):
         sys.stdout.flush()
         dataset = TrojAI(folder=path_data, test_ratio=test_ratio, batch_size=batch_size, device=_device, opencv_format=False)
 
-        print(f'[{model_name}] computing confusion')
+        print(f'[{model_name}] computing confusion for {dataset_name}')
         sys.stdout.flush()
         dict_dataset_confusion[dataset_name] = mf.compute_confusion(sdn_light, dataset.train_loader, _device)
         # del dataset
@@ -231,7 +231,7 @@ def main():
         'openlab33.umiacs.umd.edu': (825, 900),
     }
 
-    cpu_count = 31 if socket.gethostname() == 'openlab08.umiacs.umd.edu' else 63
+    cpu_count = 32 if socket.gethostname() == 'openlab08.umiacs.umd.edu' else 62
 
     if len(sys.argv) != 3:
         lim_left, lim_right = list_limits[socket.gethostname()]
