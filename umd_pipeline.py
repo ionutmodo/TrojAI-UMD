@@ -130,7 +130,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     # path_meta_model = 'metamodel_svm_round2_square25_filters_black_square.pickle'
 
     # baseline (gray (127,127,127) squares for all models, all images)
-    path_meta_model = 'metamodel_svm_round2_square25_filters_all-classes_gray.pickle'
+    path_meta_model = 'metamodel_svm_round3_linear-svm_AT_square25_filters_all-classes_gray.pickle'
 
     batch_size = 1 # do not change this!
     _device = af.get_pytorch_device()
