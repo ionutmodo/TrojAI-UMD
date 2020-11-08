@@ -212,11 +212,11 @@ def main():
         'wideresnet': SDNConfig.ResNet,
     }
     list_limits = {
-        'openlab08.umiacs.umd.edu': (300, 400),
-        'openlab30.umiacs.umd.edu': (300, 400),
-        'openlab31.umiacs.umd.edu': (401, 500),
-        'openlab32.umiacs.umd.edu': (800, 900),
-        'openlab33.umiacs.umd.edu': (901, 1007),
+        'openlab08.umiacs.umd.edu': (444, 500),
+        'openlab30.umiacs.umd.edu': (227, 299),
+        'openlab31.umiacs.umd.edu': (328, 400),
+        'openlab32.umiacs.umd.edu': (731, 799),
+        'openlab33.umiacs.umd.edu': (825, 900),
     }
 
     if len(sys.argv) != 3:
