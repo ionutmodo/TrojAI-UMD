@@ -53,10 +53,10 @@ def main():
         lim_left, lim_right = int(sys.argv[1]), int(sys.argv[2])
 
     list_limits = {
-        'openlab30.umiacs.umd.edu': (0, 250),
-        'openlab31.umiacs.umd.edu': (251, 500),
-        'openlab32.umiacs.umd.edu': (501, 750),
-        'openlab33.umiacs.umd.edu': (751, 1007),
+        'openlab30.umiacs.umd.edu': (300, 400),
+        'openlab31.umiacs.umd.edu': (401, 500),
+        'openlab32.umiacs.umd.edu': (800, 900),
+        'openlab33.umiacs.umd.edu': (901, 1007),
     }
     # lim_left, lim_right = list_limits[socket.gethostname()]
 
