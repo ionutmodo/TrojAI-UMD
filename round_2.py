@@ -3,7 +3,7 @@ import ast
 import numpy as np
 import pandas as pd
 from datetime import datetime
-from billiard.pool import Pool
+from concurrent.futures import ProcessPoolExecutor as Pool
 
 import tools.model_funcs as mf
 from architectures.LightSDN import LightSDN
@@ -52,7 +52,13 @@ def main():
     else:
         lim_left, lim_right = int(sys.argv[1]), int(sys.argv[2])
 
-    print(lim_left, lim_right)
+    list_limits = {
+        'openlab30.umiacs.umd.edu': (0, 250),
+        'openlab31.umiacs.umd.edu': (251, 500),
+        'openlab32.umiacs.umd.edu': (501, 750),
+        'openlab33.umiacs.umd.edu': (751, 1007),
+    }
+    lim_left, lim_right = list_limits[socket.gethostname()]
 
     test_ratio = 0
     batch_size = 16  # for confusion experiment
@@ -128,14 +134,6 @@ def main():
             # other data
             'trigger_color', 'num_classes'
         ])
-
-    list_limits = {
-        'openlab30.umiacs.umd.edu': (0, 250),
-        'openlab31.umiacs.umd.edu': (251, 500),
-        'openlab32.umiacs.umd.edu': (501, 750),
-        'openlab33.umiacs.umd.edu': (751, 1007),
-    }
-    lim_left, lim_right = list_limits[socket.gethostname()]
 
     for _, row in metadata.iterrows():
         start_time = datetime.now()
