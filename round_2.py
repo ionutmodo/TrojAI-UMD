@@ -58,17 +58,17 @@ def main():
         'openlab32.umiacs.umd.edu': (501, 750),
         'openlab33.umiacs.umd.edu': (751, 1007),
     }
-    lim_left, lim_right = list_limits[socket.gethostname()]
+    # lim_left, lim_right = list_limits[socket.gethostname()]
 
     test_ratio = 0
     batch_size = 16  # for confusion experiment
-    _device = 'cpu'
-    # _device = af.get_pytorch_device()
+    # _device = 'cpu'
+    _device = af.get_pytorch_device()
 
     default_trigger_color = (127, 127, 127)
-    # square_dataset_name = 'backdoored_data_square-25'
 
-    experiment_name = f'squares-all-classes-gray_{_device.upper()}_{lim_left}-{lim_right}'
+    # experiment_name = f'squares-all-classes-gray_{_device.upper()}_{lim_left}-{lim_right}'
+    experiment_name = f'squares-all-classes-gray_{lim_left}-{lim_right}'
 
     # begin
     np.random.seed(666)
@@ -139,7 +139,8 @@ def main():
         start_time = datetime.now()
         model_name = row['model_name']
         model_id = int(model_name[3:])
-        if lim_left <= model_id <= lim_right:
+        if lim_left <= model_id <= lim_right and (
+                (last_model_name_in_report_conf_dist is None) or (last_model_name_in_report_conf_dist is not None and model_name > last_model_name_in_report_conf_dist)):
             if (last_model_name_in_report_conf_dist is None) or (last_model_name_in_report_conf_dist is not None and model_name > last_model_name_in_report_conf_dist):
                 model_label = 'backdoor' if row['poisoned'] else 'clean'
                 model_architecture = row['model_architecture']
@@ -189,7 +190,7 @@ def main():
                     # 'backdoored_data_filter_toaster': None
                 }
 
-                if _device == 'cuda':
+                if socket.gethostname() == 'openlab08.umiacs.umd.edu':
                     sdn_light = LightSDN(path_model_cnn, path_model_ics, sdn_type, num_classes, _device)
 
                     for dataset_name in dict_dataset_confusion:
@@ -202,7 +203,7 @@ def main():
                         Logger.log(f'computing confusion for {dataset_name}...', end='')
                         dict_dataset_confusion[dataset_name] = mf.compute_confusion(sdn_light, dataset.train_loader, _device)
                         Logger.log('done')
-                elif _device == 'cpu':
+                else:
                     Logger.log(f'computing confusion for all datasets...', end='')
                     mp_mapping_params = []
                     for dataset_name in dict_dataset_confusion:
@@ -210,7 +211,7 @@ def main():
                         dict_params_dataset = dict(folder=path_data, test_ratio=test_ratio, batch_size=batch_size, device=_device, opencv_format=False)
                         dict_params_model = dict(path_model_cnn=path_model_cnn, path_model_ics=path_model_ics, sdn_type=sdn_type, num_classes=num_classes, device=_device)
                         mp_mapping_params.append((dict_params_dataset, dict_params_model))
-                    with Pool(processes=len(mp_mapping_params)) as pool:
+                    with Pool(len(mp_mapping_params)) as pool:
                         mp_result = pool.map(worker_confusion_distribution, mp_mapping_params)
                     Logger.log(f'done')
                     dict_dataset_confusion = dict(mp_result)
