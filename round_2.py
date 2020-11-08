@@ -3,7 +3,7 @@ import ast
 import numpy as np
 import pandas as pd
 from datetime import datetime
-import multiprocessing as mp
+from billiard.pool import Pool
 
 import tools.model_funcs as mf
 from architectures.LightSDN import LightSDN
@@ -56,8 +56,8 @@ def main():
 
     test_ratio = 0
     batch_size = 16  # for confusion experiment
-    # device = 'cpu'
-    _device = af.get_pytorch_device()
+    _device = 'cpu'
+    # _device = af.get_pytorch_device()
 
     default_trigger_color = (127, 127, 127)
     # square_dataset_name = 'backdoored_data_square-25'
@@ -169,7 +169,6 @@ def main():
                 sdn_type = [v for k, v in dict_arch_type.items() if model_architecture.startswith(k)][0]
                 path_model_cnn = os.path.join(path_model, 'model.pt')
                 path_model_ics = os.path.join(path_model, 'svm', 'svm_models')
-                sdn_light = LightSDN(path_model_cnn, path_model_ics, sdn_type, num_classes, _device)
                 Logger.log('done')
 
                 # the keys will store the confusion distribution values for specific dataset
@@ -193,6 +192,8 @@ def main():
                 }
 
                 if _device == 'cuda':
+                    sdn_light = LightSDN(path_model_cnn, path_model_ics, sdn_type, num_classes, _device)
+
                     for dataset_name in dict_dataset_confusion:
                         path_data = os.path.join(path_model, dataset_name)
 
@@ -211,7 +212,7 @@ def main():
                         dict_params_dataset = dict(folder=path_data, test_ratio=test_ratio, batch_size=batch_size, device=_device, opencv_format=False)
                         dict_params_model = dict(path_model_cnn=path_model_cnn, path_model_ics=path_model_ics, sdn_type=sdn_type, num_classes=num_classes, device=_device)
                         mp_mapping_params.append((dict_params_dataset, dict_params_model))
-                    with mp.Pool(processes=len(mp_mapping_params)) as pool:
+                    with Pool(processes=len(mp_mapping_params)) as pool:
                         mp_result = pool.map(worker_confusion_distribution, mp_mapping_params)
                     Logger.log(f'done')
                     dict_dataset_confusion = dict(mp_result)
