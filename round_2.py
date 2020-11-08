@@ -46,19 +46,19 @@ def main():
         'vgg': SDNConfig.VGG,
         'wideresnet': SDNConfig.ResNet,
     }
-
-    if len(sys.argv) != 3:
-        lim_left, lim_right = 0, 1007
-    else:
-        lim_left, lim_right = int(sys.argv[1]), int(sys.argv[2])
-
     list_limits = {
         'openlab30.umiacs.umd.edu': (300, 400),
         'openlab31.umiacs.umd.edu': (401, 500),
         'openlab32.umiacs.umd.edu': (800, 900),
         'openlab33.umiacs.umd.edu': (901, 1007),
     }
-    # lim_left, lim_right = list_limits[socket.gethostname()]
+
+    if len(sys.argv) != 3:
+        lim_left, lim_right = list_limits[socket.gethostname()]
+    else:
+        lim_left, lim_right = int(sys.argv[1]), int(sys.argv[2])
+
+    print(f'{lim_left=}, {lim_right=}')
 
     test_ratio = 0
     batch_size = 16  # for confusion experiment
