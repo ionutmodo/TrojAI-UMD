@@ -93,8 +93,9 @@ def main():
                 # for a path_data_clean, generate a path_data_backd with a for a specific size for square trigger
                 # generate backdoored datasets with square trigger with specific size
                 for p_trigger_size in list_trigger_sizes:
-                    exp_desc = f'square-{p_trigger_size}'
-                    path_data_backd = os.path.join(path_model, f'backdoored_data_{exp_desc}')
+                    path_data_backd = os.path.join(path_model, f'backdoored_data_square-{p_trigger_size}')
+                    if type(trigger_color) is str:
+                        path_data_backd += f'_{trigger_color}'
 
                     mapping_param_dict = dict(
                         num_classes=num_classes,
