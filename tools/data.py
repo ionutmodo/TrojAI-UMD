@@ -38,6 +38,13 @@ def _get_single_image(path, opencv_format):
     return img
 
 
+def generate_random_RGB():
+    r = np.random.randint(low=0, high=256, size=1, dtype=np.uint8)[0]
+    g = np.random.randint(low=0, high=256, size=1, dtype=np.uint8)[0]
+    b = np.random.randint(low=0, high=256, size=1, dtype=np.uint8)[0]
+    return tuple(np.random.permutation([r, g, b]))
+
+
 def change_color(trigger, color):
     trigger_np = np.asarray(trigger)
     new_trigger = np.copy(trigger_np)
@@ -76,7 +83,7 @@ def create_backdoored_dataset(dir_clean_data,
     """
     # assert trigger_type in ['polygon', 'filter'], 'tools.data.create_backdoored_dataset: invalid trigger type'
     # assert trigger_name in ['square', ], 'tools.data.create_backdoored_dataset: invalid trigger type'
-
+    np.random.seed(666)
     if not os.path.isdir(dir_backdoored_data):
         os.makedirs(dir_backdoored_data)
     df = pd.DataFrame(columns=['filename_clean', 'filename_backdoored', 'original_label', 'final_label', 'triggered', 'config'])
@@ -134,7 +141,7 @@ def create_backdoored_dataset(dir_clean_data,
         else:
             polygon_trigger = PIL.Image.open(trigger_name)
 
-        if trigger_color is not None:
+        if trigger_color is tuple:
             polygon_trigger = change_color(polygon_trigger, trigger_color)
     elif trigger_type == 'filter':
         pass
@@ -157,6 +164,8 @@ def create_backdoored_dataset(dir_clean_data,
             else:
                 config = ast.literal_eval(config)
                 if config['type'] == 'polygon':
+                    if trigger_color == 'random': # needs improvement to speedup changing color
+                        polygon_trigger = change_color(polygon_trigger, generate_random_RGB())
                     image_trigger = polygon_trigger.copy().resize((config['size'], config['size']))
                     image_clean.paste(image_trigger, (config['x'], config['y']), image_trigger)
                     image_clean.save(filename_backdoored)

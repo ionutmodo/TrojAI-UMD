@@ -40,7 +40,7 @@ def main():
     metadata = pd.read_csv(path_metadata)
 
     mp_mapping_params = []
-    list_trigger_sizes = [20, 30, 35, 40, 45, 50]
+    list_trigger_sizes = [25, 30, 35, 40, 45, 50]
     list_filters = ['gotham', 'kelvin', 'lomo', 'nashville', 'toaster']
 
     # list_limits = {
@@ -83,6 +83,7 @@ def main():
                 trigger_color = tuple(ast.literal_eval(row['trigger_color'].replace(' ', ', ')))
 
             trigger_color = (127, 127, 127)
+            trigger_color = 'random'
 
             ###############################################################################################################
 
