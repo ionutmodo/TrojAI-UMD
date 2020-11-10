@@ -138,6 +138,7 @@ def create_backdoored_dataset(dir_clean_data,
     if trigger_type == 'polygon':
         if trigger_name == 'square':
             polygon_trigger = PIL.Image.fromarray(255 * np.ones((224, 224, 4)).astype(np.uint8))
+            polygon_trigger = polygon_trigger.resize((trigger_size, trigger_size))
         else:
             polygon_trigger = PIL.Image.open(trigger_name)
 
@@ -166,8 +167,8 @@ def create_backdoored_dataset(dir_clean_data,
                 if config['type'] == 'polygon':
                     if trigger_color == 'random': # needs improvement to speedup changing color
                         polygon_trigger = change_color(polygon_trigger, generate_random_RGB())
-                    image_trigger = polygon_trigger.copy().resize((config['size'], config['size']))
-                    image_clean.paste(image_trigger, (config['x'], config['y']), image_trigger)
+                    # image_trigger = polygon_trigger.copy().resize((config['size'], config['size']))
+                    image_clean.paste(polygon_trigger, (config['x'], config['y']), polygon_trigger)
                     image_clean.save(filename_backdoored)
                     count += 1
                 elif config['type'] == 'filter':
