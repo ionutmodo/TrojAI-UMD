@@ -2,6 +2,7 @@ import os
 import ast
 import shutil
 import socket
+from datetime import datetime
 import pandas as pd
 import multiprocessing as mp
 from tools.logistics import get_project_root_path
@@ -142,5 +143,6 @@ def main():
 
 
 if __name__ == '__main__':
+    t = datetime.now()
     main()
-    print('script ended')
+    print(f'script ended, took {datetime.now() - t}')
