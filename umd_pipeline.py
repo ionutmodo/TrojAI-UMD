@@ -288,8 +288,10 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         print('[info] STEP 4: predicting backd proba')
 
     meta_model = af.load_obj(filename=path_meta_model)
+    positive_class_index = np.where(meta_model.classes_ == 1)[0][0]
+
     probabilities = meta_model.predict_proba(features)
-    backd_proba = probabilities[0][1]
+    backd_proba = probabilities[0][positive_class_index]
 
     if print_messages:
         print(f'[info] probability distribution: {probabilities}')
@@ -314,11 +316,7 @@ if __name__ == "__main__":
 
 # TODO: set a limit for the number of images per class when reading them from disk (Sanghyun's idea with 1,3,5 images per class)
 # sudo singularity build umd_pipeline.simg umd_pipeline.def
-# sudo singularity run --nv umd_pipeline.simg --model_filepath /home/ionut/trojai/TrojAI-test/id-1100/model.pt --result_filepath /home/ionut/trojai/TrojAI-test/id-1100_result.txt --scratch_dirpath /home/ionut/trojai/TrojAI-test/id-1100_scratch --examples_dirpath /home/ionut/trojai/TrojAI-test/id-1100/example_data
-# sudo singularity run --nv umd_pipeline.simg --model_filepath ../TrojAI-test/id-1100/model.pt --result_filepath ../TrojAI-test/id-1100_result.txt --scratch_dirpath ../TrojAI-test/id-1100_scratch --examples_dirpath ../TrojAI-test/id-1100/example_data
-# sudo singularity run --nv umd_pipeline.simg --model_filepath /id-1100/model.pt --result_filepath /id-1100_result.txt --scratch_dirpath /id-1100_scratch --examples_dirpath /id-1100/example_data
-# py38 -W ignore umd_pipeline.py --model_filepath ../TrojAI-data/round2-train-dataset/id-00000000/model.pt --result_filepath ../TrojAI-data/round2-train-dataset/id-00000000/scratch/result.txt --scratch_dirpath TrojAI-data/round2-train-dataset/id-00000000/scratch --examples_dirpath ../TrojAI-data/round2-train-dataset/id-00000000/example_data
-# sudo singularity run --nv /home/ubuntu/workplace/TrojAI-UMD/06_round3_rbf-svm_size30_RANDOM_all-classes.simg --model_filepath /home/ubuntu/workplace/TrojAI-data/id-00001000/model/home/ubuntu/workplace/TrojAI-data/id-00001000pt --result_filepath /home/ubuntu/workplace/TrojAI-data/id-00001000/result/home/ubuntu/workplace/TrojAI-data/id-00001000txt --scratch_dirpath /home/ubuntu/workplace/TrojAI-data/id-00001000/scratch --examples_dirpath /home/ubuntu/workplace/TrojAI-data/id-00001000/clean_example_data
+# sudo singularity run -B /home/ubuntu/workplace/TrojAI-data/id-00001000/ /home/ubuntu/workplace/TrojAI-UMD/06_round3_rbf-svm_size30_RANDOM_all-classes.simg --model_filepath /home/ubuntu/workplace/TrojAI-data/id-00001000/model.pt --result_filepath /home/ubuntu/workplace/TrojAI-data/id-00001000/result.txt --scratch_dirpath /home/ubuntu/workplace/TrojAI-data/id-00001000/scratch --examples_dirpath /home/ubuntu/workplace/TrojAI-data/id-00001000/clean_example_data
 
 # if print_messages:
 #     print()
