@@ -318,6 +318,7 @@ if __name__ == "__main__":
 # sudo singularity run --nv umd_pipeline.simg --model_filepath ../TrojAI-test/id-1100/model.pt --result_filepath ../TrojAI-test/id-1100_result.txt --scratch_dirpath ../TrojAI-test/id-1100_scratch --examples_dirpath ../TrojAI-test/id-1100/example_data
 # sudo singularity run --nv umd_pipeline.simg --model_filepath /id-1100/model.pt --result_filepath /id-1100_result.txt --scratch_dirpath /id-1100_scratch --examples_dirpath /id-1100/example_data
 # py38 -W ignore umd_pipeline.py --model_filepath ../TrojAI-data/round2-train-dataset/id-00000000/model.pt --result_filepath ../TrojAI-data/round2-train-dataset/id-00000000/scratch/result.txt --scratch_dirpath TrojAI-data/round2-train-dataset/id-00000000/scratch --examples_dirpath ../TrojAI-data/round2-train-dataset/id-00000000/example_data
+# sudo singularity run --nv /home/ubuntu/workplace/TrojAI-UMD/06_round3_rbf-svm_size30_RANDOM_all-classes.simg --model_filepath /home/ubuntu/workplace/TrojAI-data/id-00001000/model/home/ubuntu/workplace/TrojAI-data/id-00001000pt --result_filepath /home/ubuntu/workplace/TrojAI-data/id-00001000/result/home/ubuntu/workplace/TrojAI-data/id-00001000txt --scratch_dirpath /home/ubuntu/workplace/TrojAI-data/id-00001000/scratch --examples_dirpath /home/ubuntu/workplace/TrojAI-data/id-00001000/clean_example_data
 
 # if print_messages:
 #     print()
