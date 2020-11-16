@@ -15,7 +15,7 @@ From: pytorch/pytorch:latest
 %post
     apt-get update
     apt-get install -y ffmpeg libsm6 libxext6 libxrender-dev libgtk2.0-dev libmagickwand-dev vim
-    pip install --no-cache-dir opencv-python pandas numpy tensorflow keras matplotlib pillow scipy seaborn wand scikit-learn scikit-image dill pyllist nltk tqdm
+    pip install --no-cache-dir tensorflow keras numpy==1.18.5 pandas opencv-python matplotlib pillow scipy seaborn wand scikit-learn scikit-image dill pyllist nltk tqdm
     chmod -R 777 /umd/
 
 %runscript

@@ -311,11 +311,11 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
 
     if os.path.isdir(path_meta_model): # the path is a dir => it is a keras model
         meta_model = keras_load(path_meta_model)
-        backd_proba = meta_model.predict_proba(features)[0][0]
+        probabilities = meta_model.predict_proba(features)
+        backd_proba = probabilities[0][0]
     elif os.path.isfile(path_meta_model): # the path is a file => it is a pickle file with a sklearn model
         meta_model = af.load_obj(filename=path_meta_model)
         positive_class_index = np.where(meta_model.classes_ == 1)[0][0]
-
         probabilities = meta_model.predict_proba(features)
         backd_proba = probabilities[0][positive_class_index]
     else:
