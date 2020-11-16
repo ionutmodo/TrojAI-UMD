@@ -96,150 +96,45 @@ class InputNormalize(torch.nn.Module):
         return x_normalized
 
 
-def load_madry_robust_cifar10(path, device):
-    robust_madry_model = ResNet50(num_classes=10).to(device)
-    dataset = CIFAR('./data/cifar10')
-    robust_madry_model = AttackerModel(robust_madry_model, dataset)
-    checkpoint = torch.load('{}/cifar_linf_8.pt'.format(path), pickle_module=dill)
-    
-    # Makes us able to load models saved with legacy versions
-    state_dict_path = 'model'
-    if not ('model' in checkpoint):
-        state_dict_path = 'state_dict'
-
-    sd = checkpoint[state_dict_path]
-    sd = {k[len('module.'):]:v for k,v in sd.items()}
-    robust_madry_model.load_state_dict(sd)
-
-    robust_madry_model = robust_madry_model.cnn_model.eval().eval().to(device)
-    cifar_normalizer = InputNormalize(torch.tensor([0.4914, 0.4822, 0.4465]), torch.tensor([0.2023, 0.1994, 0.2010])).to(device)
-    robust_madry_model.normalizer = cifar_normalizer
-
-    robust_madry_model.input_size = 32
-    robust_madry_model.num_classes = 10
-
-    return robust_madry_model
-
-
-def load_trades_robust_cifar10(path, device):
-    robust_trades_model = WideResNet().to(device)
-    #  from https://github.com/yaodongyu/TRADES
-    robust_trades_model.load_state_dict(torch.load('{}/model_cifar_wrn.pt'.format(path)))
-    robust_trades_model.eval()
-    robust_trades_model.input_size = 32
-    robust_trades_model.num_classes = 10
-
-    return robust_trades_model
-
 def create_path(path):
     p = Path(path)
     p.mkdir(parents=True, exist_ok=True)
     return path
 
-def eval_string(string):
-    return literal_eval(string)
 
 def get_random_seed():
     return 1221 # 121 and 1221
+
 
 def set_random_seeds():
     torch.manual_seed(get_random_seed())
     np.random.seed(get_random_seed())
     random.seed(get_random_seed())
 
+
 def set_random_seeds_manual(seed):
     torch.manual_seed(seed)
     np.random.seed(seed)
     random.seed(seed)
 
-def get_unique_elems(arr_of_arr):
-    uniques = set()
-    for arr in arr_of_arr:
-        uniques = uniques | set(arr)
-
-    return uniques
-
-def single_histogram_with_bin_labels(save_path, save_name, hist_values, bin_label_values, hist_label, bin_label, log_scale=False):
-    _, ax1 = plt.subplots()
-    ax2 = ax1.twinx()
-    nbins = 50
-    bins = np.linspace(0., 1., nbins)
-
-    ax1.hist(hist_values, bins=bins, histtype='bar', color='r')
-    inds = np.digitize(hist_values, bins)
-
-    labels = []
-    for bin_idx in range(nbins):
-        bin_indices = inds==bin_idx
-        bin_vals = bin_label_values[bin_indices]
-        if len(bin_vals) > 0:
-            labels.append(np.mean(bin_vals))
-        else:
-            labels.append(0)
-
-    ax1.set_xlabel(hist_label)
-
-    ax2.scatter(bins, labels, marker='*')
-
-    ax1.set_ylabel('Number of Instances')
-    ax2.set_ylabel(bin_label, color='k')
-
-    if log_scale:
-        ax1.set_yscale('log', nonposy='clip', basey=10)
-
-    plt.grid(True)
-    plt.savefig('{}/{}'.format(save_path, save_name))
-    plt.close()
-
-def single_histogram(save_path, save_name, hist_values, label, log_scale=False):
-    nbins = 20
-    plt.hist(hist_values, bins=nbins)
-    plt.axvline(np.mean(hist_values), color='k', linestyle='-', linewidth=3)
-    plt.xlabel(label)
-    plt.ylabel('Number of Instances')
-    if log_scale:
-        plt.yscale('log', nonposy='clip', basey=10)
-
-    plt.grid(True)
-    plt.savefig('{}/{}'.format(save_path, save_name))
-    plt.close()
-
-def overlay_two_histograms(save_path, save_name, hist_first_values, hist_second_values, first_label, second_label, xlabel, title=''):
-    plt.hist([hist_first_values, hist_second_values], bins=50, label=[f'{first_label} (black)', f'{second_label} (dotted)'])
-    plt.axvline(np.mean(hist_first_values), color='k', linestyle='-', linewidth=3)
-    plt.axvline(np.mean(hist_second_values), color='b', linestyle='--', linewidth=3)
-    plt.xlabel(xlabel)
-    plt.ylabel('Number of Instances')
-    plt.title(title)
-    plt.grid(True)
-    plt.legend(loc='upper right')
-    plt.savefig('{}/{}'.format(save_path, save_name))
-    plt.close()
-
-
-def get_dataset(dataset, batch_size=128, num_holdout=0):
-    if dataset == 'cifar10':
-        return CIFAR10(batch_size=batch_size, num_holdout=num_holdout)
-    elif dataset == 'cifar100':
-        return CIFAR100(batch_size=batch_size, num_holdout=num_holdout)
-    elif dataset == 'tinyimagenet':
-        return TinyImagenet(batch_size=batch_size, num_holdout=num_holdout)
-
-        
 
 class Flatten(nn.Module):
     def forward(self, input):
         return input.view(input.size(0), -1)
 
+
 def reducer_avg(acts, reduced_size=1):
     return F.adaptive_avg_pool2d(acts, reduced_size)
+
 
 def reducer_max(acts, reduced_size=1):
     return F.adaptive_max_pool2d(acts, reduced_size)
 
+
 def reducer_std(acts):
     flat = acts.view(acts.size(0), acts.size(1), -1)
     return flat.std(2).view(flat.size(0), flat.size(1), 1, 1)
+
 
 def reduce_activation(x):
     acts_avg = Flatten()(reducer_avg(x, reduced_size=1))
@@ -256,33 +151,10 @@ def generate_random_target_labels(true_labels, num_classes):
         target_label = cur_label
         while target_label == cur_label:
             target_label = np.random.randint(0, num_classes)
-        
+
         target_labels.append(target_label)
 
     return np.array(target_labels)
-
-
-def shift_labels(true_labels, num_classes, shift_seed):
-    target_labels = []
-    for label in true_labels:
-        cur_label = np.argmax(label)
-        target_label = (cur_label + shift_seed) % num_classes
-        target_labels.append(target_label)
-
-    return np.array(target_labels)
-
-
-def safe_list_get(l, idx):
-    try:
-        return l[idx]
-    except IndexError:
-        return None
-
-
-def get_pred_single(model, img):
-    prep_img = Variable(torch.from_numpy(img.reshape(1,1,28,28)).float(), requires_grad=True)
-    output = model(prep_img)
-    return output.max(1, keepdim=True)[1].numpy()[0][0]
 
 
 def model_exists(models_path, model_name):
@@ -344,11 +216,6 @@ def normalize(data, normalization_data, normalization_type):
     return data
 
 
-def find_overlap_idx_two_lists(list1, list2):
-    both = set(list1).intersection(list2)
-    return [list1.index(x) for x in both]
-
-
 def get_loss_criterion():
     return CrossEntropyLoss()
 
@@ -358,14 +225,6 @@ def get_encoder_loss_criterion(train=True):
         return BCELoss() #MSELoss()
     else:
         return MSELoss()
-
-
-def get_list_of_samples_from_list(l, num_samples, sample_size):
-    samples = []
-    for _ in range(num_samples):
-        samples.append(sample(l, sample_size))
-
-    return samples
 
 
 def get_network_structure(input_size, num_layers, structure_params):
@@ -389,7 +248,7 @@ def get_all_trained_models_info(models_path, use_profiler=False, device='gpu'):
             num_epochs = model_params['epochs']
             task = model_params['task']
             net_type = model_params['network_type']
-            
+
             top1_test = model_params['test_top1_acc']
             top1_train = model_params['train_top1_acc']
             #top5_test = model_params['test_top5_acc']
@@ -411,7 +270,7 @@ def get_all_trained_models_info(models_path, use_profiler=False, device='gpu'):
                 total_ops, total_params = profile(model, input_size, device)
                 print("#Ops: %f GOps"%(total_ops/1e9))
                 print("#Parameters: %f M"%(total_params/1e6))
-        
+
             print('------------------------')
         except:
             #print('FAIL: {}'.format(model_name))
@@ -427,7 +286,7 @@ def save_tinyimagenet_classname():
     filename = 'tinyimagenet_classes'
     dataset = get_dataset('tinyimagenet')
     tinyimagenet_classes = {}
-    
+
     for index, name in enumerate(dataset.testset_paths.classes):
         tinyimagenet_classes[index] = name
 
@@ -439,7 +298,7 @@ def get_tinyimagenet_classes(prediction=None):
     filename = 'tinyimagenet_classes'
     with open(filename, 'rb') as f:
         tinyimagenet_classes = pickle.load(f)
-    
+
     if prediction is not None:
         return tinyimagenet_classes[prediction]
 
@@ -533,7 +392,7 @@ def add_noise_to_behaviors(behaviors, num_behaviors=10, noise_level=0.1):
 
     if noise_level == 0.0:
         return behaviors
-        
+
     new_behs = np.zeros(behaviors.shape)
     num_groups = int(behaviors.shape[1] / num_behaviors)
 

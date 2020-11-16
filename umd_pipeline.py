@@ -37,6 +37,28 @@ from sklearn.multiclass import OneVsRestClassifier
 from sklearn.preprocessing import label_binarize
 from sklearn.metrics import accuracy_score, balanced_accuracy_score
 from tools.logger import Logger
+from keras.models import model_from_json
+
+
+def keras_save(model, folder):
+    if not os.path.isdir(folder):
+        os.mkdir(folder)
+    model_json = model.to_json()
+    with open(os.path.join(folder, 'model.json'), "w") as json_file:
+        json_file.write(model_json)
+    # serialize weights to HDF5
+    model.save_weights(os.path.join(folder, 'model.h5'))
+
+
+def keras_load(folder):
+
+    json_file = open(os.path.join(folder, 'model.json'), 'r')
+    loaded_model_json = json_file.read()
+    json_file.close()
+    loaded_model = model_from_json(loaded_model_json)
+    # load weights into new model
+    loaded_model.load_weights(os.path.join(folder, 'model.h5'))
+    return loaded_model
 
 
 def now():
@@ -130,7 +152,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     # path_meta_model = 'metamodel_svm_round2_square25_filters_black_square.pickle'
 
     # baseline (gray (127,127,127) squares for all models, all images)
-    path_meta_model = 'metamodel_07_svm_round3_LR_square35_RANDOM_filters_all-classes.pickle'
+    path_meta_model = 'metamodel_08_svm_round3_NN-60-30_square30_RANDOM_filters_all-classes'
 
     batch_size = 1 # do not change this!
     _device = af.get_pytorch_device()
@@ -287,11 +309,17 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         print()
         print('[info] STEP 4: predicting backd proba')
 
-    meta_model = af.load_obj(filename=path_meta_model)
-    positive_class_index = np.where(meta_model.classes_ == 1)[0][0]
+    if os.path.isdir(path_meta_model): # the path is a dir => it is a keras model
+        meta_model = keras_load(path_meta_model)
+        backd_proba = meta_model.predict_proba(features)[0][0]
+    elif os.path.isfile(path_meta_model): # the path is a file => it is a pickle file with a sklearn model
+        meta_model = af.load_obj(filename=path_meta_model)
+        positive_class_index = np.where(meta_model.classes_ == 1)[0][0]
 
-    probabilities = meta_model.predict_proba(features)
-    backd_proba = probabilities[0][positive_class_index]
+        probabilities = meta_model.predict_proba(features)
+        backd_proba = probabilities[0][positive_class_index]
+    else:
+        print(f'[info] ERROR: path_meta_model does not exist!')
 
     if print_messages:
         print(f'[info] probability distribution: {probabilities}')
