@@ -12,3 +12,4 @@ internal_maps/
 ionut_awscloud.pem
 client_secrets.json
 *.simg
+notebooks/data_contour_detection
