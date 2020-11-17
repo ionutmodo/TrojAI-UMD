@@ -6,7 +6,7 @@ From: pytorch/pytorch:latest
     mkdir /umd/
 
 %files
-    ./metamodel* /umd/
+    ./metamodels/ /umd/
     ./tools/ /umd/
     ./architectures/ /umd/
     ./trojai/ /umd/
