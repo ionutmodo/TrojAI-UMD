@@ -6,7 +6,8 @@ data/
 notebooks/.ipynb_checkpoints
 notebooks/__pycache__/
 notebooks/old_notebooks/
+notebooks/jupyter*
 confusion_experiments/
 internal_maps/
 ionut_awscloud.pem
-cloent_secrets.json
+client_secrets.json
