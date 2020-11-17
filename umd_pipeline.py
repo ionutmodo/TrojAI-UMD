@@ -152,7 +152,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     # path_meta_model = 'metamodel_svm_round2_square25_filters_black_square.pickle'
 
     # baseline (gray (127,127,127) squares for all models, all images)
-    path_meta_model = 'metamodel_08_svm_round3_NN-60-30_square30_RANDOM_filters_all-classes'
+    path_meta_model = 'metamodels/metamodel_08_svm_round3_NN-60-30_square30_RANDOM_filters_all-classes'
 
     batch_size = 1 # do not change this!
     _device = af.get_pytorch_device()
@@ -311,7 +311,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
 
     if os.path.isdir(path_meta_model): # the path is a dir => it is a keras model
         meta_model = keras_load(path_meta_model)
-        probabilities = meta_model.predict_proba(features)
+        probabilities = meta_model.predict(features)
         backd_proba = probabilities[0][0]
     elif os.path.isfile(path_meta_model): # the path is a file => it is a pickle file with a sklearn model
         meta_model = af.load_obj(filename=path_meta_model)
