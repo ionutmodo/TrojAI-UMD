@@ -272,34 +272,66 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     if print_messages:
         print('[info] computing mean and std diffs')
     t = now()
+    ## with 0, 0 computes the plain mean and std
+    # clean_mean,          clean_std          = get_mean_std_diffs(confusion_clean,              0,         0, use_abs=use_abs_for_diff_features)
+    # mean_diff_polygon,   std_diff_polygon   = get_mean_std_diffs(confusion_polygon,   clean_mean, clean_std, use_abs=use_abs_for_diff_features)
+    # mean_diff_gotham,    std_diff_gotham    = get_mean_std_diffs(confusion_gotham,    clean_mean, clean_std, use_abs=use_abs_for_diff_features)
+    # mean_diff_kelvin,    std_diff_kelvin    = get_mean_std_diffs(confusion_kelvin,    clean_mean, clean_std, use_abs=use_abs_for_diff_features)
+    # mean_diff_lomo,      std_diff_lomo      = get_mean_std_diffs(confusion_lomo,      clean_mean, clean_std, use_abs=use_abs_for_diff_features)
+    # mean_diff_nashville, std_diff_nashville = get_mean_std_diffs(confusion_nashville, clean_mean, clean_std, use_abs=use_abs_for_diff_features)
+    # mean_diff_toaster,   std_diff_toaster   = get_mean_std_diffs(confusion_toaster,   clean_mean, clean_std, use_abs=use_abs_for_diff_features)
+    # if print_messages:
+    #     print(f'[info] computing diff features took {now() - t}')
+    #
+    # features = np.array([
+    #     mean_diff_polygon,   std_diff_polygon,
+    #     mean_diff_gotham,    std_diff_gotham,
+    #     mean_diff_kelvin,    std_diff_kelvin,
+    #     mean_diff_lomo,      std_diff_lomo,
+    #     mean_diff_nashville, std_diff_nashville,
+    #     mean_diff_toaster,   std_diff_toaster
+    # ]).reshape(1, -1)
+    #
+    # if print_messages:
+    #     print(f'[info] computed features (mean_diff, std_diff):')
+    #     print('polygon:', mean_diff_polygon, std_diff_polygon)
+    #     print('gotham:', mean_diff_gotham, std_diff_gotham)
+    #     print('kelvin:', mean_diff_kelvin, std_diff_kelvin)
+    #     print('lomo:', mean_diff_lomo, std_diff_lomo)
+    #     print('nashville:', mean_diff_nashville, std_diff_nashville)
+    #     print('toaster:', mean_diff_toaster, std_diff_toaster)
+    #     print('all:', features)
+
     # with 0, 0 computes the plain mean and std
-    clean_mean,          clean_std          = get_mean_std_diffs(confusion_clean,              0,         0, use_abs=use_abs_for_diff_features)
-    mean_diff_polygon,   std_diff_polygon   = get_mean_std_diffs(confusion_polygon,   clean_mean, clean_std, use_abs=use_abs_for_diff_features)
-    mean_diff_gotham,    std_diff_gotham    = get_mean_std_diffs(confusion_gotham,    clean_mean, clean_std, use_abs=use_abs_for_diff_features)
-    mean_diff_kelvin,    std_diff_kelvin    = get_mean_std_diffs(confusion_kelvin,    clean_mean, clean_std, use_abs=use_abs_for_diff_features)
-    mean_diff_lomo,      std_diff_lomo      = get_mean_std_diffs(confusion_lomo,      clean_mean, clean_std, use_abs=use_abs_for_diff_features)
-    mean_diff_nashville, std_diff_nashville = get_mean_std_diffs(confusion_nashville, clean_mean, clean_std, use_abs=use_abs_for_diff_features)
-    mean_diff_toaster,   std_diff_toaster   = get_mean_std_diffs(confusion_toaster,   clean_mean, clean_std, use_abs=use_abs_for_diff_features)
+    mean_clean,     std_clean     = get_mean_std_diffs(confusion_clean,     0, 0, use_abs=use_abs_for_diff_features)
+    mean_polygon,   std_polygon   = get_mean_std_diffs(confusion_polygon,   0, 0, use_abs=use_abs_for_diff_features)
+    mean_gotham,    std_gotham    = get_mean_std_diffs(confusion_gotham,    0, 0, use_abs=use_abs_for_diff_features)
+    mean_kelvin,    std_kelvin    = get_mean_std_diffs(confusion_kelvin,    0, 0, use_abs=use_abs_for_diff_features)
+    mean_lomo,      std_lomo      = get_mean_std_diffs(confusion_lomo,      0, 0, use_abs=use_abs_for_diff_features)
+    mean_nashville, std_nashville = get_mean_std_diffs(confusion_nashville, 0, 0, use_abs=use_abs_for_diff_features)
+    mean_toaster,   std_toaster   = get_mean_std_diffs(confusion_toaster,   0, 0, use_abs=use_abs_for_diff_features)
     if print_messages:
         print(f'[info] computing diff features took {now() - t}')
 
     features = np.array([
-        mean_diff_polygon,   std_diff_polygon,
-        mean_diff_gotham,    std_diff_gotham,
-        mean_diff_kelvin,    std_diff_kelvin,
-        mean_diff_lomo,      std_diff_lomo,
-        mean_diff_nashville, std_diff_nashville,
-        mean_diff_toaster,   std_diff_toaster
+        mean_clean, std_clean,
+        mean_polygon, std_polygon,
+        mean_gotham, std_gotham,
+        mean_kelvin, std_kelvin,
+        mean_lomo, std_lomo,
+        mean_nashville, std_nashville,
+        mean_toaster, std_toaster,
     ]).reshape(1, -1)
 
     if print_messages:
         print(f'[info] computed features (mean_diff, std_diff):')
-        print('polygon:', mean_diff_polygon, std_diff_polygon)
-        print('gotham:', mean_diff_gotham, std_diff_gotham)
-        print('kelvin:', mean_diff_kelvin, std_diff_kelvin)
-        print('lomo:', mean_diff_lomo, std_diff_lomo)
-        print('nashville:', mean_diff_nashville, std_diff_nashville)
-        print('toaster:', mean_diff_toaster, std_diff_toaster)
+        print('clean:', mean_clean, std_clean)
+        print('polygon:', mean_polygon, std_polygon)
+        print('gotham:', mean_gotham, std_gotham)
+        print('kelvin:', mean_kelvin, std_kelvin)
+        print('lomo:', mean_lomo, std_lomo)
+        print('nashville:', mean_nashville, std_nashville)
+        print('toaster:', mean_toaster, std_toaster)
         print('all:', features)
 
     ################################################################################
