@@ -11,3 +11,4 @@ confusion_experiments/
 internal_maps/
 ionut_awscloud.pem
 client_secrets.json
+*.simg
