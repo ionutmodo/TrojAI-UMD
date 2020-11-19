@@ -19,8 +19,12 @@
 """
 import os
 import sys
-os.chdir('/umd')
+import socket
+if socket.gethostname() != 'windows10':
+    os.chdir('/umd')
 sys.path.extend(['/umd', '/umd/architectures/', '/umd/tools/', '/umd/trojai/', '/umd/trojai/trojai'])
+import warnings
+warnings.filterwarnings("ignore")
 # cwd = os.getcwd()
 # sys.path.extend([cwd, os.path.join(cwd, 'architectures'), os.path.join(cwd, 'tools'), os.path.join(cwd, 'trojai'), os.path.join(cwd, 'trojai', 'trojai')])
 
@@ -38,6 +42,7 @@ from sklearn.preprocessing import label_binarize
 from sklearn.metrics import accuracy_score, balanced_accuracy_score
 from tools.logger import Logger
 from keras.models import model_from_json
+from concurrent.futures import ProcessPoolExecutor as Pool
 
 
 def keras_save(model, folder):
@@ -82,6 +87,36 @@ def write_prediction(filepath, backd_proba):
         w.write(backd_proba)
 
 
+def worker_backdoored_dataset_creator(params):
+    create_backdoored_dataset(**params)
+
+
+def parallelize_backdoored_dataset_creation(p_examples_dirpath, p_scratch_dirpath, p_trigger_size, p_trigger_color, p_trigger_target_class, p_list_filters):
+    print('[info] parallelizing...')
+    mp_mapping_params = [dict(dir_clean_data=p_examples_dirpath,
+                              dir_backdoored_data=os.path.join(p_scratch_dirpath, f'backdoored_data_polygon_{p_trigger_size}'),
+                              trigger_type='polygon',
+                              trigger_name='square',
+                              trigger_color=p_trigger_color,
+                              trigger_size=p_trigger_size,
+                              triggered_classes='all',
+                              trigger_target_class=p_trigger_target_class)]
+
+    # create filters dataset and save it to disk
+    for p_filter in p_list_filters:
+        mp_mapping_params.append(dict(dir_clean_data=p_examples_dirpath,
+                                      dir_backdoored_data=os.path.join(p_scratch_dirpath, f'backdoored_data_filter_{p_filter}'),
+                                      trigger_type='filter',
+                                      trigger_name=p_filter,
+                                      trigger_color=None,
+                                      trigger_size=None,
+                                      triggered_classes='all',
+                                      trigger_target_class=p_trigger_target_class))
+
+    with Pool(len(mp_mapping_params)) as pool:
+        pool.map(worker_backdoored_dataset_creator, mp_mapping_params)
+
+
 def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, device, log=False):
     ic_count = len(trojai_model_w_ics.get_layerwise_model_params())
     trojai_model_w_ics.eval().to(device)
@@ -103,7 +138,7 @@ def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, devi
     n_classes = len(classes)
     labels = label_binarize(labels, classes=sorted(classes))
 
-    print(f'[info] labels shape: {n_classes}')
+    print(f'[info] number of classes: {n_classes}')
     for i in range(ic_count):
         list_size = len(features[i])
         item_size = len(features[i][0])
@@ -148,11 +183,8 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     trigger_target_class = 0 # can be anything, its used just for the new file name
     list_filters = ['gotham', 'kelvin', 'lomo', 'nashville', 'toaster']
 
-    ## baseline (black squares for clean models, only triggered images, colored squares for backdoored models)
-    # path_meta_model = 'metamodel_svm_round2_square25_filters_black_square.pickle'
-
-    # baseline (gray (127,127,127) squares for all models, all images)
-    path_meta_model = 'metamodels/metamodel_09_round3_NN-60-30_RAW_square30_RANDOM_filters_all-classes'
+    path_meta_model = 'metamodels/metamodel_10_round3_NN-60-30_min-max-scaled_RAW_square30_RANDOM_filters_all-classes'
+    path_scaler = os.path.join(path_meta_model, 'scaler.pickle')
 
     batch_size = 1 # do not change this!
     _device = af.get_pytorch_device()
@@ -162,7 +194,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     ################################################################################
     if print_messages:
         print()
-        print(f'[info] reading clean dataset & model')
+        # print(f'[info] reading clean dataset & model')
         print(f'[info] current folder is {os.getcwd()}')
         print(f'[info] model_filepath is {model_filepath}')
         print(f'[info] result_filepath is {result_filepath}')
@@ -172,11 +204,12 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     t = now()
     dataset_clean, sdn_type, model = read_model_directory(model_filepath, examples_dirpath, batch_size=batch_size, test_ratio=0, device=_device)
     if print_messages:
-        print(f'[info] read_model_directory took {now() - t}')
+        print(f'[info] reading clean dataset and raw model took {now() - t}')
     num_classes = dataset_clean.num_classes
 
     if print_messages:
-        print('[info] training SDN with SVM ICs')
+        print()
+        print('[info] STEP 1: train SDN with SVM ICs')
     # this method saves the SVM-ICs to "scratch_dirpath"/svm/svm_models (the file has no extension)
     t = now()
     train_trojai_sdn_with_svm(dataset=dataset_clean, trojai_model_w_ics=model, model_root_path=scratch_dirpath, device=_device, log=print_messages)
@@ -190,34 +223,31 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     # create polygon dataset and save it to disk
     if print_messages:
         print()
-        print('[info] creating polygon dataset')
-    t = now()
-    create_backdoored_dataset(dir_clean_data=examples_dirpath,
-                              dir_backdoored_data=os.path.join(scratch_dirpath, f'backdoored_data_polygon_{trigger_size}'),
-                              trigger_type='polygon',
-                              trigger_name='square',
-                              trigger_color=trigger_color,
-                              trigger_size=trigger_size,
-                              triggered_classes='all',
-                              trigger_target_class=trigger_target_class)
-    if print_messages:
-        print(f'[info] create_backdoored_dataset-polygon took {now() - t}')
+        print('[info] STEP 2: create backdoored datasets')
 
-    # create filters dataset and save it to disk
-    for p_filter in list_filters:
-        if print_messages:
-            print('[info] creating dataset for filter', p_filter)
-        t = now()
-        create_backdoored_dataset(dir_clean_data=examples_dirpath,
-                                  dir_backdoored_data=os.path.join(scratch_dirpath, f'backdoored_data_filter_{p_filter}'),
-                                  trigger_type='filter',
-                                  trigger_name=p_filter,
-                                  trigger_color=None,
-                                  trigger_size=None,
-                                  triggered_classes='all',
-                                  trigger_target_class=trigger_target_class)
-        if print_messages:
-            print(f'[info] create_backdoored_dataset-filter {p_filter} took {now() - t}')
+    t = now()
+    parallelize_backdoored_dataset_creation(examples_dirpath, scratch_dirpath, trigger_size, trigger_color, trigger_target_class, list_filters)
+    # create_backdoored_dataset(dir_clean_data=examples_dirpath,
+    #                           dir_backdoored_data=os.path.join(scratch_dirpath, f'backdoored_data_polygon_{trigger_size}'),
+    #                           trigger_type='polygon',
+    #                           trigger_name='square',
+    #                           trigger_color=trigger_color,
+    #                           trigger_size=trigger_size,
+    #                           triggered_classes='all',
+    #                           trigger_target_class=trigger_target_class)
+    #
+    # # create filters dataset and save it to disk
+    # for p_filter in list_filters:
+    #     create_backdoored_dataset(dir_clean_data=examples_dirpath,
+    #                               dir_backdoored_data=os.path.join(scratch_dirpath, f'backdoored_data_filter_{p_filter}'),
+    #                               trigger_type='filter',
+    #                               trigger_name=p_filter,
+    #                               trigger_color=None,
+    #                               trigger_size=None,
+    #                               triggered_classes='all',
+    #                               trigger_target_class=trigger_target_class)
+    if print_messages:
+        print(f'[info] creating all backdoored datasets took {now() - t}')
 
     ################################################################################
     #################### STEP 3: create backdoored datasets
@@ -245,8 +275,6 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         print(f'[info] loading datasets polygon and filters took {now() - t}')
 
     # load model
-    if print_messages:
-        print('[info] loading SDN')
     t = now()
     path_model_cnn = model_filepath
     path_model_ics = os.path.join(scratch_dirpath, 'ics_svm.model')
@@ -256,8 +284,6 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         print(f'[info] loading light SDN took {now() - t}')
 
     # step a)
-    if print_messages:
-        print('[info] computing confusion distributions')
     t = now()
     confusion_clean     = mf.compute_confusion(sdn_light, dataset_clean.train_loader,     _device)
     confusion_polygon   = mf.compute_confusion(sdn_light, dataset_polygon.train_loader,   _device)
@@ -267,11 +293,9 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     confusion_nashville = mf.compute_confusion(sdn_light, dataset_nashville.train_loader, _device)
     confusion_toaster   = mf.compute_confusion(sdn_light, dataset_toaster.train_loader,   _device)
     if print_messages:
+        print()
         print(f'[info] computing confusion distribution for clean, polygon and filters took {now() - t}')
     # step b)
-    if print_messages:
-        print('[info] computing mean and std diffs')
-    t = now()
     ## with 0, 0 computes the plain mean and std
     # clean_mean,          clean_std          = get_mean_std_diffs(confusion_clean,              0,         0, use_abs=use_abs_for_diff_features)
     # mean_diff_polygon,   std_diff_polygon   = get_mean_std_diffs(confusion_polygon,   clean_mean, clean_std, use_abs=use_abs_for_diff_features)
@@ -310,8 +334,6 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     mean_lomo,      std_lomo      = get_mean_std_diffs(confusion_lomo,      0, 0, use_abs=use_abs_for_diff_features)
     mean_nashville, std_nashville = get_mean_std_diffs(confusion_nashville, 0, 0, use_abs=use_abs_for_diff_features)
     mean_toaster,   std_toaster   = get_mean_std_diffs(confusion_toaster,   0, 0, use_abs=use_abs_for_diff_features)
-    if print_messages:
-        print(f'[info] computing diff features took {now() - t}')
 
     features = np.array([
         mean_clean, std_clean,
@@ -324,15 +346,15 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     ]).reshape(1, -1)
 
     if print_messages:
-        print(f'[info] computed features (mean_diff, std_diff):')
-        print('clean:', mean_clean, std_clean)
-        print('polygon:', mean_polygon, std_polygon)
-        print('gotham:', mean_gotham, std_gotham)
-        print('kelvin:', mean_kelvin, std_kelvin)
-        print('lomo:', mean_lomo, std_lomo)
-        print('nashville:', mean_nashville, std_nashville)
-        print('toaster:', mean_toaster, std_toaster)
-        print('all:', features)
+        print('[info] computed features:')
+        print('[feature] clean:', mean_clean, std_clean)
+        print('[feature] polygon:', mean_polygon, std_polygon)
+        print('[feature] gotham:', mean_gotham, std_gotham)
+        print('[feature] kelvin:', mean_kelvin, std_kelvin)
+        print('[feature] lomo:', mean_lomo, std_lomo)
+        print('[feature] nashville:', mean_nashville, std_nashville)
+        print('[feature] toaster:', mean_toaster, std_toaster)
+        print('[feature] all features:', features.tolist())
 
     ################################################################################
     #################### STEP 4: predict backdoor probability
@@ -340,6 +362,14 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     if print_messages:
         print()
         print('[info] STEP 4: predicting backd proba')
+
+    # check if scaler exists
+    scaler = af.load_obj(path_scaler)
+    if scaler is not None:
+        features = scaler.transform(features)
+        print('all features after scaling:', features.tolist())
+        print('scaler min:', scaler.data_min_.tolist())
+        print('scaler max:', scaler.data_max_.tolist())
 
     if os.path.isdir(path_meta_model): # the path is a dir => it is a keras model
         meta_model = keras_load(path_meta_model)
