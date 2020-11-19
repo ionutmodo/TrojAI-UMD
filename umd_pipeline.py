@@ -113,7 +113,7 @@ def parallelize_backdoored_dataset_creation(p_examples_dirpath, p_scratch_dirpat
                                       triggered_classes='all',
                                       trigger_target_class=p_trigger_target_class))
 
-    with Pool(len(mp_mapping_params)) as pool:
+    with Pool(max_workers=len(mp_mapping_params)) as pool:
         pool.map(worker_backdoored_dataset_creator, mp_mapping_params)
 
 
@@ -226,26 +226,26 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         print('[info] STEP 2: create backdoored datasets')
 
     t = now()
-    parallelize_backdoored_dataset_creation(examples_dirpath, scratch_dirpath, trigger_size, trigger_color, trigger_target_class, list_filters)
-    # create_backdoored_dataset(dir_clean_data=examples_dirpath,
-    #                           dir_backdoored_data=os.path.join(scratch_dirpath, f'backdoored_data_polygon_{trigger_size}'),
-    #                           trigger_type='polygon',
-    #                           trigger_name='square',
-    #                           trigger_color=trigger_color,
-    #                           trigger_size=trigger_size,
-    #                           triggered_classes='all',
-    #                           trigger_target_class=trigger_target_class)
-    #
-    # # create filters dataset and save it to disk
-    # for p_filter in list_filters:
-    #     create_backdoored_dataset(dir_clean_data=examples_dirpath,
-    #                               dir_backdoored_data=os.path.join(scratch_dirpath, f'backdoored_data_filter_{p_filter}'),
-    #                               trigger_type='filter',
-    #                               trigger_name=p_filter,
-    #                               trigger_color=None,
-    #                               trigger_size=None,
-    #                               triggered_classes='all',
-    #                               trigger_target_class=trigger_target_class)
+    # parallelize_backdoored_dataset_creation(examples_dirpath, scratch_dirpath, trigger_size, trigger_color, trigger_target_class, list_filters)
+    create_backdoored_dataset(dir_clean_data=examples_dirpath,
+                              dir_backdoored_data=os.path.join(scratch_dirpath, f'backdoored_data_polygon_{trigger_size}'),
+                              trigger_type='polygon',
+                              trigger_name='square',
+                              trigger_color=trigger_color,
+                              trigger_size=trigger_size,
+                              triggered_classes='all',
+                              trigger_target_class=trigger_target_class)
+
+    # create filters dataset and save it to disk
+    for p_filter in list_filters:
+        create_backdoored_dataset(dir_clean_data=examples_dirpath,
+                                  dir_backdoored_data=os.path.join(scratch_dirpath, f'backdoored_data_filter_{p_filter}'),
+                                  trigger_type='filter',
+                                  trigger_name=p_filter,
+                                  trigger_color=None,
+                                  trigger_size=None,
+                                  triggered_classes='all',
+                                  trigger_target_class=trigger_target_class)
     if print_messages:
         print(f'[info] creating all backdoored datasets took {now() - t}')
 
