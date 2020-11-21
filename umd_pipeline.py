@@ -18,6 +18,7 @@
     4. use the values from step 5 to get a prediction using the binary meta-classifier
 """
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # disable tensorflow messages
 import sys
 import socket
 if socket.gethostname() != 'windows10':
@@ -179,11 +180,12 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     print_messages = True
     use_abs_for_diff_features = True
     trigger_size = 30 # for polygon dataset
-    trigger_color = 'random'
+    # trigger_color = 'random'
+    trigger_color = (127, 127, 127)
     trigger_target_class = 0 # can be anything, its used just for the new file name
     list_filters = ['gotham', 'kelvin', 'lomo', 'nashville', 'toaster']
 
-    path_meta_model = 'metamodels/metamodel_10_round3_NN-60-30_min-max-scaled_RAW_square30_RANDOM_filters_all-classes'
+    path_meta_model = 'metamodels/metamodel_11_round3_NN-60-30_min-max-scaled_RAW_square30_GRAY'
     path_scaler = os.path.join(path_meta_model, 'scaler.pickle')
 
     batch_size = 1 # do not change this!
