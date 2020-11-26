@@ -77,10 +77,11 @@ def compute_confusion_for_light_sdn(model, loader, device='cpu'):
 
 
 def compute_confusion(model, loader, device='cpu'):
+    model.eval()
+
     if isinstance(model, LightSDN):
         return compute_confusion_for_light_sdn(model, loader, device)
 
-    model.eval()
     confusion_scores = [] # at index i we will have D(x) = sum over all D_i(x)
     with torch.no_grad():
         for batch in loader:

@@ -152,21 +152,21 @@ def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, devi
         svm.fit(features[i], labels)
 
         svm_ics.append(svm)
-        if log:
-            y_pred = svm.predict(features[i])
-
-            list_raw_acc = []
-            list_bal_acc = []
-            for c in range(n_classes):
-                acc_raw = accuracy_score(y_true=labels[:, c], y_pred=y_pred[:, c])
-                acc_balanced = balanced_accuracy_score(y_true=labels[:, c], y_pred=y_pred[:, c])
-
-                list_raw_acc.append(f'{acc_raw * 100.0:.2f}')
-                list_bal_acc.append(f'{acc_balanced * 100.0:.2f}')
-
-            Logger.log(f'[info] SVM-IC-{i} Raw Acc: [{", ".join(list_raw_acc)}]')
-            Logger.log(f'[info] SVM-IC-{i} Bal Acc: [{", ".join(list_bal_acc)}]')
-            Logger.log(f'--------------------------------------------------------------------------')
+        # if log:
+        #     y_pred = svm.predict(features[i])
+        #
+        #     list_raw_acc = []
+        #     list_bal_acc = []
+        #     for c in range(n_classes):
+        #         acc_raw = accuracy_score(y_true=labels[:, c], y_pred=y_pred[:, c])
+        #         acc_balanced = balanced_accuracy_score(y_true=labels[:, c], y_pred=y_pred[:, c])
+        #
+        #         list_raw_acc.append(f'{acc_raw * 100.0:.2f}')
+        #         list_bal_acc.append(f'{acc_balanced * 100.0:.2f}')
+        #
+        #     print(f'[info] SVM-IC-{i} Raw Acc: [{", ".join(list_raw_acc)}]')
+        #     print(f'[info] SVM-IC-{i} Bal Acc: [{", ".join(list_bal_acc)}]')
+        #     print(f'--------------------------------------------------------------------------')
 
     path_svm_model = os.path.join(model_root_path, 'ics_svm.model')
     af.save_obj(obj=svm_ics, filename=path_svm_model)

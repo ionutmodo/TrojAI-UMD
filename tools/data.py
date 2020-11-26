@@ -142,7 +142,7 @@ def create_backdoored_dataset(dir_clean_data,
         else:
             polygon_trigger = PIL.Image.open(trigger_name)
 
-        if trigger_color is tuple:
+        if type(trigger_color) is tuple:
             polygon_trigger = change_color(polygon_trigger, trigger_color)
     elif trigger_type == 'filter':
         pass
