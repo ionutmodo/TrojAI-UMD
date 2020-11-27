@@ -185,7 +185,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     trigger_target_class = 0 # can be anything, its used just for the new file name
     list_filters = ['gotham', 'kelvin', 'lomo', 'nashville', 'toaster']
 
-    path_meta_model = 'metamodels/metamodel_11_round3_NN-60-30_min-max-scaled_RAW_square30_GRAY'
+    path_meta_model = 'metamodels/metamodel_09_round3_data=diffs_square=30-GRAY_scaler=NO_clf=LR.pickle'
     path_scaler = os.path.join(path_meta_model, 'scaler.pickle')
 
     batch_size = 1 # do not change this!
