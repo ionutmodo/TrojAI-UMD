@@ -10,6 +10,122 @@ import umap
 import plotly
 import plotly.graph_objs as go
 
+def get_predicted_label(model, image, device):
+    output = model(image.to(device))
+    softmax = nn.functional.softmax(out[0].cpu(), dim=0)
+    pred_label = out.max(1)[1].item()
+    return label
+
+def save_obj(obj, filename):
+    with open(filename, 'wb') as handle:
+        pickle.dump(obj, handle)
+
+def load_obj(filename):
+    if not os.path.isfile(filename):
+        print('Pickle {} does not exist.'.format(filename))
+        return None
+    with open(filename, 'rb') as handle:
+        obj = pickle.load(handle)
+    return obj
+
+def filter_df(df, trigger_type_aux_str=None, arch=None):
+#     if trigger_type_aux_str is not None and arch is not None:
+#         print(f'selecting only {arch}s-{trigger_type_aux_str}s')
+#         indexes = []
+#         for i in range(len(df)):
+#             tta = df['trigger_type_aux'].iloc[i]
+#             a = df['model_architecture'].iloc[i]
+#             cond_tta = (trigger_type_aux_str in tta.lower()) or (tta.lower() == 'none')
+#             cond_arch = a.startswith(arch)
+#             if cond_tta and cond_arch:
+#                 indexes.append(i)
+#         df = df.iloc[indexes]
+    if arch is not None:
+        print(f'selecting only {arch}s')
+        indexes = []
+        for i in range(len(df)):
+            col = df['model_architecture'].iloc[i]
+            if col.startswith(arch):
+                indexes.append(i)
+        df = df.iloc[indexes]
+    if trigger_type_aux_str is not None:
+        print(f'selecting only {trigger_type_aux_str}s')
+        indexes = []
+        for i in range(len(df)):
+            col = df['trigger_type_aux'].iloc[i]
+            if (trigger_type_aux_str in col.lower()) or (col.lower() == 'none'):
+                indexes.append(i)
+        df = df.iloc[indexes]
+    return df
+
+def read_features(p_path, trigger_type_aux_str=None, arch=None, data='diffs'):
+    report = pd.read_csv(p_path)
+    report = filter_df(report, trigger_type_aux_str, arch)
+    if data == 'diffs':
+        ending_mean = 'mean_diff'
+        ending_std = 'std_diff'
+        print('Using diffs')
+    elif data == 'raw':
+        ending_mean = 'mean'
+        ending_std = 'std'
+        print('Using mean & stds')
+    else:
+        print('data parameter should be "diffs" or "raw"')
+    initial_columns = report.columns
+    col_model_label = report['model_label'].copy(deep=True)
+    for c in initial_columns:
+        if not c.endswith(ending_mean) and not c.endswith(ending_std):
+            del report[c]
+    features = report.values
+    labels = np.array([int(col_model_label.iloc[i] == 'backdoor') for i in range(len(report))])
+    return abs(features), labels
+    
+def read_features_confusion_matrix(p_path, trigger_type_aux_str=None):
+    report = pd.read_csv(p_path)
+    initial_columns = report.columns
+    col_model_label = report['model_label'].copy(deep=True)
+    for c in initial_columns:
+        if not c.startswith('h_') and not c.startswith('kl_'):
+            del report[c]
+    features = report.values
+    labels = np.array([int(col_model_label.iloc[i] == 'backdoor') for i in range(len(report))])
+    return abs(features), labels
+
+def keras_save(model, folder):
+    if not os.path.isdir(folder):
+        os.mkdir(folder)
+    model_json = model.to_json()
+    with open(os.path.join(folder, 'model.json'), "w") as json_file:
+        json_file.write(model_json)
+    # serialize weights to HDF5
+    model.save_weights(os.path.join(folder, 'model.h5'))
+
+def keras_load(folder):
+    from keras.models import model_from_json
+
+    json_file = open(os.path.join(folder, 'model.json'), 'r')
+    loaded_model_json = json_file.read()
+    json_file.close()
+    loaded_model = model_from_json(loaded_model_json)
+    # load weights into new model
+    loaded_model.load_weights(os.path.join(folder, 'model.h5'))
+    return loaded_model
+
+def evaluate_classifier(train_x, train_y, test_x, test_y):
+    #clf = svm.SVC(C=11, kernel='rbf', gamma='scale', probability=True)
+    clf = LogisticRegression(C=2.0)
+    clf.fit(train_x, train_y)
+    y_score = clf.predict(test_x)
+    y_pred = clf.predict_proba(test_x)
+    roc_auc = roc_auc_score(y_true=test_y, y_score=y_score)
+    cross_entropy = log_loss(y_true=test_y, y_pred=y_pred)
+    return roc_auc, cross_entropy
+
+def get_base_classifier():
+    # return svm.SVC(C=11, kernel='rbf', gamma='scale', probability=True)
+    return LogisticRegression()
+#     return RandomForestClassifier(n_estimators=500)
+
 def scatter(df, x, y):
     clean = df[df['ground_truth'] == 0]
     backdoored = df[df['ground_truth'] == 1]
