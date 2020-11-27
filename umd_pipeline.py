@@ -14,8 +14,8 @@
     1. train the SDN
     2. create the backdoored datasets for each trigger: square-size-N and 5 instagram filters
     3. a) compute the confusion distribution for all datasets (clean, polygon, filters)
-       b) compute mean_diff and std_diff statistics between each confusion distribution and clean one
-    4. use the values from step 5 to get a prediction using the binary meta-classifier
+       b) compute features for the meta-classifier
+    4. use the features from step 3 to get a backdoor probability using the meta-classifier
 """
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # disable tensorflow messages
@@ -264,17 +264,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
 
     if print_messages:
         print()
-        print('[info] STEP 3: loading backdoored datasets')
-    # the clean dataset is loaded at the beginning
-    t = now()
-    dataset_polygon   = TrojAI(folder=path_polygon,   test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
-    dataset_gotham    = TrojAI(folder=path_gotham,    test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
-    dataset_kelvin    = TrojAI(folder=path_kelvin,    test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
-    dataset_lomo      = TrojAI(folder=path_lomo,      test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
-    dataset_nashville = TrojAI(folder=path_nashville, test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
-    dataset_toaster   = TrojAI(folder=path_toaster,   test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
-    if print_messages:
-        print(f'[info] loading datasets polygon and filters took {now() - t}')
+        print('[info] STEP 3: loading backdoored datasets, computing confusion distribution')
 
     # load model
     t = now()
@@ -285,57 +275,46 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     if print_messages:
         print(f'[info] loading light SDN took {now() - t}')
 
-    # step a)
     t = now()
-    confusion_clean     = mf.compute_confusion(sdn_light, dataset_clean.train_loader,     _device)
-    confusion_polygon   = mf.compute_confusion(sdn_light, dataset_polygon.train_loader,   _device)
-    confusion_gotham    = mf.compute_confusion(sdn_light, dataset_gotham.train_loader,    _device)
-    confusion_kelvin    = mf.compute_confusion(sdn_light, dataset_kelvin.train_loader,    _device)
-    confusion_lomo      = mf.compute_confusion(sdn_light, dataset_lomo.train_loader,      _device)
+
+    # dataset_clean was already read
+    confusion_clean = mf.compute_confusion(sdn_light, dataset_clean.train_loader, _device)
+    mean_clean, std_clean = get_mean_std_diffs(confusion_clean, 0, 0, use_abs=use_abs_for_diff_features)
+    del dataset_clean, confusion_clean
+
+    dataset_polygon = TrojAI(folder=path_polygon,   test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
+    confusion_polygon = mf.compute_confusion(sdn_light, dataset_polygon.train_loader, _device)
+    mean_polygon, std_polygon = get_mean_std_diffs(confusion_polygon, 0, 0, use_abs=use_abs_for_diff_features)
+    del dataset_polygon, confusion_polygon
+
+    dataset_gotham = TrojAI(folder=path_gotham, test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
+    confusion_gotham = mf.compute_confusion(sdn_light, dataset_gotham.train_loader, _device)
+    mean_gotham, std_gotham = get_mean_std_diffs(confusion_gotham, 0, 0, use_abs=use_abs_for_diff_features)
+    del dataset_gotham, confusion_gotham
+
+    dataset_kelvin = TrojAI(folder=path_kelvin, test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
+    confusion_kelvin = mf.compute_confusion(sdn_light, dataset_kelvin.train_loader, _device)
+    mean_kelvin, std_kelvin = get_mean_std_diffs(confusion_kelvin, 0, 0, use_abs=use_abs_for_diff_features)
+    del dataset_kelvin, confusion_kelvin
+
+    dataset_lomo = TrojAI(folder=path_lomo, test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
+    confusion_lomo = mf.compute_confusion(sdn_light, dataset_lomo.train_loader, _device)
+    mean_lomo, std_lomo = get_mean_std_diffs(confusion_lomo, 0, 0, use_abs=use_abs_for_diff_features)
+    del dataset_lomo, confusion_lomo
+
+    dataset_nashville = TrojAI(folder=path_nashville, test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
     confusion_nashville = mf.compute_confusion(sdn_light, dataset_nashville.train_loader, _device)
-    confusion_toaster   = mf.compute_confusion(sdn_light, dataset_toaster.train_loader,   _device)
+    mean_nashville, std_nashville = get_mean_std_diffs(confusion_nashville, 0, 0, use_abs=use_abs_for_diff_features)
+    del dataset_nashville, confusion_nashville
+
+    dataset_toaster = TrojAI(folder=path_toaster,   test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
+    confusion_toaster = mf.compute_confusion(sdn_light, dataset_toaster.train_loader,   _device)
+    mean_toaster, std_toaster = get_mean_std_diffs(confusion_toaster, 0, 0, use_abs=use_abs_for_diff_features)
+    del dataset_toaster, confusion_toaster
+
     if print_messages:
         print()
         print(f'[info] computing confusion distribution for clean, polygon and filters took {now() - t}')
-    # step b)
-    ## with 0, 0 computes the plain mean and std
-    # clean_mean,          clean_std          = get_mean_std_diffs(confusion_clean,              0,         0, use_abs=use_abs_for_diff_features)
-    # mean_diff_polygon,   std_diff_polygon   = get_mean_std_diffs(confusion_polygon,   clean_mean, clean_std, use_abs=use_abs_for_diff_features)
-    # mean_diff_gotham,    std_diff_gotham    = get_mean_std_diffs(confusion_gotham,    clean_mean, clean_std, use_abs=use_abs_for_diff_features)
-    # mean_diff_kelvin,    std_diff_kelvin    = get_mean_std_diffs(confusion_kelvin,    clean_mean, clean_std, use_abs=use_abs_for_diff_features)
-    # mean_diff_lomo,      std_diff_lomo      = get_mean_std_diffs(confusion_lomo,      clean_mean, clean_std, use_abs=use_abs_for_diff_features)
-    # mean_diff_nashville, std_diff_nashville = get_mean_std_diffs(confusion_nashville, clean_mean, clean_std, use_abs=use_abs_for_diff_features)
-    # mean_diff_toaster,   std_diff_toaster   = get_mean_std_diffs(confusion_toaster,   clean_mean, clean_std, use_abs=use_abs_for_diff_features)
-    # if print_messages:
-    #     print(f'[info] computing diff features took {now() - t}')
-    #
-    # features = np.array([
-    #     mean_diff_polygon,   std_diff_polygon,
-    #     mean_diff_gotham,    std_diff_gotham,
-    #     mean_diff_kelvin,    std_diff_kelvin,
-    #     mean_diff_lomo,      std_diff_lomo,
-    #     mean_diff_nashville, std_diff_nashville,
-    #     mean_diff_toaster,   std_diff_toaster
-    # ]).reshape(1, -1)
-    #
-    # if print_messages:
-    #     print(f'[info] computed features (mean_diff, std_diff):')
-    #     print('polygon:', mean_diff_polygon, std_diff_polygon)
-    #     print('gotham:', mean_diff_gotham, std_diff_gotham)
-    #     print('kelvin:', mean_diff_kelvin, std_diff_kelvin)
-    #     print('lomo:', mean_diff_lomo, std_diff_lomo)
-    #     print('nashville:', mean_diff_nashville, std_diff_nashville)
-    #     print('toaster:', mean_diff_toaster, std_diff_toaster)
-    #     print('all:', features)
-
-    # with 0, 0 computes the plain mean and std
-    mean_clean,     std_clean     = get_mean_std_diffs(confusion_clean,     0, 0, use_abs=use_abs_for_diff_features)
-    mean_polygon,   std_polygon   = get_mean_std_diffs(confusion_polygon,   0, 0, use_abs=use_abs_for_diff_features)
-    mean_gotham,    std_gotham    = get_mean_std_diffs(confusion_gotham,    0, 0, use_abs=use_abs_for_diff_features)
-    mean_kelvin,    std_kelvin    = get_mean_std_diffs(confusion_kelvin,    0, 0, use_abs=use_abs_for_diff_features)
-    mean_lomo,      std_lomo      = get_mean_std_diffs(confusion_lomo,      0, 0, use_abs=use_abs_for_diff_features)
-    mean_nashville, std_nashville = get_mean_std_diffs(confusion_nashville, 0, 0, use_abs=use_abs_for_diff_features)
-    mean_toaster,   std_toaster   = get_mean_std_diffs(confusion_toaster,   0, 0, use_abs=use_abs_for_diff_features)
 
     features = np.array([
         mean_clean, std_clean,
@@ -348,7 +327,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     ]).reshape(1, -1)
 
     if print_messages:
-        print('[info] computed features:')
+        print(f'[info] computed features for model {os.path.basename(result_filepath)}')
         print('[feature] clean:', mean_clean, std_clean)
         print('[feature] polygon:', mean_polygon, std_polygon)
         print('[feature] gotham:', mean_gotham, std_gotham)
@@ -442,3 +421,34 @@ if __name__ == "__main__":
 #
 # if print_messages:
 #     print(f'[info] STEP 2: creating backdoored datasets tool {now() - t}')
+
+# step b)
+## with 0, 0 computes the plain mean and std
+# clean_mean,          clean_std          = get_mean_std_diffs(confusion_clean,              0,         0, use_abs=use_abs_for_diff_features)
+# mean_diff_polygon,   std_diff_polygon   = get_mean_std_diffs(confusion_polygon,   clean_mean, clean_std, use_abs=use_abs_for_diff_features)
+# mean_diff_gotham,    std_diff_gotham    = get_mean_std_diffs(confusion_gotham,    clean_mean, clean_std, use_abs=use_abs_for_diff_features)
+# mean_diff_kelvin,    std_diff_kelvin    = get_mean_std_diffs(confusion_kelvin,    clean_mean, clean_std, use_abs=use_abs_for_diff_features)
+# mean_diff_lomo,      std_diff_lomo      = get_mean_std_diffs(confusion_lomo,      clean_mean, clean_std, use_abs=use_abs_for_diff_features)
+# mean_diff_nashville, std_diff_nashville = get_mean_std_diffs(confusion_nashville, clean_mean, clean_std, use_abs=use_abs_for_diff_features)
+# mean_diff_toaster,   std_diff_toaster   = get_mean_std_diffs(confusion_toaster,   clean_mean, clean_std, use_abs=use_abs_for_diff_features)
+# if print_messages:
+#     print(f'[info] computing diff features took {now() - t}')
+#
+# features = np.array([
+#     mean_diff_polygon,   std_diff_polygon,
+#     mean_diff_gotham,    std_diff_gotham,
+#     mean_diff_kelvin,    std_diff_kelvin,
+#     mean_diff_lomo,      std_diff_lomo,
+#     mean_diff_nashville, std_diff_nashville,
+#     mean_diff_toaster,   std_diff_toaster
+# ]).reshape(1, -1)
+#
+# if print_messages:
+#     print(f'[info] computed features (mean_diff, std_diff):')
+#     print('polygon:', mean_diff_polygon, std_diff_polygon)
+#     print('gotham:', mean_diff_gotham, std_diff_gotham)
+#     print('kelvin:', mean_diff_kelvin, std_diff_kelvin)
+#     print('lomo:', mean_diff_lomo, std_diff_lomo)
+#     print('nashville:', mean_diff_nashville, std_diff_nashville)
+#     print('toaster:', mean_diff_toaster, std_diff_toaster)
+#     print('all:', features)
