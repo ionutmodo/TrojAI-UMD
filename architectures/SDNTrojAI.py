@@ -11,6 +11,8 @@ class SDNTrojAI(nn.Module):
         self.sdn_type = sdn_type
         self.device = device
 
+        self.cnn_model.eval()
+
     def forward(self, x):
         fwd = self.cnn_model(x)
         return fwd
