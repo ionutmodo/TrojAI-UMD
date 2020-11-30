@@ -114,7 +114,7 @@ def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, devi
 
 
 def main():
-    last_trained_model_id = -1
+    last_trained_model_id = 0
     if len(sys.argv) == 2:
         last_trained_model_id = int(sys.argv[1])
 
@@ -129,7 +129,7 @@ def main():
     # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round2-holdout-dataset')
     root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round3-train-dataset')
 
-    path_logger = os.path.join(root_path, f'{os.path.basename(root_path)}.log')
+    path_logger = os.path.join(root_path, f'{os.path.basename(root_path)}-{last_trained_model_id}.log')
     Logger.open(path_logger)
 
     metadata_path = os.path.join(root_path, 'METADATA.csv')
@@ -160,7 +160,7 @@ def main():
         model_name = row['model_name']
         model_id = int(model_name[3:])
         # if lim_left <= model_id <= lim_right:
-        if model_id > last_trained_model_id:
+        if model_id >= last_trained_model_id:
             model_architecture = row['model_architecture']
             poisoned = 'backdoored' if bool(row['poisoned']) else 'clean'
 
