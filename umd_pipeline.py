@@ -71,18 +71,6 @@ def now():
     return datetime.now()
 
 
-def get_mean_std_diffs(confusion, clean_mean, clean_std, use_abs):
-    conf_mean = np.mean(confusion)
-    conf_std = np.std(confusion)
-
-    diff_mean = conf_mean - clean_mean
-    diff_std = conf_std - clean_std
-
-    if use_abs:
-        return abs(diff_mean), abs(diff_std)
-    return diff_mean, diff_std
-
-
 def write_prediction(filepath, backd_proba):
     with open(filepath, 'w') as w:
         w.write(backd_proba)
@@ -178,7 +166,6 @@ def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, devi
 def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, examples_dirpath):
     time_start = datetime.now()
     print_messages = True
-    use_abs_for_diff_features = True
     trigger_size = 30 # for polygon dataset
     # trigger_color = 'random'
     trigger_color = (127, 127, 127)
@@ -228,7 +215,6 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         print('[info] STEP 2: create backdoored datasets')
 
     t = now()
-    # parallelize_backdoored_dataset_creation(examples_dirpath, scratch_dirpath, trigger_size, trigger_color, trigger_target_class, list_filters)
     create_backdoored_dataset(dir_clean_data=examples_dirpath,
                               dir_backdoored_data=os.path.join(scratch_dirpath, f'backdoored_data_polygon_{trigger_size}'),
                               trigger_type='polygon',
@@ -277,65 +263,92 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
 
     t = now()
 
-    # dataset_clean was already read
     confusion_clean = mf.compute_confusion(sdn_light, dataset_clean.train_loader, _device)
-    mean_clean, std_clean = get_mean_std_diffs(confusion_clean, 0, 0, use_abs=use_abs_for_diff_features)
+    mean_clean, std_clean = np.mean(confusion_clean), np.std(confusion_clean)
     del dataset_clean, confusion_clean
 
     dataset_polygon = TrojAI(folder=path_polygon,   test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
     confusion_polygon = mf.compute_confusion(sdn_light, dataset_polygon.train_loader, _device)
-    mean_polygon, std_polygon = get_mean_std_diffs(confusion_polygon, 0, 0, use_abs=use_abs_for_diff_features)
+    mean_polygon, std_polygon = np.mean(confusion_polygon), np.std(confusion_polygon)
+    mean_diff_polygon, std_diff_polygon = abs(mean_polygon - mean_clean), abs(std_polygon - std_clean)
     del dataset_polygon, confusion_polygon
 
     dataset_gotham = TrojAI(folder=path_gotham, test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
     confusion_gotham = mf.compute_confusion(sdn_light, dataset_gotham.train_loader, _device)
-    mean_gotham, std_gotham = get_mean_std_diffs(confusion_gotham, 0, 0, use_abs=use_abs_for_diff_features)
+    mean_gotham, std_gotham = np.mean(confusion_gotham), np.std(confusion_gotham)
+    mean_diff_gotham, std_diff_gotham = abs(mean_gotham - mean_clean), abs(std_gotham - std_clean)
     del dataset_gotham, confusion_gotham
 
     dataset_kelvin = TrojAI(folder=path_kelvin, test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
     confusion_kelvin = mf.compute_confusion(sdn_light, dataset_kelvin.train_loader, _device)
-    mean_kelvin, std_kelvin = get_mean_std_diffs(confusion_kelvin, 0, 0, use_abs=use_abs_for_diff_features)
+    mean_kelvin, std_kelvin = np.mean(confusion_kelvin), np.std(confusion_kelvin)
+    mean_diff_kelvin, std_diff_kelvin = abs(mean_kelvin - mean_clean), abs(std_kelvin - std_clean)
     del dataset_kelvin, confusion_kelvin
 
     dataset_lomo = TrojAI(folder=path_lomo, test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
     confusion_lomo = mf.compute_confusion(sdn_light, dataset_lomo.train_loader, _device)
-    mean_lomo, std_lomo = get_mean_std_diffs(confusion_lomo, 0, 0, use_abs=use_abs_for_diff_features)
+    mean_lomo, std_lomo = np.mean(confusion_lomo), np.std(confusion_lomo)
+    mean_diff_lomo, std_diff_lomo = abs(mean_lomo - mean_clean), abs(std_lomo - std_clean)
     del dataset_lomo, confusion_lomo
 
     dataset_nashville = TrojAI(folder=path_nashville, test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
     confusion_nashville = mf.compute_confusion(sdn_light, dataset_nashville.train_loader, _device)
-    mean_nashville, std_nashville = get_mean_std_diffs(confusion_nashville, 0, 0, use_abs=use_abs_for_diff_features)
+    mean_nashville, std_nashville = np.mean(confusion_nashville), np.std(confusion_nashville)
+    mean_diff_nashville, std_diff_nashville = abs(mean_nashville - mean_clean), abs(std_nashville - std_clean)
     del dataset_nashville, confusion_nashville
 
     dataset_toaster = TrojAI(folder=path_toaster,   test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
     confusion_toaster = mf.compute_confusion(sdn_light, dataset_toaster.train_loader,   _device)
-    mean_toaster, std_toaster = get_mean_std_diffs(confusion_toaster, 0, 0, use_abs=use_abs_for_diff_features)
+    mean_toaster, std_toaster = np.mean(confusion_toaster), np.std(confusion_toaster)
+    mean_diff_toaster, std_diff_toaster = abs(mean_toaster - mean_clean), abs(std_toaster - std_clean)
     del dataset_toaster, confusion_toaster
 
     if print_messages:
         print()
         print(f'[info] computing confusion distribution for clean, polygon and filters took {now() - t}')
 
-    features = np.array([
-        mean_clean, std_clean,
-        mean_polygon, std_polygon,
-        mean_gotham, std_gotham,
-        mean_kelvin, std_kelvin,
-        mean_lomo, std_lomo,
-        mean_nashville, std_nashville,
-        mean_toaster, std_toaster,
+    ## DIFF FEATURES
+    features_diff = np.array([
+        mean_diff_polygon,   std_diff_polygon,
+        mean_diff_gotham,    std_diff_gotham,
+        mean_diff_kelvin,    std_diff_kelvin,
+        mean_diff_lomo,      std_diff_lomo,
+        mean_diff_nashville, std_diff_nashville,
+        mean_diff_toaster,   std_diff_toaster
     ]).reshape(1, -1)
 
+    ## RAW FEATURES
+    features_raw = np.array([
+        mean_clean,     std_clean,
+        mean_polygon,   std_polygon,
+        mean_gotham,    std_gotham,
+        mean_kelvin,    std_kelvin,
+        mean_lomo,      std_lomo,
+        mean_nashville, std_nashville,
+        mean_toaster,   std_toaster,
+    ]).reshape(1, -1)
+
+    ### SETTING FEATURES VARIABLE
+    features = features_diff
+
     if print_messages:
-        print(f'[info] computed features for model {os.path.basename(result_filepath)}')
-        print('[feature] clean:', mean_clean, std_clean)
-        print('[feature] polygon:', mean_polygon, std_polygon)
-        print('[feature] gotham:', mean_gotham, std_gotham)
-        print('[feature] kelvin:', mean_kelvin, std_kelvin)
-        print('[feature] lomo:', mean_lomo, std_lomo)
-        print('[feature] nashville:', mean_nashville, std_nashville)
-        print('[feature] toaster:', mean_toaster, std_toaster)
-        print('[feature] all features:', features.tolist())
+        print(f'[info] computed features for model {model_filepath.split(os.path.sep)[-2]}')
+        print('[raw  feature] clean:', mean_clean, std_clean)
+        print('[raw  feature] polygon:', mean_polygon, std_polygon)
+        print('[raw  feature] gotham:', mean_gotham, std_gotham)
+        print('[raw  feature] kelvin:', mean_kelvin, std_kelvin)
+        print('[raw  feature] lomo:', mean_lomo, std_lomo)
+        print('[raw  feature] nashville:', mean_nashville, std_nashville)
+        print('[raw  feature] toaster:', mean_toaster, std_toaster)
+        print('[raw  feature] raw features:', features_raw.tolist())
+        print()
+        print('[diff feature] polygon:', mean_diff_polygon, std_diff_polygon)
+        print('[diff feature] gotham:', mean_diff_gotham, std_diff_gotham)
+        print('[diff feature] kelvin:', mean_diff_kelvin, std_diff_kelvin)
+        print('[diff feature] lomo:', mean_diff_lomo, std_diff_lomo)
+        print('[diff feature] nashville:', mean_diff_nashville, std_diff_nashville)
+        print('[diff feature] toaster:', mean_diff_toaster, std_diff_toaster)
+        print('[diff feature] diff features:', features_diff.tolist())
 
     ################################################################################
     #################### STEP 4: predict backdoor probability
@@ -389,10 +402,6 @@ if __name__ == "__main__":
 # sudo singularity build umd_pipeline.simg umd_pipeline.def
 # sudo singularity run -B /home/ubuntu/workplace/TrojAI-data/id-00001000/ /home/ubuntu/workplace/TrojAI-UMD/06_round3_rbf-svm_size30_RANDOM_all-classes.simg --model_filepath /home/ubuntu/workplace/TrojAI-data/id-00001000/model.pt --result_filepath /home/ubuntu/workplace/TrojAI-data/id-00001000/result.txt --scratch_dirpath /home/ubuntu/workplace/TrojAI-data/id-00001000/scratch --examples_dirpath /home/ubuntu/workplace/TrojAI-data/id-00001000/clean_example_data
 
-# if print_messages:
-#     print()
-#     print('[info] creating polygon dataset')
-# t = now()
 # mp_mapping_params = [dict(
 #     dir_clean_data=examples_dirpath,
 #     dir_backdoored_data=os.path.join(scratch_dirpath, f'backdoored_data_polygon_{trigger_size}'),
@@ -418,37 +427,6 @@ if __name__ == "__main__":
 #
 # with mp.Pool(processes=len(mp_mapping_params)) as pool:
 #     pool.map(worker_create_dataset, mp_mapping_params)
-#
-# if print_messages:
-#     print(f'[info] STEP 2: creating backdoored datasets tool {now() - t}')
 
-# step b)
-## with 0, 0 computes the plain mean and std
-# clean_mean,          clean_std          = get_mean_std_diffs(confusion_clean,              0,         0, use_abs=use_abs_for_diff_features)
-# mean_diff_polygon,   std_diff_polygon   = get_mean_std_diffs(confusion_polygon,   clean_mean, clean_std, use_abs=use_abs_for_diff_features)
-# mean_diff_gotham,    std_diff_gotham    = get_mean_std_diffs(confusion_gotham,    clean_mean, clean_std, use_abs=use_abs_for_diff_features)
-# mean_diff_kelvin,    std_diff_kelvin    = get_mean_std_diffs(confusion_kelvin,    clean_mean, clean_std, use_abs=use_abs_for_diff_features)
-# mean_diff_lomo,      std_diff_lomo      = get_mean_std_diffs(confusion_lomo,      clean_mean, clean_std, use_abs=use_abs_for_diff_features)
-# mean_diff_nashville, std_diff_nashville = get_mean_std_diffs(confusion_nashville, clean_mean, clean_std, use_abs=use_abs_for_diff_features)
-# mean_diff_toaster,   std_diff_toaster   = get_mean_std_diffs(confusion_toaster,   clean_mean, clean_std, use_abs=use_abs_for_diff_features)
-# if print_messages:
-#     print(f'[info] computing diff features took {now() - t}')
-#
-# features = np.array([
-#     mean_diff_polygon,   std_diff_polygon,
-#     mean_diff_gotham,    std_diff_gotham,
-#     mean_diff_kelvin,    std_diff_kelvin,
-#     mean_diff_lomo,      std_diff_lomo,
-#     mean_diff_nashville, std_diff_nashville,
-#     mean_diff_toaster,   std_diff_toaster
-# ]).reshape(1, -1)
-#
-# if print_messages:
-#     print(f'[info] computed features (mean_diff, std_diff):')
-#     print('polygon:', mean_diff_polygon, std_diff_polygon)
-#     print('gotham:', mean_diff_gotham, std_diff_gotham)
-#     print('kelvin:', mean_diff_kelvin, std_diff_kelvin)
-#     print('lomo:', mean_diff_lomo, std_diff_lomo)
-#     print('nashville:', mean_diff_nashville, std_diff_nashville)
-#     print('toaster:', mean_diff_toaster, std_diff_toaster)
-#     print('all:', features)
+# --model_filepath "D:\Cloud\MEGA\TrojAI\TrojAI-data\round3-train-dataset\id-00000000\model.pt" --result_filepath "D:\Cloud\MEGA\TrojAI\TrojAI-data\round3-train-dataset\id-00000000\scratch\result.txt" --scratch_dirpath "D:\Cloud\MEGA\TrojAI\TrojAI-data\round3-train-dataset\id-00000000\scratch" --examples_dirpath "D:\Cloud\MEGA\TrojAI\TrojAI-data\round3-train-dataset\id-00000000\clean_example_data
+# --model_filepath "D:\Cloud\MEGA\TrojAI\TrojAI-data\round3-train-dataset\id-00000001\model.pt" --result_filepath "D:\Cloud\MEGA\TrojAI\TrojAI-data\round3-train-dataset\id-00000001\scratch\result.txt" --scratch_dirpath "D:\Cloud\MEGA\TrojAI\TrojAI-data\round3-train-dataset\id-00000001\scratch" --examples_dirpath "D:\Cloud\MEGA\TrojAI\TrojAI-data\round3-train-dataset\id-00000001\clean_example_data
