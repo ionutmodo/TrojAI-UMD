@@ -9,6 +9,17 @@ from sklearn.decomposition import PCA
 import umap
 import plotly
 import plotly.graph_objs as go
+from sklearn import svm
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import roc_auc_score, log_loss
+from sklearn.model_selection import StratifiedKFold, RepeatedStratifiedKFold, cross_val_score
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.pipeline import Pipeline
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.wrappers.scikit_learn import KerasClassifier
+from tensorflow.keras.metrics import BinaryCrossentropy
 
 def get_predicted_label(model, image, device):
     output = model(image.to(device))
@@ -111,9 +122,10 @@ def keras_load(folder):
     loaded_model.load_weights(os.path.join(folder, 'model.h5'))
     return loaded_model
 
-def evaluate_classifier(train_x, train_y, test_x, test_y):
+def evaluate_classifier(clf, train_x, train_y, test_x, test_y):
     #clf = svm.SVC(C=11, kernel='rbf', gamma='scale', probability=True)
-    clf = LogisticRegression(C=2.0)
+#     clf = LogisticRegression(C=2)
+#     print('clf=', str(clf))
     clf.fit(train_x, train_y)
     y_score = clf.predict(test_x)
     y_pred = clf.predict_proba(test_x)
