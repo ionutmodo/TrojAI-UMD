@@ -114,9 +114,8 @@ def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, devi
 
 
 def main():
-    if len(sys.argv) == 1: # no command line args, just script name:
-        last_trained_model_id = -1
-    elif len(sys.argv) == 2:
+    last_trained_model_id = -1
+    if len(sys.argv) == 2:
         last_trained_model_id = int(sys.argv[1])
 
     af.set_random_seeds()
@@ -156,7 +155,7 @@ def main():
     # lim_left = 0
     # lim_right = 1103
     # Logger.log(f'lim_left={lim_left}, lim_right={lim_right}')
-    last_trained_model_id = -1
+
     for index, row in metadata.iterrows():
         model_name = row['model_name']
         model_id = int(model_name[3:])
