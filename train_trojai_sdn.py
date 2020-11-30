@@ -136,7 +136,7 @@ def main():
     metadata_path = os.path.join(root_path, 'METADATA.csv')
     metadata = pd.read_csv(metadata_path)
 
-    batch_size = 1 # do not change this
+    batch_size = 32 # set to 1 for SVM-based ICs
     test_ratio = 0
 
     dict_arch_type = {
@@ -156,7 +156,7 @@ def main():
     # lim_left = 0
     # lim_right = 1103
     # Logger.log(f'lim_left={lim_left}, lim_right={lim_right}')
-
+    last_trained_model_id = -1
     for index, row in metadata.iterrows():
         model_name = row['model_name']
         model_id = int(model_name[3:])
@@ -175,8 +175,8 @@ def main():
                     time_start = datetime.now()
 
                     dataset, sdn_type, model = read_model_directory(model_path, data_path, batch_size, test_ratio, device)
-                    # train_trojai_sdn(dataset, model, root, device)
-                    train_trojai_sdn_with_svm(dataset, model, root, device, log=True)
+                    train_trojai_sdn(dataset, model, root, device)
+                    # train_trojai_sdn_with_svm(dataset, model, root, device, log=True)
 
                     time_end = datetime.now()
                     Logger.log(f'elapsed {time_end - time_start}\n')
