@@ -321,7 +321,6 @@ def save_obj(obj, filename):
 
 def load_obj(filename):
     if not pickle_exists(filename):
-        print('Pickle {} does not exist.'.format(filename))
         return None
         
     with open(filename, 'rb') as handle:

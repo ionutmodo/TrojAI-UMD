@@ -9,6 +9,7 @@ from architectures.SDNDenseNet import SDNDenseNet
 from architectures.SDNResNet import SDNResNet
 from architectures.SDNInception3 import SDNInception3
 from tools.settings import TrojAI_input_size
+import sys
 
 
 def get_label_and_confidence_from_logits(logits):

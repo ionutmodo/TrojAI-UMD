@@ -7,6 +7,7 @@ import tools.data as data_module
 import torch
 from tools import data
 from torch.nn import BCELoss
+import sys
 
 def sdn_test(model, loader, device='cpu'):
     model.eval()
