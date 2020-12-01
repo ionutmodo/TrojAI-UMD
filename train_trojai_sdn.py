@@ -114,9 +114,9 @@ def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, devi
 
 
 def main():
-    last_trained_model_id = 0
-    if len(sys.argv) == 2:
-        last_trained_model_id = int(sys.argv[1])
+    lim_left, lim_right = 0, 1007
+    if len(sys.argv) == 3:
+        lim_left, lim_right = int(sys.argv[1]), int(sys.argv[2])
 
     af.set_random_seeds()
 
@@ -129,13 +129,13 @@ def main():
     # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round2-holdout-dataset')
     root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round3-train-dataset')
 
-    path_logger = os.path.join(root_path, f'{os.path.basename(root_path)}-{last_trained_model_id}.log')
+    path_logger = os.path.join(root_path, f'{os.path.basename(root_path)}_{lim_left}-{lim_right}.log')
     Logger.open(path_logger)
 
     metadata_path = os.path.join(root_path, 'METADATA.csv')
     metadata = pd.read_csv(metadata_path)
 
-    batch_size = 32 # set to 1 for SVM-based ICs
+    batch_size = 20 # set to 1 for SVM-based ICs
     test_ratio = 0
 
     dict_arch_type = {
@@ -150,17 +150,13 @@ def main():
         'wideresnet': SDNConfig.ResNet,
     }
 
-    Logger.log('!!! Round2: opencv_format=False in TrojAI constructor!!!')
-
-    # lim_left = 0
-    # lim_right = 1103
-    # Logger.log(f'lim_left={lim_left}, lim_right={lim_right}')
+    Logger.log(f'lim_left={lim_left}, lim_right={lim_right}')
 
     for index, row in metadata.iterrows():
         model_name = row['model_name']
         model_id = int(model_name[3:])
-        # if lim_left <= model_id <= lim_right:
-        if model_id >= last_trained_model_id:
+        if lim_left <= model_id <= lim_right:
+        # if model_id >= last_trained_model_id:
             model_architecture = row['model_architecture']
             poisoned = 'backdoored' if bool(row['poisoned']) else 'clean'
 
