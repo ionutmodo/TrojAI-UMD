@@ -5,7 +5,7 @@ import os.path
 # from encoder import LayerwiseAutoencoders
 from torchvision.models import densenet, inception, resnet
 
-from SDNConfig import SDNConfig
+from architectures.SDNConfig import SDNConfig
 from architectures.MLP import LayerwiseClassifiers
 from architectures.SDNDenseNet import SDNDenseNet
 from architectures.SDNGoogLeNet import SDNGoogLeNet
