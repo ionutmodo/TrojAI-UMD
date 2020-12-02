@@ -10,6 +10,7 @@ from architectures.SDNResNet import SDNResNet
 from architectures.SDNShuffleNet import SDNShuffleNet
 from architectures.SDNSqueezeNet import SDNSqueezeNet
 from architectures.SDNVGG import SDNVGG
+from network_architectures import load_trojai_model
 
 
 class LightSDN(nn.Module):

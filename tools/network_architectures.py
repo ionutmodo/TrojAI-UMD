@@ -4,10 +4,17 @@ import os
 import os.path
 # from encoder import LayerwiseAutoencoders
 from torchvision.models import densenet, inception, resnet
+
+from SDNConfig import SDNConfig
 from architectures.MLP import LayerwiseClassifiers
 from architectures.SDNDenseNet import SDNDenseNet
-from architectures.SDNResNet import SDNResNet
+from architectures.SDNGoogLeNet import SDNGoogLeNet
 from architectures.SDNInception3 import SDNInception3
+from architectures.SDNMobileNet2 import SDNMobileNet2
+from architectures.SDNResNet import SDNResNet
+from architectures.SDNShuffleNet import SDNShuffleNet
+from architectures.SDNSqueezeNet import SDNSqueezeNet
+from architectures.SDNVGG import SDNVGG
 from tools.settings import TrojAI_input_size
 import sys
 
@@ -30,18 +37,28 @@ def load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, devic
     |-----*other files this method doesn't need*
     """
     sdn_model, sdn_params = load_model(sdn_path, sdn_name, device=device, epoch=-1)
-    cnn_model = torch.load(os.path.join(sdn_path, cnn_name), map_location=device)
+    cnn_model = torch.load(os.path.join(sdn_path, cnn_name), map_location=device).eval().to(device)
 
-    if isinstance(cnn_model, densenet.DenseNet):
-        cnn_model = SDNDenseNet(cnn_model, TrojAI_input_size, num_classes, sdn_type, device)
-    elif isinstance(cnn_model, resnet.ResNet):
-        cnn_model = SDNResNet(cnn_model, TrojAI_input_size, num_classes, sdn_type, device)
-    elif isinstance(cnn_model, inception.Inception3):
-        cnn_model = SDNInception3(cnn_model, TrojAI_input_size, num_classes, sdn_type, device)
-    else:
-        raise RuntimeError(f'SDNTrojAI:load_trojai_model - You are trying to load a SDN model that is not supported ({type(cnn_model)})!')
+    dict_type_model = {
+        SDNConfig.DenseNet_blocks: SDNDenseNet,
+        SDNConfig.GoogLeNet: SDNGoogLeNet,
+        SDNConfig.Inception3: SDNInception3,
+        SDNConfig.MobileNet2: SDNMobileNet2,
+        SDNConfig.ResNet: SDNResNet,
+        SDNConfig.ShuffleNet: SDNShuffleNet,
+        SDNConfig.SqueezeNet: SDNSqueezeNet,
+        SDNConfig.VGG: SDNVGG,
+    }
+    if sdn_type not in dict_type_model.keys():
+        raise RuntimeError('The SDN type is not yet implemented!')
+
+    cnn_model = dict_type_model[sdn_type](cnn_model,
+                                          input_size=(1, 3, 224, 224),
+                                          num_classes=num_classes,
+                                          sdn_type=sdn_type,
+                                          device=device)
     sdn_model.set_model(cnn_model)
-    sdn_model = sdn_model.eval()
+    sdn_model = sdn_model.eval().to(device)
     return sdn_model
 
 def save_networks(model_name, model_params, models_path):

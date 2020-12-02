@@ -78,7 +78,7 @@ def compute_confusion_for_light_sdn(model, loader, device='cpu'):
 
 
 def compute_confusion(model, loader, device='cpu'):
-    model.eval()
+    model.eval().to(device)
 
     if isinstance(model, LightSDN):
         return compute_confusion_for_light_sdn(model, loader, device)

@@ -83,7 +83,7 @@ def worker_backdoored_dataset_creator(params):
 def parallelize_backdoored_dataset_creation(p_examples_dirpath, p_scratch_dirpath, p_trigger_size, p_trigger_color, p_trigger_target_class, p_list_filters):
     print('[info] parallelizing...')
     mp_mapping_params = [dict(dir_clean_data=p_examples_dirpath,
-                              dir_backdoored_data=os.path.join(p_scratch_dirpath, f'backdoored_data_polygon_{p_trigger_size}'),
+                              dir_backdoored_data=os.path.join(p_scratch_dirpath, f'backdoored_data_square_{p_trigger_size}'),
                               trigger_type='polygon',
                               trigger_name='square',
                               trigger_color=p_trigger_color,
@@ -216,7 +216,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
 
     t = now()
     create_backdoored_dataset(dir_clean_data=examples_dirpath,
-                              dir_backdoored_data=os.path.join(scratch_dirpath, f'backdoored_data_polygon_{trigger_size}'),
+                              dir_backdoored_data=os.path.join(scratch_dirpath, f'backdoored_data_square_{trigger_size}'),
                               trigger_type='polygon',
                               trigger_name='square',
                               trigger_color=trigger_color,
@@ -241,7 +241,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     #################### STEP 3: create backdoored datasets
     ################################################################################
     # create paths
-    path_polygon   = os.path.join(scratch_dirpath, f'backdoored_data_polygon_{trigger_size}')
+    path_polygon   = os.path.join(scratch_dirpath, f'backdoored_data_square_{trigger_size}')
     path_gotham    = os.path.join(scratch_dirpath, f'backdoored_data_filter_gotham')
     path_kelvin    = os.path.join(scratch_dirpath, f'backdoored_data_filter_kelvin')
     path_lomo      = os.path.join(scratch_dirpath, f'backdoored_data_filter_lomo')
@@ -404,7 +404,7 @@ if __name__ == "__main__":
 
 # mp_mapping_params = [dict(
 #     dir_clean_data=examples_dirpath,
-#     dir_backdoored_data=os.path.join(scratch_dirpath, f'backdoored_data_polygon_{trigger_size}'),
+#     dir_backdoored_data=os.path.join(scratch_dirpath, f'backdoored_data_square_{trigger_size}'),
 #     trigger_type='polygon',
 #     trigger_name='square',
 #     trigger_color=trigger_color,
