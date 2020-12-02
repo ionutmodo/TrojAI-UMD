@@ -8,7 +8,7 @@ from concurrent.futures import ProcessPoolExecutor as Pool
 import tools.model_funcs as mf
 from architectures.LightSDN import LightSDN
 
-from network_architectures import load_trojai_model
+from tools.network_architectures import load_trojai_model
 from tools.logistics import *
 from tools.logger import Logger
 
