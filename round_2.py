@@ -178,7 +178,7 @@ def main():
             sdn_type = [v for k, v in dict_arch_type.items() if model_architecture.startswith(k)][0]
             path_model_cnn = os.path.join(path_model, 'model.pt')
             # path_model_ics = os.path.join(path_model, 'svm', 'svm_models')
-            sdn_name = 'ics_train100_test0_bs32'
+            sdn_name = 'ics_train100_test0_bs20'
             path_model_ics = os.path.join(path_model, sdn_name)
             Logger.log('done')
 
