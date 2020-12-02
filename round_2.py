@@ -64,12 +64,12 @@ def main():
 
     print(f'lim_left={lim_left}, lim_right={lim_right}')
 
-    test_ratio = 0
-    batch_size = 1  # for confusion experiment
     # _device = 'cpu'
     _device = af.get_pytorch_device()
 
-    default_trigger_color = (127, 127, 127)
+    test_ratio = 0
+    batch_size = 128  # for confusion experiment
+    trigger_color = 'random' # (127, 127, 127)
 
     # experiment_name = f'squares-all-classes-gray_{_device.upper()}_{lim_left}-{lim_right}'
     experiment_name = f'fc_square30-random_{lim_left}-{lim_right}'
@@ -164,16 +164,8 @@ def main():
             model_label = 'backdoor' if row['poisoned'] else 'clean'
             model_architecture = row['model_architecture']
 
-            trigger_color = row['trigger_color']
             trigger_type_aux = get_trigger_type_aux_value(row['trigger_type'], row['polygon_side_count'], row['instagram_filter_type'])
             num_classes = row['number_classes']
-
-            if trigger_color == 'None':
-                trigger_color = default_trigger_color # default color
-            else:  # do not reverse the color
-                trigger_color = tuple(ast.literal_eval(row['trigger_color'].replace(' ', ', ')))
-
-            trigger_color = 'random'
 
             ###############################################################################################################
 
