@@ -155,8 +155,8 @@ def main():
     for index, row in metadata.iterrows():
         model_name = row['model_name']
         model_id = int(model_name[3:])
-        if lim_left <= model_id <= lim_right:
-        # if model_id >= last_trained_model_id:
+        # if lim_left <= model_id <= lim_right:
+        if model_id == 1:
             model_architecture = row['model_architecture']
             poisoned = 'backdoored' if bool(row['poisoned']) else 'clean'
 
