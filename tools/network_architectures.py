@@ -26,7 +26,7 @@ def get_label_and_confidence_from_logits(logits):
     return label, confidence
 
 
-def load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, device):
+def load_trojai_model(sdn_path, cnn_path, num_classes, sdn_type, device):
     """
     Loads a TrojAI SDN from disk. The structure should be the following:
     .../id-00000000/ (this is sdn_path)
@@ -36,8 +36,8 @@ def load_trojai_model(sdn_path, sdn_name, cnn_name, num_classes, sdn_type, devic
     |-----model.pt (the CNN model denoted by cnn_name)
     |-----*other files this method doesn't need*
     """
-    sdn_model, sdn_params = load_model(sdn_path, sdn_name, device=device, epoch=-1)
-    cnn_model = torch.load(os.path.join(sdn_path, cnn_name), map_location=device).eval().to(device)
+    sdn_model, sdn_params = load_model(sdn_path, device=device, epoch=-1)
+    cnn_model = torch.load(cnn_path, map_location=device).eval().to(device)
 
     dict_type_model = {
         SDNConfig.DenseNet_blocks: SDNDenseNet,
@@ -233,8 +233,7 @@ def save_model(model, model_params, models_path, model_name, epoch=-1):
         with open(params_path, 'wb') as f:
             pickle.dump(model_params, f, pickle.HIGHEST_PROTOCOL)
 
-def load_params(models_path, model_name, epoch=0):
-    params_path = models_path + '/' + model_name
+def load_params(params_path, epoch=0):
     if epoch == 0:
         params_path = params_path + '/parameters_untrained'
     else:
@@ -244,8 +243,8 @@ def load_params(models_path, model_name, epoch=0):
         model_params = pickle.load(f)
     return model_params
 
-def load_model(models_path, model_name, device='cuda', epoch=0):
-    model_params = load_params(models_path, model_name, epoch)
+def load_model(model_path, device='cuda', epoch=0):
+    model_params = load_params(model_path, epoch)
     network_type = model_params['network_type']
         
     if 'resnet50' in network_type:
@@ -260,15 +259,13 @@ def load_model(models_path, model_name, device='cuda', epoch=0):
         model = LayerwiseAutoencoders(model_params['output_params'], model_params['architecture_params'])
     elif 'layerwise_classifier' in network_type:
         model = LayerwiseClassifiers(model_params['output_params'], model_params['architecture_params'])
-        
-    network_path = models_path + '/' + model_name
 
     if epoch == 0: # untrained model
-        load_path = os.path.join(network_path, 'untrained')
+        load_path = os.path.join(model_path, 'untrained')
     elif epoch == -1: # last model
-        load_path = os.path.join(network_path, 'last')
+        load_path = os.path.join(model_path, 'last')
     else:
-        load_path = os.path.join(network_path, str(epoch))
+        load_path = os.path.join(model_path, str(epoch))
 
     model.load_state_dict(torch.load(load_path, map_location=device), strict=False)
 

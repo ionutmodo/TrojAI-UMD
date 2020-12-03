@@ -32,6 +32,8 @@ warnings.filterwarnings("ignore")
 from tools.logistics import *
 from tools.data import create_backdoored_dataset
 from architectures.LightSDN import LightSDN
+from architectures.MLP import LayerwiseClassifiers
+from tools.network_architectures import load_trojai_model, save_model
 import tools.model_funcs as mf
 import tools.aux_funcs as af
 from datetime import datetime
@@ -163,20 +165,56 @@ def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, devi
         Logger.log(f'[info] SVM model ({size:.2f} MB) saved to {path_svm_model}')
 
 
+def train_trojai_sdn(dataset, trojai_model_w_ics, model_root_path, device):
+    output_params = trojai_model_w_ics.get_layerwise_model_params()
+
+    # mlp_num_layers = 2
+    # mlp_architecture_param =  [2, 2] # use [2] if it takes too much time
+
+    mlp_num_layers = 0
+    mlp_architecture_param = []  # empty architecture param means that the MLP won't have any hidden layers, it will be a linear perceptron
+    # think about simplifying ICs architecture
+    architecture_params = (mlp_num_layers, mlp_architecture_param)
+
+    params = {
+        'network_type': 'layerwise_classifiers',
+        'output_params': output_params,
+        'architecture_params': architecture_params
+    }
+
+    # settings to train the MLPs
+    epochs = 20
+    lr_params = (0.001, 0.00001)
+    stepsize_params = ([10], [0.1])
+
+    sys.stdout.flush()
+    ics = LayerwiseClassifiers(output_params, architecture_params).to(device)
+    ics.set_model(trojai_model_w_ics)
+
+    optimizer, scheduler = af.get_optimizer(ics, lr_params, stepsize_params, optimizer='adam')
+
+    mf.train_layerwise_classifiers(ics, dataset, epochs, optimizer, scheduler, device)
+    test_proc = int(dataset.test_ratio * 100)
+    train_proc = 100 - test_proc
+    bs = dataset.batch_size
+    save_model(ics, params, model_root_path, f'ics_train{train_proc}_test{test_proc}_bs{bs}', epoch=-1)
+
+
 def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, examples_dirpath):
     time_start = datetime.now()
     print_messages = True
     trigger_size = 30 # for polygon dataset
-    # trigger_color = 'random'
-    trigger_color = (127, 127, 127)
-    trigger_target_class = 0 # can be anything, its used just for the new file name
+    trigger_color = 'random'
+    # trigger_color = (127, 127, 127)
+    trigger_target_class = 0
     list_filters = ['gotham', 'kelvin', 'lomo', 'nashville', 'toaster']
 
-    path_meta_model = 'metamodels/metamodel_09_round3_data=diffs_square=30-GRAY_scaler=NO_clf=LR.pickle'
-    path_scaler = os.path.join(path_meta_model, 'scaler.pickle')
+    path_meta_model = 'metamodels/metamodel_10_fc_round3_data=diffs_square=30-rand_scaler=STD_clf=LR-1'
 
-    batch_size = 1 # do not change this!
+    batch_size_sdn_training = 10 if socket.gethostname() == 'windows10' else 20
+    batch_size = 1 if socket.gethostname() == 'windows10' else 50
     _device = af.get_pytorch_device()
+    sdn_name = f'ics_train100_test0_bs{batch_size_sdn_training}'
 
     ################################################################################
     #################### STEP 1: train SDN
@@ -191,7 +229,8 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         print(f'[info] examples_dirpath is {examples_dirpath}')
 
     t = now()
-    dataset_clean, sdn_type, model = read_model_directory(model_filepath, examples_dirpath, batch_size=batch_size, test_ratio=0, device=_device)
+    # the batch_size=20 is only to train the SDNs !!!
+    dataset_clean, sdn_type, model = read_model_directory(model_filepath, examples_dirpath, batch_size=batch_size_sdn_training, test_ratio=0, device=_device)
     if print_messages:
         print(f'[info] reading clean dataset and raw model took {now() - t}')
     num_classes = dataset_clean.num_classes
@@ -201,9 +240,11 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         print('[info] STEP 1: train SDN with SVM ICs')
     # this method saves the SVM-ICs to "scratch_dirpath"/svm/svm_models (the file has no extension)
     t = now()
-    train_trojai_sdn_with_svm(dataset=dataset_clean, trojai_model_w_ics=model, model_root_path=scratch_dirpath, device=_device, log=print_messages)
+    ###### train_trojai_sdn_with_svm(dataset=dataset_clean, trojai_model_w_ics=model, model_root_path=scratch_dirpath, device=_device, log=print_messages)
+    train_trojai_sdn(dataset=dataset_clean, trojai_model_w_ics=model, model_root_path=scratch_dirpath, device=_device)
+    del dataset_clean
     if print_messages:
-        print(f'[info] train_trojai_sdn_with_svm took {now() - t}')
+        print(f'[info] training SDN took {now() - t}')
 
     ################################################################################
     #################### STEP 2: create backdoored datasets
@@ -254,51 +295,62 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
 
     # load model
     t = now()
-    path_model_cnn = model_filepath
-    path_model_ics = os.path.join(scratch_dirpath, 'ics_svm.model')
-    sdn_light = LightSDN(path_model_cnn, path_model_ics, sdn_type, num_classes, _device)
+    # path_model_cnn = model_filepath
+    # path_model_ics = os.path.join(scratch_dirpath, 'ics_svm.model')
+    # sdn_light = LightSDN(path_model_cnn, path_model_ics, sdn_type, num_classes, _device)
+    sdn_light = load_trojai_model(sdn_path=os.path.join(scratch_dirpath, sdn_name),
+                                  cnn_path=model_filepath,
+                                  num_classes=num_classes, sdn_type=sdn_type, device=_device)
 
     if print_messages:
         print(f'[info] loading light SDN took {now() - t}')
 
     t = now()
 
+    dataset_clean = TrojAI(folder=examples_dirpath, test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
     confusion_clean = mf.compute_confusion(sdn_light, dataset_clean.train_loader, _device)
+    # confusion_clean = [0, 0]
     mean_clean, std_clean = np.mean(confusion_clean), np.std(confusion_clean)
     del dataset_clean, confusion_clean
 
     dataset_polygon = TrojAI(folder=path_polygon,   test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
     confusion_polygon = mf.compute_confusion(sdn_light, dataset_polygon.train_loader, _device)
+    # confusion_polygon = [0, 0]
     mean_polygon, std_polygon = np.mean(confusion_polygon), np.std(confusion_polygon)
     mean_diff_polygon, std_diff_polygon = abs(mean_polygon - mean_clean), abs(std_polygon - std_clean)
     del dataset_polygon, confusion_polygon
 
     dataset_gotham = TrojAI(folder=path_gotham, test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
     confusion_gotham = mf.compute_confusion(sdn_light, dataset_gotham.train_loader, _device)
+    # confusion_gotham = [0, 0]
     mean_gotham, std_gotham = np.mean(confusion_gotham), np.std(confusion_gotham)
     mean_diff_gotham, std_diff_gotham = abs(mean_gotham - mean_clean), abs(std_gotham - std_clean)
     del dataset_gotham, confusion_gotham
 
     dataset_kelvin = TrojAI(folder=path_kelvin, test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
     confusion_kelvin = mf.compute_confusion(sdn_light, dataset_kelvin.train_loader, _device)
+    # confusion_kelvin = [0, 0]
     mean_kelvin, std_kelvin = np.mean(confusion_kelvin), np.std(confusion_kelvin)
     mean_diff_kelvin, std_diff_kelvin = abs(mean_kelvin - mean_clean), abs(std_kelvin - std_clean)
     del dataset_kelvin, confusion_kelvin
 
     dataset_lomo = TrojAI(folder=path_lomo, test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
     confusion_lomo = mf.compute_confusion(sdn_light, dataset_lomo.train_loader, _device)
+    # confusion_lomo = [0, 0]
     mean_lomo, std_lomo = np.mean(confusion_lomo), np.std(confusion_lomo)
     mean_diff_lomo, std_diff_lomo = abs(mean_lomo - mean_clean), abs(std_lomo - std_clean)
     del dataset_lomo, confusion_lomo
 
     dataset_nashville = TrojAI(folder=path_nashville, test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
     confusion_nashville = mf.compute_confusion(sdn_light, dataset_nashville.train_loader, _device)
+    # confusion_nashville = [0, 0]
     mean_nashville, std_nashville = np.mean(confusion_nashville), np.std(confusion_nashville)
     mean_diff_nashville, std_diff_nashville = abs(mean_nashville - mean_clean), abs(std_nashville - std_clean)
     del dataset_nashville, confusion_nashville
 
     dataset_toaster = TrojAI(folder=path_toaster,   test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
     confusion_toaster = mf.compute_confusion(sdn_light, dataset_toaster.train_loader,   _device)
+    # confusion_toaster = [0, 0]
     mean_toaster, std_toaster = np.mean(confusion_toaster), np.std(confusion_toaster)
     mean_diff_toaster, std_diff_toaster = abs(mean_toaster - mean_clean), abs(std_toaster - std_clean)
     del dataset_toaster, confusion_toaster
@@ -358,24 +410,15 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         print('[info] STEP 4: predicting backd proba')
 
     # check if scaler exists
-    scaler = af.load_obj(path_scaler)
+    scaler = af.load_obj(os.path.join(path_meta_model, 'scaler.pickle'))
     if scaler is not None:
         features = scaler.transform(features)
         print('all features after scaling:', features.tolist())
-        print('scaler min:', scaler.data_min_.tolist())
-        print('scaler max:', scaler.data_max_.tolist())
 
-    if os.path.isdir(path_meta_model): # the path is a dir => it is a keras model
-        meta_model = keras_load(path_meta_model)
-        probabilities = meta_model.predict(features)
-        backd_proba = probabilities[0][0]
-    elif os.path.isfile(path_meta_model): # the path is a file => it is a pickle file with a sklearn model
-        meta_model = af.load_obj(filename=path_meta_model)
-        positive_class_index = np.where(meta_model.classes_ == 1)[0][0]
-        probabilities = meta_model.predict_proba(features)
-        backd_proba = probabilities[0][positive_class_index]
-    else:
-        print(f'[info] ERROR: path_meta_model does not exist!')
+    meta_model = af.load_obj(filename=os.path.join(path_meta_model, 'model.pickle'))
+    positive_class_index = np.where(meta_model.classes_ == 1)[0][0] # only for sklearn models
+    probabilities = meta_model.predict_proba(features)
+    backd_proba = probabilities[0][positive_class_index]
 
     if print_messages:
         print(f'[info] probability distribution: {probabilities}')
