@@ -74,6 +74,7 @@ def main():
 
     # experiment_name = f'squares-all-classes-gray_{_device.upper()}_{lim_left}-{lim_right}'
     experiment_name = f'fc_square30-gray_{lim_left}-{lim_right}'
+    sdn_name = 'ics_train100_test0_bs20'
 
     # begin
     np.random.seed(666)
@@ -179,7 +180,6 @@ def main():
             sdn_type = [v for k, v in dict_arch_type.items() if model_architecture.startswith(k)][0]
             path_model_cnn = os.path.join(path_model, 'model.pt')
             # path_model_ics = os.path.join(path_model, 'svm', 'svm_models')
-            sdn_name = 'ics_train100_test0_bs20'
             path_model_ics = os.path.join(path_model, sdn_name)
             Logger.log('done')
 
@@ -211,7 +211,9 @@ def main():
 
             if socket.gethostname() in ['openlab08.umiacs.umd.edu', 'windows10']:
                 # sdn_light = LightSDN(path_model_cnn, path_model_ics, sdn_type, num_classes, _device)
-                sdn_light = load_trojai_model(sdn_path=path_model, sdn_name=sdn_name, cnn_name='model.pt', num_classes=num_classes, sdn_type=sdn_type, device=_device)
+                sdn_light = load_trojai_model(sdn_path=os.path.join(path_model, sdn_name),
+                                              cnn_path=os.path.join(path_model, 'model.pt'),
+                                              num_classes=num_classes, sdn_type=sdn_type, device=_device)
                 for dataset_name in dict_dataset_confusion:
                     path_data = os.path.join(path_model, dataset_name)
 
