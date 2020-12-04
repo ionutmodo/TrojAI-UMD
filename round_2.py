@@ -161,8 +161,7 @@ def main():
         start_time = datetime.now()
         model_name = row['model_name']
         model_id = int(model_name[3:])
-        if lim_left <= model_id <= lim_right and (
-                (last_model_name_in_report_conf_dist is None) or (last_model_name_in_report_conf_dist is not None and model_name > last_model_name_in_report_conf_dist)):
+        if lim_left <= model_id <= lim_right and ((last_model_name_in_report_conf_dist is None) or (last_model_name_in_report_conf_dist is not None and model_name > last_model_name_in_report_conf_dist)):
             model_label = 'backdoor' if row['poisoned'] else 'clean'
             model_architecture = row['model_architecture']
 
@@ -176,12 +175,10 @@ def main():
             Logger.log(f'model {model_name} {model_architecture} ({model_label})')
             path_model = os.path.join(path_root, model_name)
 
-            Logger.log(f'loading model {model_name} ({model_label})...', end='')
             sdn_type = [v for k, v in dict_arch_type.items() if model_architecture.startswith(k)][0]
             path_model_cnn = os.path.join(path_model, 'model.pt')
             # path_model_ics = os.path.join(path_model, 'svm', 'svm_models')
             path_model_ics = os.path.join(path_model, sdn_name)
-            Logger.log('done')
 
             # the keys will store the confusion distribution values for specific dataset
             # add it here in for because I am deleting it at the end of the loop to save memory

@@ -1,28 +1,26 @@
-import ast
+import sys
 import numpy as np
 import pandas as pd
 from scipy.stats import entropy
 from datetime import datetime
 
-import tools.model_funcs as mf
-from architectures.LightSDN import LightSDN
-
 from tools.logistics import *
 from tools.logger import Logger
 
 
-def get_trigger_type_aux_value(trigger_type, trigger_type_option):
+def get_trigger_type_aux_value(trigger_type, polygon_side_count, instagram_filter_type):
     if trigger_type == 'instagram':
-        return trigger_type_option.replace('XForm', '').replace('Filter', '')
+        instagram_filter_type = instagram_filter_type.replace('FilterXForm', '').lower()
+        return f'instagram-{instagram_filter_type}'
     else:
-        if trigger_type == 'None':
-            return trigger_type
+        if trigger_type == 'polygon':
+            return f'{trigger_type}-{polygon_side_count}'
         else:
-            return f'{trigger_type}-{trigger_type_option}'
+            return trigger_type.lower()
 
 
-def get_confusion_matrix_stats(model, device, path_dataset):
-    dataset = TrojAI(folder=path_dataset, test_ratio=0, batch_size=16, device=device, opencv_format=False)
+def get_confusion_matrix_stats(model, device, path_dataset, batch_size):
+    dataset = TrojAI(folder=path_dataset, test_ratio=0, batch_size=batch_size, device=device, opencv_format=False)
     nc = dataset.num_classes
 
     matrix = np.zeros((nc, nc), dtype=np.int64)
@@ -44,21 +42,40 @@ def get_confusion_matrix_stats(model, device, path_dataset):
 
 
 def main():
+    list_limits = {
+        'windows10': (0, 1007),
+        'openlab08.umiacs.umd.edu': (0, 1007),
+        'openlab30.umiacs.umd.edu': (0, 249),
+        'openlab31.umiacs.umd.edu': (250, 499),
+        'openlab32.umiacs.umd.edu': (500, 749),
+        'openlab33.umiacs.umd.edu': (750, 1007),
+    }
+
+    if len(sys.argv) != 3:
+        lim_left, lim_right = list_limits[socket.gethostname()]
+    else:
+        lim_left, lim_right = int(sys.argv[1]), int(sys.argv[2])
+
+    print(f'lim_left={lim_left}, lim_right={lim_right}')
+
     # device = 'cpu'
     device = af.get_pytorch_device()
 
-    default_trigger_color = (127, 127, 127)
-    square_dataset_name = 'backdoored_data_square-25'
-    experiment_name = f'square-25-gotham-kelvin-lomo-nashville-toaster-all-classes-gray-confusion-matrix'
+    trigger_color = (127, 127, 127)
+    batch_size = 1
+    square_dataset_name = 'backdoored_data_square-30'
+    experiment_name = f'fc_square30-gray_filters_h_kl'
 
     # begin
     np.random.seed(666)
     path_root_project = get_project_root_path()
     # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round2-train-dataset')
-    path_root = os.path.join(path_root_project, 'TrojAI-data', 'round2-holdout-dataset')
+    # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round2-holdout-dataset')
+    path_root = os.path.join(path_root_project, 'TrojAI-data', 'round3-train-dataset')
     path_metadata = os.path.join(path_root, 'METADATA.csv')
-    path_report_conf_mat = os.path.join(path_root, 'ics_svm', f'{os.path.basename(path_root)}_{experiment_name}.csv')
-    path_logger = os.path.join(path_root, 'ics_svm', f'{os.path.basename(path_root)}_{experiment_name}.log')
+    path_report_conf_mat = os.path.join(path_root, 'conf_mat', f'{os.path.basename(path_root)}_{experiment_name}.csv')
+    # path_logger = os.path.join(path_root, 'ics_svm', f'{os.path.basename(path_root)}_{experiment_name}.log')
+    path_logger = os.path.join(path_root, 'conf_mat', f'{os.path.basename(path_root)}_{experiment_name}.log')
 
     Logger.open(path_logger)
 
@@ -80,7 +97,7 @@ def main():
 
             # the features we compute
             'h_clean', 'kl_clean',
-            'h_square25', 'kl_square25',
+            'h_square30', 'kl_square30',
             'h_gotham', 'kl_gotham',
             'h_kelvin', 'kl_kelvin',
             'h_lomo', 'kl_lomo',
@@ -91,7 +108,6 @@ def main():
             'trigger_color', 'num_classes'
         ])
 
-    Logger.log('!!! Round 2: USE RGB COLORS')
     for _, row in metadata.iterrows():
         start_time = datetime.now()
         model_name = row['model_name']
@@ -101,16 +117,8 @@ def main():
             model_label = 'backdoor' if row['poisoned'] else 'clean'
             model_architecture = row['model_architecture']
 
-            trigger_color = row['trigger_color']
-            trigger_type = row['trigger_type']
-            trigger_type_option = row['trigger_type_option']
-            trigger_type_aux = get_trigger_type_aux_value(trigger_type, trigger_type_option)
+            trigger_type_aux = get_trigger_type_aux_value(row['trigger_type'], row['polygon_side_count'], row['instagram_filter_type'])
             num_classes = row['number_classes']
-
-            if trigger_color == 'None':
-                trigger_color = default_trigger_color # default color
-            else:  # do not reverse the color
-                trigger_color = tuple(ast.literal_eval(row['trigger_color'].replace(' ', ', ')))
 
             ###############################################################################################################
 
@@ -119,15 +127,13 @@ def main():
             Logger.log(f'model {model_name} {model_architecture} ({model_label})')
             path_model = os.path.join(path_root, model_name)
 
-            Logger.log(f'loading model {model_name} ({model_label})...', end='')
             path_model_cnn = os.path.join(path_model, 'model.pt')
             model = torch.load(path_model_cnn, map_location=device).eval()
-            Logger.log('done')
 
             # the keys will store the confusion distribution values for specific dataset
             # add it here in for-loop because I am deleting it at the end of the loop to save memory
             dict_dataset_h_kl = {
-                'example_data': None,
+                'clean_example_data': None,
                 square_dataset_name: None,
                 'backdoored_data_filter_gotham': None,
                 'backdoored_data_filter_kelvin': None,
@@ -140,11 +146,11 @@ def main():
                 path_data = os.path.join(path_model, dataset_name)
 
                 Logger.log(f'computing H and KL for {dataset_name}...', end='')
-                dict_dataset_h_kl[dataset_name] = get_confusion_matrix_stats(model, device, path_data)
+                dict_dataset_h_kl[dataset_name] = get_confusion_matrix_stats(model, device, path_data, batch_size)
                 Logger.log('done')
 
             # compute mean and stds for confusion distributions
-            h_clean, kl_clean = dict_dataset_h_kl['example_data']
+            h_clean, kl_clean = dict_dataset_h_kl['clean_example_data']
             h_square, kl_square = dict_dataset_h_kl[square_dataset_name]
             h_gotham, kl_gotham = dict_dataset_h_kl['backdoored_data_filter_gotham']
             h_kelvin, kl_kelvin = dict_dataset_h_kl['backdoored_data_filter_kelvin']
