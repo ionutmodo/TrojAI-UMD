@@ -69,10 +69,11 @@ def main():
 
     test_ratio = 0
     batch_size = 128  # for confusion experiment
-    trigger_color = 'random' # (127, 127, 127)
+    # trigger_color = 'random'
+    trigger_color = (127, 127, 127)
 
     # experiment_name = f'squares-all-classes-gray_{_device.upper()}_{lim_left}-{lim_right}'
-    experiment_name = f'fc_square30-random_{lim_left}-{lim_right}'
+    experiment_name = f'fc_square30-gray_{lim_left}-{lim_right}'
 
     # begin
     np.random.seed(666)
@@ -111,22 +112,22 @@ def main():
             # 'square15_mean_diff', 'square15_std_diff',
             # 'square20_mean_diff', 'square20_std_diff',
             # 'square25_mean_diff', 'square25_std_diff',
-            # 'square30_mean_diff', 'square30_std_diff',
+            'square30_mean_diff', 'square30_std_diff',
             # 'square35_mean_diff', 'square35_std_diff',
             # 'square40_mean_diff', 'square40_std_diff',
             # 'square45_mean_diff', 'square45_std_diff',
             # 'square50_mean_diff', 'square50_std_diff',
             # 'square25_r_mean_diff', 'square25_r_std_diff',
-            'square30_r_mean_diff', 'square30_r_std_diff',
+            # 'square30_r_mean_diff', 'square30_r_std_diff',
             # 'square35_r_mean_diff', 'square35_r_std_diff',
             # 'square40_r_mean_diff', 'square40_r_std_diff',
             # 'square45_r_mean_diff', 'square45_r_std_diff',
             # 'square50_r_mean_diff', 'square50_r_std_diff',
-            'gotham_mean_diff', 'gotham_std_diff',
-            'kelvin_mean_diff', 'kelvin_std_diff',
-            'lomo_mean_diff', 'lomo_std_diff',
-            'nashville_mean_diff', 'nashville_std_diff',
-            'toaster_mean_diff', 'toaster_std_diff',
+            # 'gotham_mean_diff', 'gotham_std_diff',
+            # 'kelvin_mean_diff', 'kelvin_std_diff',
+            # 'lomo_mean_diff', 'lomo_std_diff',
+            # 'nashville_mean_diff', 'nashville_std_diff',
+            # 'toaster_mean_diff', 'toaster_std_diff',
 
             # place effective metrics from confusion distribution
             'clean_mean', 'clean_std',
@@ -134,22 +135,22 @@ def main():
             # 'square15_mean', 'square15_std',
             # 'square20_mean', 'square20_std',
             # 'square25_mean', 'square25_std',
-            # 'square30_mean', 'square30_std',
+            'square30_mean', 'square30_std',
             # 'square35_mean', 'square35_std',
             # 'square40_mean', 'square40_std',
             # 'square45_mean', 'square45_std',
             # 'square50_mean', 'square50_std',
             # 'square25_r_mean', 'square25_r_std',
-            'square30_r_mean', 'square30_r_std',
+            # 'square30_r_mean', 'square30_r_std',
             # 'square35_r_mean', 'square35_r_std',
             # 'square40_r_mean', 'square40_r_std',
             # 'square45_r_mean', 'square45_r_std',
             # 'square50_r_mean', 'square50_r_std',
-            'gotham_mean', 'gotham_std',
-            'kelvin_mean', 'kelvin_std',
-            'lomo_mean', 'lomo_std',
-            'nashville_mean', 'nashville_std',
-            'toaster_mean', 'toaster_std',
+            # 'gotham_mean', 'gotham_std',
+            # 'kelvin_mean', 'kelvin_std',
+            # 'lomo_mean', 'lomo_std',
+            # 'nashville_mean', 'nashville_std',
+            # 'toaster_mean', 'toaster_std',
 
             # other data
             'trigger_color', 'num_classes'
@@ -190,22 +191,22 @@ def main():
                 # 'backdoored_data_square-15': None,
                 # 'backdoored_data_square-20': None,
                 # 'backdoored_data_square-25': None,
-                # 'backdoored_data_square-30': None,
+                'backdoored_data_square-30': None,
                 # 'backdoored_data_square-35': None,
                 # 'backdoored_data_square-40': None,
                 # 'backdoored_data_square-45': None,
                 # 'backdoored_data_square-50': None,
                 # 'backdoored_data_square-25_random': None,
-                'backdoored_data_square-30_random': None,
+                # 'backdoored_data_square-30_random': None,
                 # 'backdoored_data_square-35_random': None,
                 # 'backdoored_data_square-40_random': None,
                 # 'backdoored_data_square-45_random': None,
                 # 'backdoored_data_square-50_random': None,
-                'backdoored_data_filter_gotham': None,
-                'backdoored_data_filter_kelvin': None,
-                'backdoored_data_filter_lomo': None,
-                'backdoored_data_filter_nashville': None,
-                'backdoored_data_filter_toaster': None
+                # 'backdoored_data_filter_gotham': None,
+                # 'backdoored_data_filter_kelvin': None,
+                # 'backdoored_data_filter_lomo': None,
+                # 'backdoored_data_filter_nashville': None,
+                # 'backdoored_data_filter_toaster': None
             }
 
             if socket.gethostname() in ['openlab08.umiacs.umd.edu', 'windows10']:
@@ -254,9 +255,9 @@ def main():
             # square25_mean = np.mean(dict_dataset_confusion['backdoored_data_square-25'])
             # square25_std = np.std(dict_dataset_confusion['backdoored_data_square-25'])
 
-            # square30_mean = np.mean(dict_dataset_confusion['backdoored_data_square-30'])
-            # square30_std = np.std(dict_dataset_confusion['backdoored_data_square-30'])
-            #
+            square30_mean = np.mean(dict_dataset_confusion['backdoored_data_square-30'])
+            square30_std = np.std(dict_dataset_confusion['backdoored_data_square-30'])
+
             # square35_mean = np.mean(dict_dataset_confusion['backdoored_data_square-35'])
             # square35_std = np.std(dict_dataset_confusion['backdoored_data_square-35'])
             #
@@ -272,8 +273,8 @@ def main():
             # square25_r_mean = np.mean(dict_dataset_confusion['backdoored_data_square-25_random'])
             # square25_r_std = np.std(dict_dataset_confusion['backdoored_data_square-25_random'])
 
-            square30_r_mean = np.mean(dict_dataset_confusion['backdoored_data_square-30_random'])
-            square30_r_std = np.std(dict_dataset_confusion['backdoored_data_square-30_random'])
+            # square30_r_mean = np.mean(dict_dataset_confusion['backdoored_data_square-30_random'])
+            # square30_r_std = np.std(dict_dataset_confusion['backdoored_data_square-30_random'])
 
             # square35_r_mean = np.mean(dict_dataset_confusion['backdoored_data_square-35_random'])
             # square35_r_std = np.std(dict_dataset_confusion['backdoored_data_square-35_random'])
@@ -287,20 +288,20 @@ def main():
             # square50_r_mean = np.mean(dict_dataset_confusion['backdoored_data_square-50_random'])
             # square50_r_std = np.std(dict_dataset_confusion['backdoored_data_square-50_random'])
 
-            gotham_mean = np.mean(dict_dataset_confusion['backdoored_data_filter_gotham'])
-            gotham_std = np.std(dict_dataset_confusion['backdoored_data_filter_gotham'])
-
-            kelvin_mean = np.mean(dict_dataset_confusion['backdoored_data_filter_kelvin'])
-            kelvin_std = np.std(dict_dataset_confusion['backdoored_data_filter_kelvin'])
-
-            lomo_mean = np.mean(dict_dataset_confusion['backdoored_data_filter_lomo'])
-            lomo_std = np.std(dict_dataset_confusion['backdoored_data_filter_lomo'])
-
-            nashville_mean = np.mean(dict_dataset_confusion['backdoored_data_filter_nashville'])
-            nashville_std = np.std(dict_dataset_confusion['backdoored_data_filter_nashville'])
-
-            toaster_mean = np.mean(dict_dataset_confusion['backdoored_data_filter_toaster'])
-            toaster_std = np.std(dict_dataset_confusion['backdoored_data_filter_toaster'])
+            # gotham_mean = np.mean(dict_dataset_confusion['backdoored_data_filter_gotham'])
+            # gotham_std = np.std(dict_dataset_confusion['backdoored_data_filter_gotham'])
+            #
+            # kelvin_mean = np.mean(dict_dataset_confusion['backdoored_data_filter_kelvin'])
+            # kelvin_std = np.std(dict_dataset_confusion['backdoored_data_filter_kelvin'])
+            #
+            # lomo_mean = np.mean(dict_dataset_confusion['backdoored_data_filter_lomo'])
+            # lomo_std = np.std(dict_dataset_confusion['backdoored_data_filter_lomo'])
+            #
+            # nashville_mean = np.mean(dict_dataset_confusion['backdoored_data_filter_nashville'])
+            # nashville_std = np.std(dict_dataset_confusion['backdoored_data_filter_nashville'])
+            #
+            # toaster_mean = np.mean(dict_dataset_confusion['backdoored_data_filter_toaster'])
+            # toaster_std = np.std(dict_dataset_confusion['backdoored_data_filter_toaster'])
 
             ############ compute differences for mean and stds between backdoored and clean
             # square10_mean_diff = square10_mean - clean_mean
@@ -312,11 +313,14 @@ def main():
             # square20_mean_diff = square20_mean - clean_mean
             # square20_std_diff = square20_std - clean_std
 
+            square30_mean_diff = square30_mean - clean_mean
+            square30_std_diff = square30_std - clean_std
+
             # square25_r_mean_diff = square25_r_mean - clean_mean
             # square25_r_std_diff = square25_r_std - clean_std
 
-            square30_r_mean_diff = square30_r_mean - clean_mean
-            square30_r_std_diff = square30_r_std - clean_std
+            # square30_r_mean_diff = square30_r_mean - clean_mean
+            # square30_r_std_diff = square30_r_std - clean_std
 
             # square35_r_mean_diff = square35_r_mean - clean_mean
             # square35_r_std_diff = square35_r_std - clean_std
@@ -330,20 +334,20 @@ def main():
             # square50_r_mean_diff = square50_r_mean - clean_mean
             # square50_r_std_diff = square50_r_std - clean_std
 
-            gotham_mean_diff = gotham_mean - clean_mean
-            gotham_std_diff = gotham_std - clean_std
-
-            kelvin_mean_diff = kelvin_mean - clean_mean
-            kelvin_std_diff = kelvin_std - clean_std
-
-            lomo_mean_diff = lomo_mean - clean_mean
-            lomo_std_diff = lomo_std - clean_std
-
-            nashville_mean_diff = nashville_mean - clean_mean
-            nashville_std_diff = nashville_std - clean_std
-
-            toaster_mean_diff = toaster_mean - clean_mean
-            toaster_std_diff = toaster_std - clean_std
+            # gotham_mean_diff = gotham_mean - clean_mean
+            # gotham_std_diff = gotham_std - clean_std
+            #
+            # kelvin_mean_diff = kelvin_mean - clean_mean
+            # kelvin_std_diff = kelvin_std - clean_std
+            #
+            # lomo_mean_diff = lomo_mean - clean_mean
+            # lomo_std_diff = lomo_std - clean_std
+            #
+            # nashville_mean_diff = nashville_mean - clean_mean
+            # nashville_std_diff = nashville_std - clean_std
+            #
+            # toaster_mean_diff = toaster_mean - clean_mean
+            # toaster_std_diff = toaster_std - clean_std
 
             df_report_conf_dist.loc[n_report_conf_dist] = [
                 # preliminary info about the model
@@ -354,24 +358,24 @@ def main():
                 # square15_mean_diff, square15_std_diff,
                 # square20_mean_diff, square20_std_diff,
                 # square25_mean_diff, square25_std_diff,
-                # square30_mean_diff, square30_std_diff,
+                square30_mean_diff, square30_std_diff,
                 # square35_mean_diff, square35_std_diff,
                 # square40_mean_diff, square40_std_diff,
                 # square45_mean_diff, square45_std_diff,
                 # square50_mean_diff, square50_std_diff,
 
                 # square25_r_mean_diff, square25_r_std_diff,
-                square30_r_mean_diff, square30_r_std_diff,
+                # square30_r_mean_diff, square30_r_std_diff,
                 # square35_r_mean_diff, square35_r_std_diff,
                 # square40_r_mean_diff, square40_r_std_diff,
                 # square45_r_mean_diff, square45_r_std_diff,
                 # square50_r_mean_diff, square50_r_std_diff,
 
-                gotham_mean_diff, gotham_std_diff,
-                kelvin_mean_diff, kelvin_std_diff,
-                lomo_mean_diff, lomo_std_diff,
-                nashville_mean_diff, nashville_std_diff,
-                toaster_mean_diff, toaster_std_diff,
+                # gotham_mean_diff, gotham_std_diff,
+                # kelvin_mean_diff, kelvin_std_diff,
+                # lomo_mean_diff, lomo_std_diff,
+                # nashville_mean_diff, nashville_std_diff,
+                # toaster_mean_diff, toaster_std_diff,
 
                 ## place effective metrics from confusion distribution
                 clean_mean, clean_std,
@@ -379,22 +383,22 @@ def main():
                 # square15_mean, square15_std,
                 # square20_mean, square20_std,
                 # square25_mean, square25_std,
-                # square30_mean, square30_std,
+                square30_mean, square30_std,
                 # square35_mean, square35_std,
                 # square40_mean, square40_std,
                 # square45_mean, square45_std,
                 # square50_mean, square50_std,
                 # square25_r_mean, square25_r_std,
-                square30_r_mean, square30_r_std,
+                # square30_r_mean, square30_r_std,
                 # square35_r_mean, square35_r_std,
                 # square40_r_mean, square40_r_std,
                 # square45_r_mean, square45_r_std,
                 # square50_r_mean, square50_r_std,
-                gotham_mean, gotham_std,
-                kelvin_mean, kelvin_std,
-                lomo_mean, lomo_std,
-                nashville_mean, nashville_std,
-                toaster_mean, toaster_std,
+                # gotham_mean, gotham_std,
+                # kelvin_mean, kelvin_std,
+                # lomo_mean, lomo_std,
+                # nashville_mean, nashville_std,
+                # toaster_mean, toaster_std,
 
                 # other data
                 trigger_color, num_classes
