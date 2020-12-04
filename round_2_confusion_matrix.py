@@ -1,4 +1,4 @@
-import sys
+import os, sys
 import numpy as np
 import pandas as pd
 from scipy.stats import entropy
@@ -44,6 +44,7 @@ def get_confusion_matrix_stats(model, device, path_dataset, batch_size):
 
 
 def main():
+    print(os.system('nvidia-smi'))
     # device = 'cpu'
     device = af.get_pytorch_device()
 
