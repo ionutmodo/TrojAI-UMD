@@ -44,29 +44,28 @@ from sklearn.multiclass import OneVsRestClassifier
 from sklearn.preprocessing import label_binarize
 from sklearn.metrics import accuracy_score, balanced_accuracy_score
 from tools.logger import Logger
-from keras.models import model_from_json
+# from keras.models import model_from_json
 from concurrent.futures import ProcessPoolExecutor as Pool
 
 
-def keras_save(model, folder):
-    if not os.path.isdir(folder):
-        os.mkdir(folder)
-    model_json = model.to_json()
-    with open(os.path.join(folder, 'model.json'), "w") as json_file:
-        json_file.write(model_json)
-    # serialize weights to HDF5
-    model.save_weights(os.path.join(folder, 'model.h5'))
-
-
-def keras_load(folder):
-
-    json_file = open(os.path.join(folder, 'model.json'), 'r')
-    loaded_model_json = json_file.read()
-    json_file.close()
-    loaded_model = model_from_json(loaded_model_json)
-    # load weights into new model
-    loaded_model.load_weights(os.path.join(folder, 'model.h5'))
-    return loaded_model
+# def keras_save(model, folder):
+#     if not os.path.isdir(folder):
+#         os.mkdir(folder)
+#     model_json = model.to_json()
+#     with open(os.path.join(folder, 'model.json'), "w") as json_file:
+#         json_file.write(model_json)
+#     # serialize weights to HDF5
+#     model.save_weights(os.path.join(folder, 'model.h5'))
+#
+#
+# def keras_load(folder):
+#     json_file = open(os.path.join(folder, 'model.json'), 'r')
+#     loaded_model_json = json_file.read()
+#     json_file.close()
+#     loaded_model = model_from_json(loaded_model_json)
+#     # load weights into new model
+#     loaded_model.load_weights(os.path.join(folder, 'model.h5'))
+#     return loaded_model
 
 
 def now():
@@ -204,12 +203,12 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     time_start = datetime.now()
     print_messages = True
     trigger_size = 30 # for polygon dataset
-    trigger_color = 'random'
-    # trigger_color = (127, 127, 127)
+    # trigger_color = 'random'
+    trigger_color = (127, 127, 127)
     trigger_target_class = 0
     list_filters = ['gotham', 'kelvin', 'lomo', 'nashville', 'toaster']
 
-    path_meta_model = 'metamodels/metamodel_10_fc_round3_data=diffs_square=30-rand_scaler=STD_clf=LR-1'
+    path_meta_model = 'metamodels/metamodel_11_fc_round3_data=diffs_square=30-gray_scaler=STD_clf=LR-1'
 
     batch_size_sdn_training = 10 if socket.gethostname() == 'windows10' else 20
     batch_size = 1 if socket.gethostname() == 'windows10' else 50
