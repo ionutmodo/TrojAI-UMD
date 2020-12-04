@@ -42,29 +42,17 @@ def get_confusion_matrix_stats(model, device, path_dataset, batch_size):
 
 
 def main():
-    list_limits = {
-        'windows10': (0, 1007),
-        'openlab08.umiacs.umd.edu': (0, 1007),
-        'openlab30.umiacs.umd.edu': (0, 249),
-        'openlab31.umiacs.umd.edu': (250, 499),
-        'openlab32.umiacs.umd.edu': (500, 749),
-        'openlab33.umiacs.umd.edu': (750, 1007),
-    }
-
-    if len(sys.argv) != 3:
-        lim_left, lim_right = list_limits[socket.gethostname()]
-    else:
-        lim_left, lim_right = int(sys.argv[1]), int(sys.argv[2])
-
-    print(f'lim_left={lim_left}, lim_right={lim_right}')
-
     # device = 'cpu'
     device = af.get_pytorch_device()
 
     trigger_color = (127, 127, 127)
-    batch_size = 1
-    square_dataset_name = 'backdoored_data_square-30'
-    experiment_name = f'fc_square30-gray_filters_h_kl'
+    batch_size = 50
+    if trigger_color == 'random':
+        square_dataset_name = 'backdoored_data_square-30_random'
+        experiment_name = f'fc_square30-random_filters_h_kl'
+    else:
+        square_dataset_name = 'backdoored_data_square-30'
+        experiment_name = f'fc_square30-gray_filters_h_kl'
 
     # begin
     np.random.seed(666)
