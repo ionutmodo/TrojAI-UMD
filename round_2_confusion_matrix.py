@@ -29,6 +29,7 @@ def get_confusion_matrix_stats(model, device, path_dataset, batch_size):
         for i, out in enumerate(outputs):
             label_pred = out.unsqueeze(0).max(1)[1].item()
             matrix[label_true[i].item(), label_pred] += 1
+        del outputs
 
     del dataset
 
@@ -38,6 +39,7 @@ def get_confusion_matrix_stats(model, device, path_dataset, batch_size):
     uniform = np.ones_like(proba) / nc
     h = entropy(proba)
     kl = entropy(proba, uniform)
+
     return h / nc, kl / nc
 
 
