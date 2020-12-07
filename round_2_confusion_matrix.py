@@ -30,6 +30,7 @@ def get_confusion_matrix_stats(model, device, path_dataset, batch_size):
             label_pred = out.unsqueeze(0).max(1)[1].item()
             matrix[label_true[i].item(), label_pred] += 1
         del outputs
+        torch.cuda.empty_cache()
 
     del dataset
 
