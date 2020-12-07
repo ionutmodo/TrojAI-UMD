@@ -48,6 +48,13 @@ from tools.logger import Logger
 from concurrent.futures import ProcessPoolExecutor as Pool
 
 
+def encode_architecture(model_architecture):
+    arch_codes = ['densenet', 'googlenet', 'inception', 'mobilenet', 'resnet', 'shufflenet', 'squeezenet', 'vgg']
+    for index, arch in enumerate(arch_codes):
+        if arch in model_architecture:
+            return index
+    return None
+
 # def keras_save(model, folder):
 #     if not os.path.isdir(folder):
 #         os.mkdir(folder)
@@ -202,16 +209,23 @@ def train_trojai_sdn(dataset, trojai_model_w_ics, model_root_path, device):
 def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, examples_dirpath):
     time_start = datetime.now()
     print_messages = True
-    trigger_size = 30 # for polygon dataset
-    # trigger_color = 'random'
-    trigger_color = (127, 127, 127)
+    sdn_ic_type = 'svm' # 'svm' or 'fc'
+    add_arch_features = True
+    fast_test_on_windows10 = False
+    trigger_size = 30
+    trigger_color = 'random' # 'random' or (127, 127, 127)
+    path_meta_model = 'metamodels/metamodel_12_svm_round3_data=diffs_square=30-rand_scaler=NO_clf=LR-2_arch-features=YES'
+
     trigger_target_class = 0
     list_filters = ['gotham', 'kelvin', 'lomo', 'nashville', 'toaster']
 
-    path_meta_model = 'metamodels/metamodel_11_fc_round3_data=diffs_square=30-gray_scaler=STD_clf=LR-1'
-
-    batch_size_sdn_training = 10 if socket.gethostname() == 'windows10' else 20
-    batch_size = 1 if socket.gethostname() == 'windows10' else 50
+    if sdn_ic_type == 'svm':
+        batch_size_sdn_training = 1
+        batch_size = 1
+    elif sdn_ic_type == 'fc':
+        hostname = socket.gethostname()
+        batch_size_sdn_training = 10 if hostname == 'windows10' else 20
+        batch_size = 1 if hostname == 'windows10' else 50
     _device = af.get_pytorch_device()
     sdn_name = f'ics_train100_test0_bs{batch_size_sdn_training}'
 
@@ -239,8 +253,12 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         print('[info] STEP 1: train SDN with SVM ICs')
     # this method saves the SVM-ICs to "scratch_dirpath"/svm/svm_models (the file has no extension)
     t = now()
-    ###### train_trojai_sdn_with_svm(dataset=dataset_clean, trojai_model_w_ics=model, model_root_path=scratch_dirpath, device=_device, log=print_messages)
-    train_trojai_sdn(dataset=dataset_clean, trojai_model_w_ics=model, model_root_path=scratch_dirpath, device=_device)
+
+    if not fast_test_on_windows10:
+        if sdn_ic_type == 'svm':
+            train_trojai_sdn_with_svm(dataset=dataset_clean, trojai_model_w_ics=model, model_root_path=scratch_dirpath, device=_device, log=print_messages)
+        elif sdn_ic_type == 'fc':
+            train_trojai_sdn(dataset=dataset_clean, trojai_model_w_ics=model, model_root_path=scratch_dirpath, device=_device)
     del dataset_clean
     if print_messages:
         print(f'[info] training SDN took {now() - t}')
@@ -255,25 +273,26 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         print('[info] STEP 2: create backdoored datasets')
 
     t = now()
-    create_backdoored_dataset(dir_clean_data=examples_dirpath,
-                              dir_backdoored_data=os.path.join(scratch_dirpath, f'backdoored_data_square_{trigger_size}'),
-                              trigger_type='polygon',
-                              trigger_name='square',
-                              trigger_color=trigger_color,
-                              trigger_size=trigger_size,
-                              triggered_classes='all',
-                              trigger_target_class=trigger_target_class)
-
-    # create filters dataset and save it to disk
-    for p_filter in list_filters:
+    if not fast_test_on_windows10:
         create_backdoored_dataset(dir_clean_data=examples_dirpath,
-                                  dir_backdoored_data=os.path.join(scratch_dirpath, f'backdoored_data_filter_{p_filter}'),
-                                  trigger_type='filter',
-                                  trigger_name=p_filter,
-                                  trigger_color=None,
-                                  trigger_size=None,
+                                  dir_backdoored_data=os.path.join(scratch_dirpath, f'backdoored_data_square_{trigger_size}'),
+                                  trigger_type='polygon',
+                                  trigger_name='square',
+                                  trigger_color=trigger_color,
+                                  trigger_size=trigger_size,
                                   triggered_classes='all',
                                   trigger_target_class=trigger_target_class)
+
+        # create filters dataset and save it to disk
+        for p_filter in list_filters:
+            create_backdoored_dataset(dir_clean_data=examples_dirpath,
+                                      dir_backdoored_data=os.path.join(scratch_dirpath, f'backdoored_data_filter_{p_filter}'),
+                                      trigger_type='filter',
+                                      trigger_name=p_filter,
+                                      trigger_color=None,
+                                      trigger_size=None,
+                                      triggered_classes='all',
+                                      trigger_target_class=trigger_target_class)
     if print_messages:
         print(f'[info] creating all backdoored datasets took {now() - t}')
 
@@ -294,12 +313,14 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
 
     # load model
     t = now()
-    # path_model_cnn = model_filepath
-    # path_model_ics = os.path.join(scratch_dirpath, 'ics_svm.model')
-    # sdn_light = LightSDN(path_model_cnn, path_model_ics, sdn_type, num_classes, _device)
-    sdn_light = load_trojai_model(sdn_path=os.path.join(scratch_dirpath, sdn_name),
-                                  cnn_path=model_filepath,
-                                  num_classes=num_classes, sdn_type=sdn_type, device=_device)
+    if sdn_ic_type == 'svm':
+        path_model_cnn = model_filepath
+        path_model_ics = os.path.join(scratch_dirpath, 'ics_svm.model')
+        sdn_light = LightSDN(path_model_cnn, path_model_ics, sdn_type, num_classes, _device)
+    elif sdn_ic_type == 'fc':
+        sdn_light = load_trojai_model(sdn_path=os.path.join(scratch_dirpath, sdn_name),
+                                      cnn_path=model_filepath,
+                                      num_classes=num_classes, sdn_type=sdn_type, device=_device)
 
     if print_messages:
         print(f'[info] loading light SDN took {now() - t}')
@@ -307,49 +328,42 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     t = now()
 
     dataset_clean = TrojAI(folder=examples_dirpath, test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
-    confusion_clean = mf.compute_confusion(sdn_light, dataset_clean.train_loader, _device)
-    # confusion_clean = [0, 0]
+    confusion_clean = [0, 0] if fast_test_on_windows10 else mf.compute_confusion(sdn_light, dataset_clean.train_loader, _device)
     mean_clean, std_clean = np.mean(confusion_clean), np.std(confusion_clean)
     del dataset_clean, confusion_clean
 
     dataset_polygon = TrojAI(folder=path_polygon,   test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
-    confusion_polygon = mf.compute_confusion(sdn_light, dataset_polygon.train_loader, _device)
-    # confusion_polygon = [0, 0]
+    confusion_polygon = [0, 0] if fast_test_on_windows10 else mf.compute_confusion(sdn_light, dataset_polygon.train_loader, _device)
     mean_polygon, std_polygon = np.mean(confusion_polygon), np.std(confusion_polygon)
     mean_diff_polygon, std_diff_polygon = abs(mean_polygon - mean_clean), abs(std_polygon - std_clean)
     del dataset_polygon, confusion_polygon
 
     dataset_gotham = TrojAI(folder=path_gotham, test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
-    confusion_gotham = mf.compute_confusion(sdn_light, dataset_gotham.train_loader, _device)
-    # confusion_gotham = [0, 0]
+    confusion_gotham = [0, 0] if fast_test_on_windows10 else mf.compute_confusion(sdn_light, dataset_gotham.train_loader, _device)
     mean_gotham, std_gotham = np.mean(confusion_gotham), np.std(confusion_gotham)
     mean_diff_gotham, std_diff_gotham = abs(mean_gotham - mean_clean), abs(std_gotham - std_clean)
     del dataset_gotham, confusion_gotham
 
     dataset_kelvin = TrojAI(folder=path_kelvin, test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
-    confusion_kelvin = mf.compute_confusion(sdn_light, dataset_kelvin.train_loader, _device)
-    # confusion_kelvin = [0, 0]
+    confusion_kelvin = [0, 0] if fast_test_on_windows10 else mf.compute_confusion(sdn_light, dataset_kelvin.train_loader, _device)
     mean_kelvin, std_kelvin = np.mean(confusion_kelvin), np.std(confusion_kelvin)
     mean_diff_kelvin, std_diff_kelvin = abs(mean_kelvin - mean_clean), abs(std_kelvin - std_clean)
     del dataset_kelvin, confusion_kelvin
 
     dataset_lomo = TrojAI(folder=path_lomo, test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
-    confusion_lomo = mf.compute_confusion(sdn_light, dataset_lomo.train_loader, _device)
-    # confusion_lomo = [0, 0]
+    confusion_lomo = [0, 0] if fast_test_on_windows10 else mf.compute_confusion(sdn_light, dataset_lomo.train_loader, _device)
     mean_lomo, std_lomo = np.mean(confusion_lomo), np.std(confusion_lomo)
     mean_diff_lomo, std_diff_lomo = abs(mean_lomo - mean_clean), abs(std_lomo - std_clean)
     del dataset_lomo, confusion_lomo
 
     dataset_nashville = TrojAI(folder=path_nashville, test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
-    confusion_nashville = mf.compute_confusion(sdn_light, dataset_nashville.train_loader, _device)
-    # confusion_nashville = [0, 0]
+    confusion_nashville = [0, 0] if fast_test_on_windows10 else mf.compute_confusion(sdn_light, dataset_nashville.train_loader, _device)
     mean_nashville, std_nashville = np.mean(confusion_nashville), np.std(confusion_nashville)
     mean_diff_nashville, std_diff_nashville = abs(mean_nashville - mean_clean), abs(std_nashville - std_clean)
     del dataset_nashville, confusion_nashville
 
     dataset_toaster = TrojAI(folder=path_toaster,   test_ratio=0, batch_size=batch_size, device=_device, opencv_format=False)
-    confusion_toaster = mf.compute_confusion(sdn_light, dataset_toaster.train_loader,   _device)
-    # confusion_toaster = [0, 0]
+    confusion_toaster = [0, 0] if fast_test_on_windows10 else mf.compute_confusion(sdn_light, dataset_toaster.train_loader,   _device)
     mean_toaster, std_toaster = np.mean(confusion_toaster), np.std(confusion_toaster)
     mean_diff_toaster, std_diff_toaster = abs(mean_toaster - mean_clean), abs(std_toaster - std_clean)
     del dataset_toaster, confusion_toaster
@@ -413,6 +427,24 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     if scaler is not None:
         features = scaler.transform(features)
         print('all features after scaling:', features.tolist())
+
+    if add_arch_features:
+        available_architectures = {
+            SDNConfig.DenseNet_blocks: 'densenet',
+            SDNConfig.GoogLeNet: 'googlenet',
+            SDNConfig.Inception3: 'inception',
+            SDNConfig.MobileNet2: 'mobilenet',
+            SDNConfig.ResNet: 'resnet',
+            SDNConfig.ShuffleNet: 'shufflenet',
+            SDNConfig.SqueezeNet: 'squeezenet',
+            SDNConfig.VGG: 'vgg'
+        }
+        arch_code = encode_architecture(available_architectures[sdn_type])
+        arch_one_hot = np.identity(len(available_architectures)).tolist()[arch_code]
+        features = features[0].tolist() # do this because features has size (1, N)
+        features = np.array(arch_one_hot + features).reshape(1, -1)
+        print(f'[one-hot] arch: {available_architectures[sdn_type]}, one-hot: {arch_one_hot}')
+        print(f'[feature] final features: {features.tolist()}')
 
     meta_model = af.load_obj(filename=os.path.join(path_meta_model, 'model.pickle'))
     positive_class_index = np.where(meta_model.classes_ == 1)[0][0] # only for sklearn models
