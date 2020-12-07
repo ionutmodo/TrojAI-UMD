@@ -14,12 +14,19 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import roc_auc_score, log_loss
 from sklearn.model_selection import StratifiedKFold, RepeatedStratifiedKFold, cross_val_score
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, OneHotEncoder
 from sklearn.pipeline import Pipeline
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.wrappers.scikit_learn import KerasClassifier
 from tensorflow.keras.metrics import BinaryCrossentropy
+
+def encode_architecture(model_architecture):
+    arch_codes = ['densenet', 'googlenet', 'inception', 'mobilenet', 'resnet', 'shufflenet', 'squeezenet', 'vgg']
+    for index, arch in enumerate(arch_codes):
+        if arch in model_architecture:
+            return index
+    return None
 
 def get_predicted_label(model, image, device):
     output = model(image.to(device))
@@ -69,7 +76,7 @@ def filter_df(df, trigger_type_aux_str=None, arch=None):
         df = df.iloc[indexes]
     return df
 
-def read_features(p_path, trigger_type_aux_str=None, arch=None, data='diffs'):
+def read_features(p_path, trigger_type_aux_str=None, arch=None, data='diffs', append_arch=False):
     report = pd.read_csv(p_path)
     report = filter_df(report, trigger_type_aux_str, arch)
     if data == 'diffs':
@@ -84,11 +91,16 @@ def read_features(p_path, trigger_type_aux_str=None, arch=None, data='diffs'):
         print('data parameter should be "diffs" or "raw"')
     initial_columns = report.columns
     col_model_label = report['model_label'].copy(deep=True)
+    col_arch_code = report['architecture_code'].copy(deep=True)
     for c in initial_columns:
         if not c.endswith(ending_mean) and not c.endswith(ending_std):
             del report[c]
+    # onehot encoding
     features = report.values
     labels = np.array([int(col_model_label.iloc[i] == 'backdoor') for i in range(len(report))])
+    if append_arch:
+        architecture_encoded = OneHotEncoder(sparse=False).fit_transform(col_arch_code.values.reshape(-1, 1))
+        features = np.hstack((architecture_encoded, features))
     return abs(features), labels
     
 def read_features_confusion_matrix(p_path, trigger_type_aux_str=None):
