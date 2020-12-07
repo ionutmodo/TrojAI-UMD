@@ -49,8 +49,8 @@ def main():
     # device = 'cpu'
     device = af.get_pytorch_device()
 
-    trigger_color = (127, 127, 127)
-    batch_size = 50
+    trigger_color = 'random' # (127, 127, 127)
+    batch_size = 25
     if trigger_color == 'random':
         square_dataset_name = 'backdoored_data_square-30_random'
         experiment_name = f'fc_square30-random_filters_h_kl'
