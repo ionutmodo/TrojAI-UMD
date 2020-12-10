@@ -32,6 +32,26 @@ import tools.network_architectures as arcs
 # from robustness.attacker import AttackerModel
 # from robustness.datasets import CIFAR
 
+def keras_save(model, folder):
+    if not os.path.isdir(folder):
+        os.mkdir(folder)
+    model_json = model.to_json()
+    with open(os.path.join(folder, 'model.json'), "w") as json_file:
+        json_file.write(model_json)
+    # serialize weights to HDF5
+    model.save_weights(os.path.join(folder, 'model.h5'))
+
+
+def keras_load(folder):
+    json_file = open(os.path.join(folder, 'model.json'), 'r')
+    loaded_model_json = json_file.read()
+    json_file.close()
+    loaded_model = model_from_json(loaded_model_json)
+    # load weights into new model
+    loaded_model.load_weights(os.path.join(folder, 'model.h5'))
+    return loaded_model
+
+
 class Logger(object):
     def __init__(self, log_file, mode='out'):
         if mode == 'out':
