@@ -76,42 +76,54 @@ def filter_df(df, trigger_type_aux_str=None, arch=None):
         df = df.iloc[indexes]
     return df
 
-def read_features(p_path, trigger_type_aux_str=None, arch=None, data='diffs', append_arch=False):
+def read_features(p_path, trigger_type_aux_str=None, arch=None, data='diffs', append_arch=False, arch_one_hot=False):
     report = pd.read_csv(p_path)
     report = filter_df(report, trigger_type_aux_str, arch)
+    check = None
     if data == 'diffs':
-        ending_mean = 'mean_diff'
-        ending_std = 'std_diff'
+        check = 'end'
+        check_str_1 = 'mean_diff'
+        check_str_2 = 'std_diff'
         print('Using diffs')
     elif data == 'raw':
-        ending_mean = 'mean'
-        ending_std = 'std'
+        check = 'end'
+        check_str_1 = 'mean'
+        check_str_2 = 'std'
         print('Using mean & stds')
+    elif data == 'h' or data == 'kl' or data == 'hkl':
+        check = 'start'
+        check_str_1 = 'h_'
+        check_str_2 = 'kl_'
+        print('Using h or kl')
     else:
-        print('data parameter should be "diffs" or "raw"')
+        print(f'Invalid data type: {data}')
+        
     initial_columns = report.columns
     col_model_label = report['model_label'].copy(deep=True)
     col_arch_code = report['architecture_code'].copy(deep=True)
     for c in initial_columns:
-        if not c.endswith(ending_mean) and not c.endswith(ending_std):
-            del report[c]
+        if check == 'end':
+            if not c.endswith(check_str_1) and not c.endswith(check_str_2):
+                del report[c]
+        elif check == 'start':
+            if data == 'hkl':
+                if not c.startswith(check_str_1) and not c.startswith(check_str_2):
+                    del report[c]
+            elif data == 'h':
+                if not c.startswith('h'):
+                    del report[c]
+            elif data == 'kl':
+                if not c.startswith('kl'):
+                    del report[c]                
     # onehot encoding
     features = report.values
     labels = np.array([int(col_model_label.iloc[i] == 'backdoor') for i in range(len(report))])
     if append_arch:
-        architecture_encoded = OneHotEncoder(sparse=False).fit_transform(col_arch_code.values.reshape(-1, 1))
-        features = np.hstack((architecture_encoded, features))
-    return abs(features), labels
-    
-def read_features_confusion_matrix(p_path, trigger_type_aux_str=None):
-    report = pd.read_csv(p_path)
-    initial_columns = report.columns
-    col_model_label = report['model_label'].copy(deep=True)
-    for c in initial_columns:
-        if not c.startswith('h_') and not c.startswith('kl_'):
-            del report[c]
-    features = report.values
-    labels = np.array([int(col_model_label.iloc[i] == 'backdoor') for i in range(len(report))])
+        if arch_one_hot:
+            col_arch = OneHotEncoder(sparse=False).fit_transform(col_arch_code.values.reshape(-1, 1))
+        else:
+            col_arch = col_arch_code.values.reshape(-1, 1)
+        features = np.hstack((col_arch, features))
     return abs(features), labels
 
 def keras_save(model, folder):
@@ -141,6 +153,9 @@ def evaluate_classifier(clf, train_x, train_y, test_x, test_y):
     clf.fit(train_x, train_y)
     y_score = clf.predict(test_x)
     y_pred = clf.predict_proba(test_x)
+#     print(y_score[:5].tolist())
+#     print(y_pred[:5,:].tolist())
+#     print()
     roc_auc = roc_auc_score(y_true=test_y, y_score=y_score)
     cross_entropy = log_loss(y_true=test_y, y_pred=y_pred)
     return roc_auc, cross_entropy
