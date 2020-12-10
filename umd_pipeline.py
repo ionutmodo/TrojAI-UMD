@@ -120,10 +120,10 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     path_meta_model = 'metamodels/metamodel_13_fc_round3_data=diffs_square=30-gray_scaler=no_clf=rf-500_arch-features=no_exclude-sts=yes'
 
     batch_size, batch_size_sdn_training = 1, 1 # to avoid some warnings in PyCharm
-    if sdn_ic_type == 'svm':
+    if sdn_ic_type == SDN_IC_TYPE_SVM:
         batch_size_sdn_training = 1
         batch_size = 1
-    elif sdn_ic_type == 'fc':
+    elif sdn_ic_type == SDN_IC_TYPE_FULLY_CONNECTED:
         hostname = socket.gethostname()
         batch_size_sdn_training = 10 if hostname == 'windows10' else 20
         batch_size = 1 if hostname == 'windows10' else 50
@@ -154,9 +154,9 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
 
     t = now()
     if not fast_local_test:
-        if sdn_ic_type == 'svm':
+        if sdn_ic_type == SDN_IC_TYPE_SVM:
             pipeline_tools.train_trojai_sdn_with_svm(dataset=dataset_clean, trojai_model_w_ics=model, model_root_path=scratch_dirpath, device=device, log=print_messages)
-        elif sdn_ic_type == 'fc':
+        elif sdn_ic_type == SDN_IC_TYPE_FULLY_CONNECTED:
             pipeline_tools.train_trojai_sdn_with_fc(dataset=dataset_clean, trojai_model_w_ics=model, model_root_path=scratch_dirpath, device=device)
     del dataset_clean
     if print_messages:
@@ -190,9 +190,9 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     t = now()
     model = None
     if stats_type in [STATISTIC_TYPE_RAW_MEAN_STD, STATISTIC_TYPE_DIFF_MEAN_STD]:
-        if sdn_ic_type == 'svm':
+        if sdn_ic_type == SDN_IC_TYPE_SVM:
             model = LightSDN(path_model_cnn=model_filepath, path_model_ics=os.path.join(scratch_dirpath, 'ics_svm.model'), sdn_type=sdn_type, num_classes=num_classes, device=device)
-        elif sdn_ic_type == 'fc':
+        elif sdn_ic_type == SDN_IC_TYPE_FULLY_CONNECTED:
             model = load_trojai_model(sdn_path=os.path.join(scratch_dirpath, sdn_name), cnn_path=model_filepath, num_classes=num_classes, sdn_type=sdn_type, device=device)
     elif stats_type == STATISTIC_TYPE_H_KL:
         model = torch.load(model_filepath, map_location=device).eval()
@@ -201,6 +201,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         print(f'[info] loading light SDN took {now() - t}')
 
     t = now()
+    stats = None
     if stats_type in [STATISTIC_TYPE_RAW_MEAN_STD, STATISTIC_TYPE_DIFF_MEAN_STD]:
         stats = build_confusion_distribution_stats(scratch_dirpath, examples_dirpath, model, batch_size, device, fast_local_test)
     elif stats_type == STATISTIC_TYPE_H_KL:
