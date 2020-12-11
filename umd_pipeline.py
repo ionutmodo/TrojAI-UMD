@@ -116,8 +116,8 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     fast_local_test = False
     stats_type = STATISTIC_TYPE_DIFF_MEAN_STD
     trigger_size = 30
-    trigger_color = (127, 127, 127)  # 'random' or (127, 127, 127)
-    path_meta_model = 'metamodels/metamodel_13_fc_round3_data=diffs_square=30-gray_scaler=no_clf=rf-500_arch-features=no_exclude-sts=yes'
+    trigger_color = 'random' # 'random' or (127, 127, 127)
+    path_meta_model = 'metamodels/metamodel_14_fc_round3_data=diffs_square=30-random_scaler=no_clf=rf-500_arch-features=no_exclude-sts=yes'
 
     batch_size, batch_size_sdn_training = 1, 1 # to avoid some warnings in PyCharm
     if sdn_ic_type == SDN_IC_TYPE_SVM:
