@@ -7,9 +7,10 @@ gauth.LocalWebserverAuth()
 
 drive = GoogleDrive(gauth)
 
-file_name = os.path.basename(sys.argv[1])
+file_path = sys.argv[1]
+file_name = os.path.basename(file_path)
 print(f'File name on Google Drive: {file_name}')
 
 file = drive.CreateFile({'title': file_name})
-file.SetContentFile(file_name)
+file.SetContentFile(file_path)
 file.Upload()
