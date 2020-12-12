@@ -29,8 +29,8 @@ if socket.gethostname() != 'windows10':
         root = '/umd'
     if os.path.isdir('/TrojAI-UMD'):
         root = '/TrojAI-UMD'
-
 if root is not None:
+    os.chdir(root)
     sys.path.extend([root,
                      os.path.join(root, 'architectures'),
                      os.path.join(root, 'tools'),
