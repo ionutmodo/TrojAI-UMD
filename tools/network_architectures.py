@@ -50,7 +50,7 @@ def load_trojai_model(sdn_path, cnn_path, num_classes, sdn_type, device):
         SDNConfig.VGG: SDNVGG,
     }
     if sdn_type not in dict_type_model.keys():
-        raise RuntimeError('The SDN type is not yet implemented!')
+        raise RuntimeError(f'The SDN type ({sdn_type}) is not yet implemented!')
 
     cnn_model = dict_type_model[sdn_type](cnn_model,
                                           input_size=(1, 3, 224, 224),
