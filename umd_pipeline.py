@@ -23,9 +23,20 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # disable tensorflow messages
 import sys
 import socket
 
+root = None
 if socket.gethostname() != 'windows10':
-    os.chdir('/umd')
-sys.path.extend(['/umd', '/umd/architectures/', '/umd/tools/', '/umd/trojai/', '/umd/trojai/trojai'])
+    if os.path.isdir('/umd'):
+        root = '/umd'
+    if os.path.isdir('/TrojAI-UMD'):
+        root = '/TrojAI-UMD'
+
+if root is not None:
+    sys.path.extend([root,
+                     os.path.join(root, 'architectures'),
+                     os.path.join(root, 'tools'),
+                     os.path.join(root, 'trojai'),
+                     os.path.join(root, 'trojai/trojai')])
+print(sys.path)
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -35,7 +46,7 @@ warnings.filterwarnings("ignore")
 from tools.logistics import *
 from tools.data import create_backdoored_dataset
 from architectures.LightSDN import LightSDN
-from tools.network_architectures import load_trojai_model, save_model
+from tools.network_architectures import load_trojai_model
 import tools.umd_pipeline_tools as pipeline_tools
 import tools.model_funcs as mf
 import tools.aux_funcs as af
@@ -254,7 +265,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     elif network_type == NETWORK_TYPE_SDN_WITH_FC_ICS:
         batch_size_training, batch_size_experiment = (10, 1) if socket.gethostname() == 'windows10' else (20, 50)
     elif network_type == NETWORK_TYPE_RAW_CNN_NO_ADDITIONAL_TRAINING:
-        batch_size_training, batch_size_experiment = (10, 10) if socket.gethostname() == 'windows10' else (20, 50) # batch_size_training is not used
+        batch_size_training, batch_size_experiment = (1, 1) if socket.gethostname() == 'windows10' else (20, 50) # batch_size_training is not used
 
     device = af.get_pytorch_device()
     sdn_name = f'ics_train100_test0_bs{batch_size_training}' # only used in scenarios 1, 2, 3, 4
