@@ -250,12 +250,13 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     ################################################################################
     print_messages = True
     fast_local_test = False
+    arch_wise_metamodel = True
 
     add_arch_features = False # ALSO ADD ONE-HOT/RAW ARCH FEATURE
-    scenario_number = 7
+    scenario_number = 1
     trigger_size = 30
     trigger_color = 'random' # 'random' or (127, 127, 127)
-    path_meta_model = 'metamodels/metamodel_15_cnn_round3_data=hkl_square=30-random_scaler=no_clf=rf-500_arch-features=no_exclude-sts=yes'
+    path_meta_model = 'metamodels/metamodel_16_fc_round3_data=diffs_square=30-random_scaler=std_clf=LR-1_arch-features=no_arch-wise-models=yes'
 
     network_type, stats_type = SCENARIOS[scenario_number]
 
@@ -338,40 +339,48 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     ##########################################################################################
     #################### STEP 4: predict backdoor probability
     ##########################################################################################
+
+    # do not change the values in this dictionary!
+    available_architectures = {
+        SDNConfig.DenseNet_blocks: 'densenet',
+        SDNConfig.GoogLeNet: 'googlenet',
+        SDNConfig.Inception3: 'inception',
+        SDNConfig.MobileNet2: 'mobilenet',
+        SDNConfig.ResNet: 'resnet',
+        SDNConfig.ShuffleNet: 'shufflenet',
+        SDNConfig.SqueezeNet: 'squeezenet',
+        SDNConfig.VGG: 'vgg'
+    }
+    arch_code = pipeline_tools.encode_architecture(available_architectures[sdn_type])
+
     if print_messages:
         print('\n[info] STEP 4: predicting backd proba')
+        print(f'[info] model code is {arch_code} ({available_architectures[arch_code]})')
 
-    # check if scaler exists
-    scaler = af.load_obj(os.path.join(path_meta_model, 'scaler.pickle'))
+    suffix = '' # if the meta model is trained on all model architectures, the files will be model.pickle and scaler.pickle. Otherwise, append this suffix
+    if arch_wise_metamodel:
+        suffix = f'-{available_architectures[arch_code]}' # let that dash there, such that the result would be, for example, model-vgg.pickle and scaler-vgg.pickle
+
+    meta_model = af.load_obj(filename=os.path.join(path_meta_model, f'model{suffix}.pickle'))
+    scaler = af.load_obj(os.path.join(path_meta_model, f'scaler{suffix}.pickle'))
+
     if scaler is not None:
         features = scaler.transform(features)
         print('[feature] scaled features:', features.tolist())
 
     if add_arch_features:
-        # do not change the values in this dictionary!
-        available_architectures = {
-            SDNConfig.DenseNet_blocks: 'densenet',
-            SDNConfig.GoogLeNet: 'googlenet',
-            SDNConfig.Inception3: 'inception',
-            SDNConfig.MobileNet2: 'mobilenet',
-            SDNConfig.ResNet: 'resnet',
-            SDNConfig.ShuffleNet: 'shufflenet',
-            SDNConfig.SqueezeNet: 'squeezenet',
-            SDNConfig.VGG: 'vgg'
-        }
-        arch_code = pipeline_tools.encode_architecture(available_architectures[sdn_type])
         arch_one_hot = np.identity(len(available_architectures)).tolist()[arch_code]
         features = features[0].tolist()  # do this because features has size (1, N)
         features = np.array(arch_one_hot + features).reshape(1, -1)
         print(f'[one-hot] arch: {available_architectures[sdn_type]}, one-hot: {arch_one_hot}')
         print(f'[feature] final features: {features.tolist()}')
 
-    meta_model = af.load_obj(filename=os.path.join(path_meta_model, 'model.pickle'))
     positive_class_index = np.where(meta_model.classes_ == 1)[0][0]  # only for sklearn models
     probabilities = meta_model.predict_proba(features)
     backd_proba = probabilities[0][positive_class_index]
 
     if print_messages:
+        print(f'[info] model code is {arch_code}')
         print(f'[info] probability distribution: {probabilities}')
         print(f'[info] predicted backdoor probability: {backd_proba}')
 
