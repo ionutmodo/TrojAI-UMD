@@ -94,10 +94,11 @@ def build_confusion_distribution_stats(scratch_dirpath, examples_dirpath, model,
             dataset = TrojAI(folder=path, test_ratio=0, batch_size=batch_size, device=device, opencv_format=False)
             confusion = mf.compute_confusion(model, dataset.train_loader, device)
             mean, std = np.mean(confusion), np.std(confusion)
-            mean_diff, std_diff = abs(mean - stats['mean_clean']), abs(std - stats['std_clean'])
+            if key != 'clean':
+                mean_diff, std_diff = abs(mean - stats['mean_clean']), abs(std - stats['std_clean'])
+                stats[f'mean_diff_{key}'], stats[f'std_diff_{key}'] = mean_diff, std_diff
             del dataset, confusion
-        stats[f'mean_{key}'], stats[f'mean_diff_{key}'] = mean, mean_diff
-        stats[f'std_{key}'], stats[f'std_diff_{key}'] = std, std_diff
+        stats[f'mean_{key}'], stats[f'std_{key}'] = mean, std
     return stats
 
 
