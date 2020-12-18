@@ -127,7 +127,8 @@ def main():
     # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round1-holdout-dataset')
     # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round2-train-dataset')
     # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round2-holdout-dataset')
-    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round3-train-dataset')
+    # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round3-train-dataset')
+    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round3-holdout-dataset')
 
     path_logger = os.path.join(root_path, f'{os.path.basename(root_path)}_{lim_left}-{lim_right}.log')
     Logger.open(path_logger)
