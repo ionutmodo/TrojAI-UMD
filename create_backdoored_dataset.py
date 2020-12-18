@@ -36,12 +36,13 @@ def main():
     # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round1-holdout-dataset')
     # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round2-train-dataset')
     # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round2-holdout-dataset')
-    path_root = os.path.join(path_root_project, 'TrojAI-data', 'round3-train-dataset')
+    # path_root = os.path.join(path_root_project, 'TrojAI-data', 'round3-train-dataset')
+    path_root = os.path.join(path_root_project, 'TrojAI-data', 'round3-holdout-dataset')
     path_metadata = os.path.join(path_root, 'METADATA.csv')
     metadata = pd.read_csv(path_metadata)
 
     mp_mapping_params = []
-    list_trigger_sizes = [25, 30, 35, 40, 45, 50]
+    list_trigger_sizes = [30, 40, 50]
     list_filters = ['gotham', 'kelvin', 'lomo', 'nashville', 'toaster']
 
     # list_limits = {
@@ -75,17 +76,6 @@ def main():
             trigger_target_class = row['trigger_target_class']
             trigger_target_class = int(trigger_target_class) if trigger_target_class.lower() != 'none' else 0
 
-            if len(triggered_classes) == 0:
-                triggered_classes = list(range(num_classes))
-
-            if trigger_color.lower() == 'none':
-                trigger_color = (0, 0, 0) # default color
-            else: # do not reverse color anymore
-                trigger_color = tuple(ast.literal_eval(row['trigger_color'].replace(' ', ', ')))
-
-            trigger_color = (127, 127, 127)
-            trigger_color = 'random'
-
             ###############################################################################################################
 
             path_model = os.path.join(path_root, model_name)
@@ -93,10 +83,32 @@ def main():
                 path_data_clean = os.path.join(path_model, 'clean_example_data')
                 # for a path_data_clean, generate a path_data_backd with a for a specific size for square trigger
                 # generate backdoored datasets with square trigger with specific size
-                for p_trigger_size in list_trigger_sizes:
-                    path_data_backd = os.path.join(path_model, f'backdoored_data_square-{p_trigger_size}')
-                    if type(trigger_color) is str:
-                        path_data_backd += f'_{trigger_color}'
+                for trigger_color in ['random', (127, 127, 127)]:
+                    for p_trigger_size in list_trigger_sizes:
+                        path_data_backd = os.path.join(path_model, f'backdoored_data_square-{p_trigger_size}')
+                        if type(trigger_color) is str:
+                            path_data_backd += f'_{trigger_color}'
+
+                        mapping_param_dict = dict(
+                            num_classes=num_classes,
+                            images_per_class=number_example_images,
+                            params_method=dict(
+                                dir_clean_data=path_data_clean,
+                                dir_backdoored_data=path_data_backd,
+                                trigger_type='polygon',
+                                trigger_name='square',
+                                trigger_color=trigger_color,
+                                trigger_size=p_trigger_size,
+                                # triggered_classes=triggered_classes,
+                                triggered_classes='all',
+                                trigger_target_class=trigger_target_class)
+                        )
+                        mp_mapping_params.append(mapping_param_dict)
+                        ### create_dataset_multiprocessing(mapping_param_dict)
+
+                # # generate backdoored datasets with specific filter
+                for p_filter_name in list_filters:
+                    path_data_backd = os.path.join(path_model, f'backdoored_data_filter_{p_filter_name}')
 
                     mapping_param_dict = dict(
                         num_classes=num_classes,
@@ -104,37 +116,16 @@ def main():
                         params_method=dict(
                             dir_clean_data=path_data_clean,
                             dir_backdoored_data=path_data_backd,
-                            trigger_type='polygon',
-                            trigger_name='square',
-                            trigger_color=trigger_color,
-                            trigger_size=p_trigger_size,
+                            trigger_type='filter',
+                            trigger_name=p_filter_name,
+                            trigger_color=None,
+                            trigger_size=None,
                             # triggered_classes=triggered_classes,
                             triggered_classes='all',
                             trigger_target_class=trigger_target_class)
                     )
                     mp_mapping_params.append(mapping_param_dict)
-                    # create_dataset_multiprocessing(mapping_param_dict)
-
-                # # generate backdoored datasets with specific filter
-                # for p_filter_name in list_filters:
-                #     path_data_backd = os.path.join(path_model, f'backdoored_data_filter_{p_filter_name}')
-                #
-                #     mapping_param_dict = dict(
-                #         num_classes=num_classes,
-                #         images_per_class=number_example_images,
-                #         params_method=dict(
-                #             dir_clean_data=path_data_clean,
-                #             dir_backdoored_data=path_data_backd,
-                #             trigger_type='filter',
-                #             trigger_name=p_filter_name,
-                #             trigger_color=None,
-                #             trigger_size=None,
-                #             # triggered_classes=triggered_classes,
-                #             triggered_classes='all',
-                #             trigger_target_class=trigger_target_class)
-                #     )
-                #     mp_mapping_params.append(mapping_param_dict)
-                #     # create_dataset_multiprocessing(mapping_param_dict)
+                    ### create_dataset_multiprocessing(mapping_param_dict)
 
     cpus = mp.cpu_count() - 4
     print(f'Creating {len(mp_mapping_params)} datasets using {cpus} CPU cores')
