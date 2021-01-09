@@ -70,8 +70,7 @@ def main():
     test_ratio = 0
     batch_size = 128  # for confusion experiment
 
-    # experiment_name = f'squares-all-classes-gray_{_device.upper()}_{lim_left}-{lim_right}'
-    experiment_name = f'fc_square30-gray_{lim_left}-{lim_right}'
+    experiment_name = f'fc_square30-rand_{lim_left}-{lim_right}'
     sdn_name = 'ics_train100_test0_bs20'
 
     # begin
@@ -107,12 +106,12 @@ def main():
             'model_name', 'model_architecture', 'model_label', 'trigger_type_aux',
 
             ## place differences first to visualize them easier
-            'square30_mean_diff', 'square30_std_diff',
-            'square40_mean_diff', 'square40_std_diff',
-            'square50_mean_diff', 'square50_std_diff',
+            # 'square30_mean_diff', 'square30_std_diff',
+            # 'square40_mean_diff', 'square40_std_diff',
+            # 'square50_mean_diff', 'square50_std_diff',
             'square30_r_mean_diff', 'square30_r_std_diff',
-            'square40_r_mean_diff', 'square40_r_std_diff',
-            'square50_r_mean_diff', 'square50_r_std_diff',
+            # 'square40_r_mean_diff', 'square40_r_std_diff',
+            # 'square50_r_mean_diff', 'square50_r_std_diff',
             'gotham_mean_diff', 'gotham_std_diff',
             'kelvin_mean_diff', 'kelvin_std_diff',
             'lomo_mean_diff', 'lomo_std_diff',
@@ -121,12 +120,12 @@ def main():
 
             # place effective metrics from confusion distribution
             'clean_mean', 'clean_std',
-            'square30_mean', 'square30_std',
-            'square40_mean', 'square40_std',
-            'square50_mean', 'square50_std',
+            # 'square30_mean', 'square30_std',
+            # 'square40_mean', 'square40_std',
+            # 'square50_mean', 'square50_std',
             'square30_r_mean', 'square30_r_std',
-            'square40_r_mean', 'square40_r_std',
-            'square50_r_mean', 'square50_r_std',
+            # 'square40_r_mean', 'square40_r_std',
+            # 'square50_r_mean', 'square50_r_std',
             'gotham_mean', 'gotham_std',
             'kelvin_mean', 'kelvin_std',
             'lomo_mean', 'lomo_std',
@@ -164,12 +163,12 @@ def main():
             # add it here in for because I am deleting it at the end of the loop to save memory
             dict_dataset_confusion = {
                 'clean_example_data': None,
-                'backdoored_data_square-30': None,
-                'backdoored_data_square-40': None,
-                'backdoored_data_square-50': None,
+                # 'backdoored_data_square-30': None,
+                # 'backdoored_data_square-40': None,
+                # 'backdoored_data_square-50': None,
                 'backdoored_data_square-30_random': None,
-                'backdoored_data_square-40_random': None,
-                'backdoored_data_square-50_random': None,
+                # 'backdoored_data_square-40_random': None,
+                # 'backdoored_data_square-50_random': None,
                 'backdoored_data_filter_gotham': None,
                 'backdoored_data_filter_kelvin': None,
                 'backdoored_data_filter_lomo': None,
@@ -213,23 +212,23 @@ def main():
             clean_mean = np.mean(dict_dataset_confusion['clean_example_data'])
             clean_std = np.std(dict_dataset_confusion['clean_example_data'])
 
-            square30_mean = np.mean(dict_dataset_confusion['backdoored_data_square-30'])
-            square30_std = np.std(dict_dataset_confusion['backdoored_data_square-30'])
+            # square30_mean = np.mean(dict_dataset_confusion['backdoored_data_square-30'])
+            # square30_std = np.std(dict_dataset_confusion['backdoored_data_square-30'])
 
-            square40_mean = np.mean(dict_dataset_confusion['backdoored_data_square-40'])
-            square40_std = np.std(dict_dataset_confusion['backdoored_data_square-40'])
+            # square40_mean = np.mean(dict_dataset_confusion['backdoored_data_square-40'])
+            # square40_std = np.std(dict_dataset_confusion['backdoored_data_square-40'])
 
-            square50_mean = np.mean(dict_dataset_confusion['backdoored_data_square-50'])
-            square50_std = np.std(dict_dataset_confusion['backdoored_data_square-50'])
+            # square50_mean = np.mean(dict_dataset_confusion['backdoored_data_square-50'])
+            # square50_std = np.std(dict_dataset_confusion['backdoored_data_square-50'])
 
             square30_r_mean = np.mean(dict_dataset_confusion['backdoored_data_square-30_random'])
             square30_r_std = np.std(dict_dataset_confusion['backdoored_data_square-30_random'])
 
-            square40_r_mean = np.mean(dict_dataset_confusion['backdoored_data_square-40_random'])
-            square40_r_std = np.std(dict_dataset_confusion['backdoored_data_square-40_random'])
+            # square40_r_mean = np.mean(dict_dataset_confusion['backdoored_data_square-40_random'])
+            # square40_r_std = np.std(dict_dataset_confusion['backdoored_data_square-40_random'])
 
-            square50_r_mean = np.mean(dict_dataset_confusion['backdoored_data_square-50_random'])
-            square50_r_std = np.std(dict_dataset_confusion['backdoored_data_square-50_random'])
+            # square50_r_mean = np.mean(dict_dataset_confusion['backdoored_data_square-50_random'])
+            # square50_r_std = np.std(dict_dataset_confusion['backdoored_data_square-50_random'])
 
             gotham_mean = np.mean(dict_dataset_confusion['backdoored_data_filter_gotham'])
             gotham_std = np.std(dict_dataset_confusion['backdoored_data_filter_gotham'])
@@ -248,23 +247,23 @@ def main():
 
             ############ compute differences for mean and stds between backdoored and clean
 
-            square30_mean_diff = square30_mean - clean_mean
-            square30_std_diff = square30_std - clean_std
+            # square30_mean_diff = square30_mean - clean_mean
+            # square30_std_diff = square30_std - clean_std
 
-            square40_mean_diff = square40_mean - clean_mean
-            square40_std_diff = square40_std - clean_std
+            # square40_mean_diff = square40_mean - clean_mean
+            # square40_std_diff = square40_std - clean_std
 
-            square50_mean_diff = square50_mean - clean_mean
-            square50_std_diff = square50_std - clean_std
+            # square50_mean_diff = square50_mean - clean_mean
+            # square50_std_diff = square50_std - clean_std
 
             square30_r_mean_diff = square30_r_mean - clean_mean
             square30_r_std_diff = square30_r_std - clean_std
 
-            square40_r_mean_diff = square40_r_mean - clean_mean
-            square40_r_std_diff = square40_r_std - clean_std
+            # square40_r_mean_diff = square40_r_mean - clean_mean
+            # square40_r_std_diff = square40_r_std - clean_std
 
-            square50_r_mean_diff = square50_r_mean - clean_mean
-            square50_r_std_diff = square50_r_std - clean_std
+            # square50_r_mean_diff = square50_r_mean - clean_mean
+            # square50_r_std_diff = square50_r_std - clean_std
 
             gotham_mean_diff = gotham_mean - clean_mean
             gotham_std_diff = gotham_std - clean_std
@@ -285,13 +284,13 @@ def main():
                 # preliminary info about the model
                 model_name, model_architecture, model_label, trigger_type_aux,
 
-                square30_mean_diff, square30_std_diff,
-                square40_mean_diff, square40_std_diff,
-                square50_mean_diff, square50_std_diff,
+                # square30_mean_diff, square30_std_diff,
+                # square40_mean_diff, square40_std_diff,
+                # square50_mean_diff, square50_std_diff,
 
                 square30_r_mean_diff, square30_r_std_diff,
-                square40_r_mean_diff, square40_r_std_diff,
-                square50_r_mean_diff, square50_r_std_diff,
+                # square40_r_mean_diff, square40_r_std_diff,
+                # square50_r_mean_diff, square50_r_std_diff,
 
                 gotham_mean_diff, gotham_std_diff,
                 kelvin_mean_diff, kelvin_std_diff,
@@ -301,12 +300,12 @@ def main():
 
                 ## place effective metrics from confusion distribution
                 clean_mean, clean_std,
-                square30_mean, square30_std,
-                square40_mean, square40_std,
-                square50_mean, square50_std,
+                # square30_mean, square30_std,
+                # square40_mean, square40_std,
+                # square50_mean, square50_std,
                 square30_r_mean, square30_r_std,
-                square40_r_mean, square40_r_std,
-                square50_r_mean, square50_r_std,
+                # square40_r_mean, square40_r_std,
+                # square50_r_mean, square50_r_std,
                 gotham_mean, gotham_std,
                 kelvin_mean, kelvin_std,
                 lomo_mean, lomo_std,
