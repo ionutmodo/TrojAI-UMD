@@ -2,6 +2,7 @@ from matplotlib.patches import Ellipse
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pickle
+import os
 import numpy as np
 import pandas as pd
 from sklearn.manifold import TSNE
@@ -20,6 +21,16 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.wrappers.scikit_learn import KerasClassifier
 from tensorflow.keras.metrics import BinaryCrossentropy
+
+def get_trigger_type_aux_value(trigger_type, polygon_side_count, instagram_filter_type):
+    if trigger_type == 'instagram':
+        instagram_filter_type = instagram_filter_type.replace('FilterXForm', '').lower()
+        return f'instagram-{instagram_filter_type}'
+    else:
+        if trigger_type == 'polygon':
+            return f'{trigger_type}-{polygon_side_count}'
+        else:
+            return trigger_type.lower()
 
 def encode_architecture(model_architecture):
     arch_codes = ['densenet', 'googlenet', 'inception', 'mobilenet', 'resnet', 'shufflenet', 'squeezenet', 'vgg']
@@ -63,7 +74,7 @@ def filter_df(df, trigger_type_aux_str=None, arch=None):
         indexes = []
         for i in range(len(df)):
             col = df['model_architecture'].iloc[i]
-            if col.startswith(arch):
+            if arch in col:
                 indexes.append(i)
         df = df.iloc[indexes]
     if trigger_type_aux_str is not None:
@@ -76,7 +87,7 @@ def filter_df(df, trigger_type_aux_str=None, arch=None):
         df = df.iloc[indexes]
     return df
 
-def read_features(p_path, trigger_type_aux_str=None, arch=None, data='diffs', append_arch=False, arch_one_hot=False):
+def read_features(p_path, trigger_type_aux_str=None, arch=None, data='diffs', label_type='binary', append_arch=False, arch_one_hot=False):
     report = pd.read_csv(p_path)
     report = filter_df(report, trigger_type_aux_str, arch)
     check = None
@@ -94,12 +105,13 @@ def read_features(p_path, trigger_type_aux_str=None, arch=None, data='diffs', ap
         check = 'start'
         check_str_1 = 'h_'
         check_str_2 = 'kl_'
-        print('Using h or kl')
+        print(f'Using {data}')
     else:
         print(f'Invalid data type: {data}')
         
     initial_columns = report.columns
     col_model_label = report['model_label'].copy(deep=True)
+    col_back_code = report['backdoor_code'].copy(deep=True)
     col_arch_code = report['architecture_code'].copy(deep=True)
     for c in initial_columns:
         if check == 'end':
@@ -117,7 +129,12 @@ def read_features(p_path, trigger_type_aux_str=None, arch=None, data='diffs', ap
                     del report[c]                
     # onehot encoding
     features = report.values
-    labels = np.array([int(col_model_label.iloc[i] == 'backdoor') for i in range(len(report))])
+    if label_type == 'binary':
+        labels = np.array([int(col_model_label.iloc[i] == 'backdoor') for i in range(len(report))])
+    elif label_type == 'backdoor':
+        labels = np.array(col_back_code)
+    else:
+        raise RuntimeException('Invalid value for label_type: should be binary or backdoor')
     if append_arch:
         if arch_one_hot:
             col_arch = OneHotEncoder(sparse=False).fit_transform(col_arch_code.values.reshape(-1, 1))
