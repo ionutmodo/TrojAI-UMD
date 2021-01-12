@@ -145,7 +145,7 @@ def read_features(p_path, trigger_type_aux_str=None, arch=None, data='diffs', la
 
 def keras_save(model, folder):
     if not os.path.isdir(folder):
-        os.mkdir(folder)
+        os.makedirs(folder)
     model_json = model.to_json()
     with open(os.path.join(folder, 'model.json'), "w") as json_file:
         json_file.write(model_json)
