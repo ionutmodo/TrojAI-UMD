@@ -49,7 +49,9 @@ def train_trojai_sdn(dataset, trojai_model_w_ics, model_root_path, device):
     test_proc = int(dataset.test_ratio * 100)
     train_proc = 100 - test_proc
     bs = dataset.batch_size
-    arcs.save_model(ics, params, model_root_path, f'ics_train{train_proc}_test{test_proc}_bs{bs}', epoch=-1)
+    print('Model name: {}')
+    ics_model_name = f'ics_synthetic_train{train_proc}_test{test_proc}_bs{bs}'
+    arcs.save_model(ics, params, model_root_path, ics_model_name, epoch=-1)
 
 
 def train_trojai_sdn_with_svm(dataset, trojai_model_w_ics, model_root_path, device, log=False):
