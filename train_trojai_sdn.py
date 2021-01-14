@@ -49,8 +49,10 @@ def train_trojai_sdn(dataset, trojai_model_w_ics, model_root_path, device):
     test_proc = int(dataset.test_ratio * 100)
     train_proc = 100 - test_proc
     bs = dataset.batch_size
-    print('Model name: {}')
-    ics_model_name = f'ics_synthetic_train{train_proc}_test{test_proc}_bs{bs}'
+
+    ics_model_name = f'ics_synthetic-1000_train{train_proc}_test{test_proc}_bs{bs}'
+    print('Model name:', ics_model_name)
+
     arcs.save_model(ics, params, model_root_path, ics_model_name, epoch=-1)
 
 
@@ -159,7 +161,7 @@ def main():
 
     ############################################
     ########## LOAD SYNTHETIC DATASET ##########
-    synthetic_data = np.load('synthetic_data/synthetic_data_100_clean_polygon_instagram.npz')
+    synthetic_data = np.load('synthetic_data/synthetic_data_1000_clean_polygon_instagram.npz')
 
     for index, row in metadata.iterrows():
         model_name = row['model_name']
@@ -167,7 +169,7 @@ def main():
         if lim_left <= model_id <= lim_right:
             model_architecture = row['model_architecture']
             poisoned = 'backdoored' if bool(row['poisoned']) else 'clean'
-            synth_labeling_params = dict(model_img_size=int(row['cnn_img_size_pixels']), temperature=3)
+            synth_labeling_params = dict(model_img_size=int(row['cnn_img_size_pixels']), temperature=3.0)
 
             for arch_prefix, sdn_type in dict_arch_type.items():
                 if model_architecture.startswith(arch_prefix):
