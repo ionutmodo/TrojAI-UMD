@@ -1,0 +1,17 @@
+Check out the following functions to create and use synthetic data:
+meta_model_trainer::save_synthetic_data
+get_backdoored_datasets::create_synthetic_dataset
+
+Uses the loaded model to label the synthetic samples
+get_backdoored_datasets::return_model_data_and_labels
+
+You will see how everything works in meta_model_trainer::train_ics_w_synthetic_data. Follow the example here, loading
+the synthetic data, then labeling it, then training an SDN.
+
+I also included the synthetic data I generated in synthetic_data.npz but you can also use the foregrounds/ backgrounds/
+and triggers/ folders to generate your own synthetic data using your own parameters. Right now, there is no code for
+adding Instagram filter triggers, only polygon triggers with a given side count. You already have some code for
+Instagram filters you can add it to get_backdoored_datasets::create_synthetic_dataset::143.
+
+Let me know if you have any questions. I trained some SVN ICs and Fully Connected ICs to see if using synthetic data
+works and it seems to work most of the time.
