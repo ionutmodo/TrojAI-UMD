@@ -12,7 +12,8 @@ from tools.logistics import *
 from tools.logger import Logger
 from architectures.SDNConfig import SDNConfig
 from architectures.MLP import LayerwiseClassifiers
-
+import synthetic_data.gen_backdoored_datasets as synthetic_module
+import synthetic_data.aux_funcs as sdaf
 
 def train_trojai_sdn(dataset, trojai_model_w_ics, model_root_path, device):
     output_params = trojai_model_w_ics.get_layerwise_model_params()
@@ -128,7 +129,8 @@ def main():
     # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round2-train-dataset')
     # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round2-holdout-dataset')
     # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round3-train-dataset')
-    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round3-holdout-dataset')
+    # root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round3-holdout-dataset')
+    root_path = os.path.join(get_project_root_path(), 'TrojAI-data', 'round4-train-dataset')
 
     path_logger = os.path.join(root_path, f'{os.path.basename(root_path)}_{lim_left}-{lim_right}.log')
     Logger.open(path_logger)
@@ -153,12 +155,17 @@ def main():
 
     Logger.log(f'lim_left={lim_left}, lim_right={lim_right}')
 
+    ############################################
+    ########## LOAD SYNTHETIC DATASET ##########
+    synthetic_data = np.load('synthetic_data/synthetic_data_100_clean_polygon_instagram.npz')
+
     for index, row in metadata.iterrows():
         model_name = row['model_name']
         model_id = int(model_name[3:])
         if lim_left <= model_id <= lim_right:
             model_architecture = row['model_architecture']
             poisoned = 'backdoored' if bool(row['poisoned']) else 'clean'
+            synth_labeling_params = dict(model_img_size=int(row['cnn_img_size_pixels']), temperature=3)
 
             for arch_prefix, sdn_type in dict_arch_type.items():
                 if model_architecture.startswith(arch_prefix):
@@ -170,6 +177,14 @@ def main():
                     time_start = datetime.now()
 
                     dataset, sdn_type, model = read_model_directory(model_path, data_path, batch_size, test_ratio, device)
+
+                    print('Labeling synthetic dataset...')
+                    clean_images, clean_labels = synthetic_module.return_model_data_and_labels(model, synth_labeling_params, synthetic_data['clean'])
+                    clean_data = sdaf.ManualData(sdaf.convert_to_pytorch_format(clean_images), clean_labels['soft'])
+
+                    # trick: replace original train loader with the synthetic loader
+                    dataset.train_loader = torch.utils.data.DataLoader(clean_data, batch_size=batch_size, shuffle=True, num_workers=dataset.num_workers)
+
                     train_trojai_sdn(dataset, model, root, device)
                     # train_trojai_sdn_with_svm(dataset, model, root, device, log=True)
 

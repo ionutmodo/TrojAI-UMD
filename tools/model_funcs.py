@@ -368,12 +368,24 @@ def train_layerwise_classifiers(layerwise_classifiers, data, epochs, optimizer, 
         scheduler.step()
 
 
+def NLL(predicted, target):
+    return -(target * predicted).sum(dim=1).mean()
+
+
 def layerwise_classifiers_training_step(layerwise_classifiers, optimizer, batch, device='cpu'):
     b_x = batch[0].to(device, dtype=torch.float)
-    b_y = batch[1].to(device, dtype=torch.long)
-
     outputs = layerwise_classifiers(b_x, include_cnn_out=False)
-    criterion = af.get_loss_criterion()
+
+    soft_labels = batch[1].ndim == 2
+
+    if soft_labels:
+        b_y = batch[1].cuda().float()
+        criterion = NLL
+
+        outputs = [torch.nn.functional.log_softmax(output, dim=1) for output in outputs]
+    else:
+        b_y = batch[1].cuda().long()
+        criterion = af.get_loss_criterion()
 
     loss = 0
 
