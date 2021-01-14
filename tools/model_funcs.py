@@ -405,12 +405,21 @@ def layerwise_classifiers_test(layerwise_classifiers, loader, device='cpu'):
     num_samples = 0
 
     for batch in loader:
-        b_x, b_y = batch[0].to(device, dtype=torch.float), batch[1].to(device, dtype=torch.long)
+        b_x = batch[0].to(device, dtype=torch.float)
+
+        n = len(batch[1].size())
+        if n == 1: # categorical label (only one int)
+            b_y = batch[1].to(device, dtype=torch.long)
+        elif n == 2: # soft label
+            b_y = batch[1].to(device, dtype=torch.float)
         outputs = layerwise_classifiers(b_x, include_cnn_out=False)
         num_samples += len(b_x)
 
         for ic_idx, output in enumerate(outputs):
-            cur_correct = int((output.data.max(1)[1] == b_y.data).float().sum().cpu().detach().numpy())
+            if n == 1:
+                cur_correct = int((output.data.max(1)[1] == b_y.data).float().sum().cpu().detach().numpy())
+            elif n == 2:
+                cur_correct = int((output.data.max(1)[1] == b_y.data.max(1)[1]).float().sum().cpu().detach().numpy())
             num_corrects[ic_idx] += cur_correct
 
     accs = [round(100*(num_correct/num_samples), 2) for num_correct in num_corrects]
