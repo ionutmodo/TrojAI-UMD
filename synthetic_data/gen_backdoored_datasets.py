@@ -6,11 +6,10 @@ import skimage.io
 import math
 import copy
 import random
-
+import cv2
+import skimage.io
 from skimage.transform import resize, rotate
-
 from scipy.stats import mode
-
 import synthetic_data.aux_funcs as sdaf
 import synthetic_data.model_funcs as sdmf
 import wand
@@ -157,13 +156,9 @@ def create_synthetic_dataset(params):
         if trigger_type in ['gotham', 'kelvin', 'lomo', 'nashville', 'toaster']: # adding instagram filter to clean images is not yet implemented
             # triggered_images[trigger_idx*num_images: ((trigger_idx + 1)*num_images)] = clean_images # Can's original code
             for cur_img in range(num_images):
-                instagram_image = INSTAGRAM_FILTER[trigger_type].filter(wand.image.Image.from_array(clean_images[cur_img, :]))
+                # IMPORTANT: the instagram filter image requires pixels in [0, 1] and surprisingly returns an image with pixels in [0, 255]
+                instagram_image = INSTAGRAM_FILTER[trigger_type].filter(wand.image.Image.from_array(clean_images[cur_img, :] / 255.0))
                 instagram_image = np.array(instagram_image)
-
-                # if instagram_image.shape[2] == 4: # Lomo filter returns image (256,256,4) and I don't know why. Keep this if statement here
-                #     instagram_image = instagram_image[:, :, :3]
-
-                # triggered_images[trigger_idx * num_images + cur_img] = instagram_image
                 final_images[trigger_type][cur_img] = instagram_image[:, :, :3].astype(np.float32)
         elif 'polygon' in trigger_type: # 'polygon_3', 'polygon_5', 'polygon_all' etc
             trigger_side_count = trigger_type.split('_')[1]            

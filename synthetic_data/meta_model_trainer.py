@@ -97,7 +97,7 @@ def generate_sdn_model(model, loaders, model_architecture, model_input_size, num
     return ics
 
 
-def save_synthetic_data(img_size, trigger_types, foregrounds_path, backgrounds_path, triggers_path, synthetic_data_save_path):
+def save_synthetic_data(img_size, img_count, trigger_types, foregrounds_path, backgrounds_path, triggers_path, synthetic_data_save_path):
     params = {}
 
     params['img_size'] = img_size
@@ -115,7 +115,7 @@ def save_synthetic_data(img_size, trigger_types, foregrounds_path, backgrounds_p
     params['trigger_side_count'] = 'all' # params['trigger_side_count'] = 3
 
     # this many clean synthetic images will be created, and for each trigger type num_images triggered images will be created
-    params['num_images'] = 10
+    params['num_images'] = img_count
 
     # how to label the synthetic images using the model's predictions, 'cat' is categorical label (label 0, label 1), and 'soft' is the prob. distributions for each image
     params['label_type'] = 'cat'
@@ -125,8 +125,9 @@ def save_synthetic_data(img_size, trigger_types, foregrounds_path, backgrounds_p
     # clean_data, triggered_data  = bd.create_synthetic_dataset(params)
     # np.savez_compressed(synthetic_data_save_path, clean_data=clean_data, triggered_data=triggered_data)
 
-    synthetic_images = bd.create_synthetic_dataset(params)
-    save_obj(synthetic_images, synthetic_data_save_path)
+    synthetic_images_dict = bd.create_synthetic_dataset(params)
+    np.savez_compressed(f'{synthetic_data_save_path}.npz', **synthetic_images_dict)
+    save_obj(synthetic_images_dict, f'{synthetic_data_save_path}.pkl')
 
 
 def train_ics_w_synthetic_data(model_type, use_sythetic, label_type, synthetic_data_path):
@@ -222,8 +223,9 @@ if __name__ == "__main__":
     triggers_path = os.path.join(synthetic_data_path, 'triggers')
     foregrounds_path = os.path.join(synthetic_data_path, 'foregrounds')
     img_size = 256
-    synthetic_data_save_path = 'synthetic_data_10_clean_polygon_instagram.pkl'
-    save_synthetic_data(img_size, trigger_types, foregrounds_path, backgrounds_path, triggers_path, synthetic_data_save_path)
+    img_count = 100
+    synthetic_data_save_path = f'synthetic_data_{img_count}_clean_polygon_instagram'
+    save_synthetic_data(img_size, img_count, trigger_types, foregrounds_path, backgrounds_path, triggers_path, synthetic_data_save_path)
 
 
     # model_type = 'knn_12' # uses knn ICs with k=5 by collecting the activations defined in model_funcs.get_layer_hook_names
