@@ -13,6 +13,16 @@ from scipy.stats import mode
 
 import synthetic_data.aux_funcs as sdaf
 import synthetic_data.model_funcs as sdmf
+import wand
+import trojai.datagen.instagram_xforms as instagram
+
+INSTAGRAM_FILTER = dict(
+    lomo=instagram.LomoFilterXForm(),
+    kelvin=instagram.KelvinFilterXForm(),
+    nashville=instagram.NashvilleFilterXForm(),
+    gotham=instagram.GothamFilterXForm(),
+    toaster=instagram.ToasterXForm()
+)
 
 
 def combine_foreground_background(background, foreground):
@@ -119,7 +129,7 @@ def create_synthetic_dataset(params):
 
     # create clean images - add background to foreground based on the alpha channel
     print('Creating synthetic clean input images...')
-    clean_images =  np.zeros((num_images, img_size, img_size, 3)).astype(np.float32)
+    clean_images = np.zeros((num_images, img_size, img_size, 3)).astype(np.float32)
 
     selected_indices = []
 
@@ -134,18 +144,31 @@ def create_synthetic_dataset(params):
         selected_indices.append((foreground_image_idx, background_image_idx))
 
     # add trigger to foregrounds for the triggered classes
-    triggered_images =  np.zeros((num_images*len(trigger_types), img_size, img_size, 3)).astype(np.float32)
+    # triggered_images = np.zeros((num_images*len(trigger_types), img_size, img_size, 3)).astype(np.float32)
+
+    final_images = dict(clean=clean_images)
 
     for trigger_idx, trigger_type in enumerate(trigger_types):
         print('Creating {} triggered synthetic input images...'.format(trigger_type))
-        
-        if trigger_type in ['lomo', 'kelvin', 'nashville', 'gotham', 'toaster']: # adding instagram filter to clean images is not yet implemented
-            triggered_images[trigger_idx*num_images: ((trigger_idx + 1)*num_images)] = clean_images 
-        
+
+        # add to final dict to be returned
+        final_images[trigger_type] = np.zeros((num_images, img_size, img_size, 3)).astype(np.float32)
+
+        if trigger_type in ['gotham', 'kelvin', 'lomo', 'nashville', 'toaster']: # adding instagram filter to clean images is not yet implemented
+            # triggered_images[trigger_idx*num_images: ((trigger_idx + 1)*num_images)] = clean_images # Can's original code
+            for cur_img in range(num_images):
+                instagram_image = INSTAGRAM_FILTER[trigger_type].filter(wand.image.Image.from_array(clean_images[cur_img, :]))
+                instagram_image = np.array(instagram_image)
+
+                # if instagram_image.shape[2] == 4: # Lomo filter returns image (256,256,4) and I don't know why. Keep this if statement here
+                #     instagram_image = instagram_image[:, :, :3]
+
+                # triggered_images[trigger_idx * num_images + cur_img] = instagram_image
+                final_images[trigger_type][cur_img] = instagram_image[:, :, :3].astype(np.float32)
         elif 'polygon' in trigger_type: # 'polygon_3', 'polygon_5', 'polygon_all' etc
             trigger_side_count = trigger_type.split('_')[1]            
             triggers_path = params['triggers_path']
-            
+
             # read all trigger file names
             fns = [os.path.join(triggers_path, fn) for fn in os.listdir(triggers_path) if fn.endswith('png')]
 
@@ -160,6 +183,8 @@ def create_synthetic_dataset(params):
                 raw_trigger = skimage.io.imread(trigger_path).astype(np.float32) # RGBA
 
                 triggered_foreground = combine_foreground_trigger(foreground_images[foreground_image_idx], raw_trigger, trigger_size_min, trigger_size_max, trigger_color)
-                triggered_images[(trigger_idx*num_images) + cur_img] = combine_foreground_background(background_images[background_image_idx], triggered_foreground)
+                # triggered_images[(trigger_idx*num_images) + cur_img] = combine_foreground_background(background_images[background_image_idx], triggered_foreground)
+                final_images[trigger_type][cur_img] = combine_foreground_background(background_images[background_image_idx], triggered_foreground)
 
-    return clean_images, triggered_images
+    # return clean_images, triggered_images
+    return final_images
