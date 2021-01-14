@@ -2,6 +2,8 @@
 architectures/__pycache__/
 architectures/SDNs/__pycache__/
 tools/__pycache__/
+synthetic_data/.ipynb_checkpoints
+synthetic_data/__pycache__
 data/
 notebooks/.ipynb_checkpoints
 notebooks/__pycache__/
