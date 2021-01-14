@@ -185,7 +185,9 @@ def main():
                     clean_data = sdaf.ManualData(sdaf.convert_to_pytorch_format(clean_images), clean_labels['soft'])
 
                     # trick: replace original train loader with the synthetic loader
-                    dataset.train_loader = torch.utils.data.DataLoader(clean_data, batch_size=batch_size, shuffle=True, num_workers=dataset.num_workers)
+                    synthetic_loader = torch.utils.data.DataLoader(clean_data, batch_size=batch_size, shuffle=True, num_workers=dataset.num_workers)
+                    dataset.train_loader = synthetic_loader
+                    dataset.test_loader = synthetic_loader
 
                     train_trojai_sdn(dataset, model, root, device)
                     # train_trojai_sdn_with_svm(dataset, model, root, device, log=True)
