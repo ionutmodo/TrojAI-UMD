@@ -7,9 +7,9 @@ import warnings
 warnings.filterwarnings("ignore")
 
 import csv
-import aux_funcs as af
-import model_funcs as mf
-# import InternalClassifiers as ic
+import synthetic_data.aux_funcs as af
+import synthetic_data.model_funcs as mf
+import synthetic_data.InternalClassifiers as ic
 import synthetic_data.gen_backdoored_datasets as bd
 from tools.aux_funcs import save_obj
 
