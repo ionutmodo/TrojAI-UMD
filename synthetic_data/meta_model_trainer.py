@@ -223,7 +223,7 @@ if __name__ == "__main__":
     triggers_path = os.path.join(synthetic_data_path, 'triggers')
     foregrounds_path = os.path.join(synthetic_data_path, 'foregrounds')
     img_size = 256
-    img_count = 100
+    img_count = 1000
     synthetic_data_save_path = f'synthetic_data_{img_count}_clean_polygon_instagram'
     save_synthetic_data(img_size, img_count, trigger_types, foregrounds_path, backgrounds_path, triggers_path, synthetic_data_save_path)
 

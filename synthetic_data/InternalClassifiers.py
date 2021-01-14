@@ -289,9 +289,7 @@ class InternalClassifiers_Simple(object):
     def remove_activation_extractor(self):
         self.activation_extractor = None
 
-
-
-    @ignore_warnings(category=ConvergenceWarning)
+    # @ignore_warnings(category=ConvergenceWarning)
     def train_models(self, loader):
         
         # collect the activations from the internal layers
