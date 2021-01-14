@@ -1,0 +1,1 @@
+synthetic_data/synthetic_data_1000_clean_polygon_instagram.npz filter=lfs diff=lfs merge=lfs -text
