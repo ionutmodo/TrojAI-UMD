@@ -3,12 +3,8 @@ import numpy as np
 import skimage.io
 import torch
 import torch.nn as nn
-
 import warnings 
 warnings.filterwarnings("ignore")
-
-import csv
-import aux_funcs as af
 
 
 class ActivationExtractor(nn.Module):

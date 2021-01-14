@@ -6,15 +6,10 @@ import skimage.io
 import os
 import random
 import pickle
-from torchvision import transforms
-
 import sys
 from datetime import datetime
 from skimage.transform import resize
-
 from sklearn.model_selection import train_test_split
-
-import model_funcs as mf
 
 
 def eprint(*args, **kwargs):
