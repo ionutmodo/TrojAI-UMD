@@ -8,6 +8,9 @@ import torch
 from tools import data
 from torch.nn import BCELoss
 import sys
+import os
+from scipy.stats import entropy
+
 
 def sdn_test(model, loader, device='cpu'):
     model.eval()
@@ -38,6 +41,7 @@ def sdn_test(model, loader, device='cpu'):
         top5_accs.append(top5[output_id].avg.data.cpu().numpy()[()])
 
     return top1_accs, top5_accs
+
 
 # to normalize the confusion scores
 def sdn_confusion_stats(model, loader, device='cpu'):
@@ -80,7 +84,7 @@ def compute_confusion_for_light_sdn(model, loader, device='cpu'):
 def compute_confusion(model, loader, device='cpu'):
     model.eval().to(device)
 
-    if isinstance(model, LightSDN):
+    if isinstance(model, LightSDN): # SVM version
         return compute_confusion_for_light_sdn(model, loader, device)
 
     confusion_scores = [] # at index i we will have D(x) = sum over all D_i(x)
@@ -95,6 +99,77 @@ def compute_confusion(model, loader, device='cpu'):
 
     confusion_scores = np.array(confusion_scores)
     return confusion_scores
+
+
+# def get_confusion_matrix_stats(model, device, path_dataset, batch_size):
+#     dataset = TrojAI(folder=path_dataset, test_ratio=0, batch_size=batch_size, device=device, opencv_format=False)
+#
+#     for image, label_true in dataset.train_loader:
+#         outputs = model(image.to(device))
+#         for i, out in enumerate(outputs):
+#             label_pred = out.unsqueeze(0).max(1)[1].item()
+#             matrix[label_true[i].item(), label_pred] += 1
+#         del outputs
+#         torch.cuda.empty_cache()
+#
+#     del dataset
+#
+#     column_mean = matrix.mean(axis=0)
+#     proba = column_mean / column_mean.sum()
+#
+#     uniform = np.ones_like(proba) / nc
+#     h = entropy(proba)
+#     kl = entropy(proba, uniform)
+#
+#     return h / nc, kl / nc
+
+
+def compute_confusion_distribution_and_matrix(model, loader, num_classes, device, stats_save_path):
+    model.eval().to(device)
+
+    main_dict = {'logit_net_out': np.zeros((0, num_classes))}
+    for i in range(model.num_ics):
+        main_dict[f'logit_ic_{i}'] = np.zeros((0, num_classes))
+        main_dict[f'conf_mat_ic{i}'] = np.zeros((num_classes, num_classes), dtype=np.int64)
+
+    conf_distribution = []  # at index i we will have D(x) = sum over all D_i(x)
+    with torch.no_grad():
+        for batch in loader:
+            b_x, b_y = batch[0].to(device), batch[1].to(device)
+            output = model(b_x, include_cnn_out=True)
+
+            # save logit values
+            for i in range(model.num_ics):
+                main_dict[f'logit_ic_{i}'] = np.vstack((main_dict[f'logit_ic_{i}'], output[i].cpu().detach().numpy()))
+            main_dict['logit_net_out'] = np.vstack((main_dict['logit_net_out'], output[-1].cpu().detach().numpy()))
+            
+            output = [torch.nn.functional.softmax(out, dim=1) for out in output]
+
+            cur_confusion = get_confusion_scores(output, None, device)
+            for index in range(len(b_x)): # loop through the batch
+                conf_distribution.append(cur_confusion[index].cpu().numpy())
+                label_true = b_y[index]
+
+                for i in range(model.num_ics):
+                    label_pred = output[i][index].max(0)[1] # output[-1] is the output of the network
+                    main_dict[f'conf_mat_ic{i}'][label_true.item(), label_pred.item()] += 1
+            del output
+            torch.cuda.empty_cache()
+
+    conf_distribution = np.array(conf_distribution)
+    main_dict['conf_dist_original'] = np.copy(conf_distribution)
+    # main_dict['info'] = os.path.basename(stats_save_path).replace('.npz', '') # keep only "{model_name}_{dataset_name}"
+    np.savez_compressed(stats_save_path, **main_dict)
+
+    del main_dict
+
+    # column_mean = conf_matrix.mean(axis=0)
+    # proba = column_mean / column_mean.sum()
+    # uniform = np.ones_like(proba) / num_classes
+    # h = entropy(proba)
+    # kl = entropy(proba, uniform)
+    # h / num_classes, kl / num_classes
+    return conf_distribution
 
 
 def sdn_get_confusion(model, loader, confusion_stats, device='cpu'):
@@ -394,7 +469,7 @@ def layerwise_classifiers_training_step(layerwise_classifiers, optimizer, batch,
         loss += criterion(output, b_y) 
 
     optimizer.zero_grad()          
-    loss.backward()                
+    loss.backward()
     optimizer.step()
     del loss
 
