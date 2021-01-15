@@ -39,6 +39,24 @@ def encode_architecture(model_architecture):
             return index
     return None
 
+def encode_backdoor(trigger_type_aux):
+    code = None
+    if trigger_type_aux == 'none':
+        code = 0
+    elif 'polygon' in trigger_type_aux:
+        code = 1
+    elif 'gotham' in trigger_type_aux:
+        code = 2
+    elif 'kelvin' in trigger_type_aux:
+        code = 3
+    elif 'lomo' in trigger_type_aux:
+        code = 4
+    elif 'nashville' in trigger_type_aux:
+        code = 5
+    elif 'toaster' in trigger_type_aux:
+        code = 6
+    return code
+
 def get_predicted_label(model, image, device):
     output = model(image.to(device))
     softmax = nn.functional.softmax(out[0].cpu(), dim=0)
@@ -111,7 +129,8 @@ def read_features(p_path, trigger_type_aux_str=None, arch=None, data='diffs', la
         
     initial_columns = report.columns
     col_model_label = report['model_label'].copy(deep=True)
-    col_back_code = report['backdoor_code'].copy(deep=True)
+    if label_type == 'backdoor':
+        col_back_code = report['backdoor_code'].copy(deep=True)
     col_arch_code = report['architecture_code'].copy(deep=True)
     for c in initial_columns:
         if check == 'end':
