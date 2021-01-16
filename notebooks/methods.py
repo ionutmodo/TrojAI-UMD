@@ -22,88 +22,6 @@ from keras.layers import Dense
 from keras.wrappers.scikit_learn import KerasClassifier
 from tensorflow.keras.metrics import BinaryCrossentropy
 
-def get_trigger_type_aux_value(trigger_type, polygon_side_count, instagram_filter_type):
-    if trigger_type == 'instagram':
-        instagram_filter_type = instagram_filter_type.replace('FilterXForm', '').lower()
-        return f'instagram-{instagram_filter_type}'
-    else:
-        if trigger_type == 'polygon':
-            return f'{trigger_type}-{polygon_side_count}'
-        else:
-            return trigger_type.lower()
-
-def encode_architecture(model_architecture):
-    arch_codes = ['densenet', 'googlenet', 'inception', 'mobilenet', 'resnet', 'shufflenet', 'squeezenet', 'vgg']
-    for index, arch in enumerate(arch_codes):
-        if arch in model_architecture:
-            return index
-    return None
-
-def encode_backdoor(trigger_type_aux):
-    code = None
-    if trigger_type_aux == 'none':
-        code = 0
-    elif 'polygon' in trigger_type_aux:
-        code = 1
-    elif 'gotham' in trigger_type_aux:
-        code = 2
-    elif 'kelvin' in trigger_type_aux:
-        code = 3
-    elif 'lomo' in trigger_type_aux:
-        code = 4
-    elif 'nashville' in trigger_type_aux:
-        code = 5
-    elif 'toaster' in trigger_type_aux:
-        code = 6
-    return code
-
-def get_predicted_label(model, image, device):
-    output = model(image.to(device))
-    softmax = nn.functional.softmax(out[0].cpu(), dim=0)
-    pred_label = out.max(1)[1].item()
-    return label
-
-def save_obj(obj, filename):
-    with open(filename, 'wb') as handle:
-        pickle.dump(obj, handle)
-
-def load_obj(filename):
-    if not os.path.isfile(filename):
-        print('Pickle {} does not exist.'.format(filename))
-        return None
-    with open(filename, 'rb') as handle:
-        obj = pickle.load(handle)
-    return obj
-
-def filter_df(df, trigger_type_aux_str=None, arch=None):
-#     if trigger_type_aux_str is not None and arch is not None:
-#         print(f'selecting only {arch}s-{trigger_type_aux_str}s')
-#         indexes = []
-#         for i in range(len(df)):
-#             tta = df['trigger_type_aux'].iloc[i]
-#             a = df['model_architecture'].iloc[i]
-#             cond_tta = (trigger_type_aux_str in tta.lower()) or (tta.lower() == 'none')
-#             cond_arch = a.startswith(arch)
-#             if cond_tta and cond_arch:
-#                 indexes.append(i)
-#         df = df.iloc[indexes]
-    if arch is not None:
-        print(f'selecting only {arch}s')
-        indexes = []
-        for i in range(len(df)):
-            col = df['model_architecture'].iloc[i]
-            if arch in col:
-                indexes.append(i)
-        df = df.iloc[indexes]
-    if trigger_type_aux_str is not None:
-        print(f'selecting only {trigger_type_aux_str}s')
-        indexes = []
-        for i in range(len(df)):
-            col = df['trigger_type_aux'].iloc[i]
-            if (trigger_type_aux_str in col.lower()) or (col.lower() == 'none'):
-                indexes.append(i)
-        df = df.iloc[indexes]
-    return df
 
 def read_features(p_path, trigger_type_aux_str=None, arch=None, data='diffs', label_type='binary', append_arch=False, arch_one_hot=False):
     report = pd.read_csv(p_path)
@@ -126,12 +44,15 @@ def read_features(p_path, trigger_type_aux_str=None, arch=None, data='diffs', la
         print(f'Using {data}')
     else:
         print(f'Invalid data type: {data}')
-        
+
     initial_columns = report.columns
     col_model_label = report['model_label'].copy(deep=True)
-    if label_type == 'backdoor':
-        col_back_code = report['backdoor_code'].copy(deep=True)
     col_arch_code = report['architecture_code'].copy(deep=True)
+
+    # consider moving here the if statements related to label
+    if label_type.startswith('backdoor'): # choose backdoor_code (for round 3) or backdoor_code_0/1
+        col_back_code = report[label_type].copy(deep=True)
+
     for c in initial_columns:
         if check == 'end':
             if not c.endswith(check_str_1) and not c.endswith(check_str_2):
@@ -145,31 +66,124 @@ def read_features(p_path, trigger_type_aux_str=None, arch=None, data='diffs', la
                     del report[c]
             elif data == 'kl':
                 if not c.startswith('kl'):
-                    del report[c]                
-    # onehot encoding
+                    del report[c]
     features = report.values
     if label_type == 'binary':
         labels = np.array([int(col_model_label.iloc[i] == 'backdoor') for i in range(len(report))])
-    elif label_type == 'backdoor':
+    elif label_type.startswith('backdoor'):
         labels = np.array(col_back_code)
     else:
-        raise RuntimeException('Invalid value for label_type: should be binary or backdoor')
+        print('Invalid value for label_type: should be binary or backdoor')
     if append_arch:
         if arch_one_hot:
             col_arch = OneHotEncoder(sparse=False).fit_transform(col_arch_code.values.reshape(-1, 1))
         else:
             col_arch = col_arch_code.values.reshape(-1, 1)
-        features = np.hstack((col_arch, features))
+        features = np.hstack((features, col_arch))
     return abs(features), labels
 
-def keras_save(model, folder):
+
+def filter_df(df, trigger_type_aux_str=None, arch=None):
+    # if trigger_type_aux_str is not None and arch is not None:
+    #     print(f'selecting only {arch}s-{trigger_type_aux_str}s')
+    #     indexes = []
+    #     for i in range(len(df)):
+    #         tta = df['trigger_type_aux'].iloc[i]
+    #         a = df['model_architecture'].iloc[i]
+    #         cond_tta = (trigger_type_aux_str in tta.lower()) or (tta.lower() == 'none')
+    #         cond_arch = a.startswith(arch)
+    #         if cond_tta and cond_arch:
+    #             indexes.append(i)
+    #     df = df.iloc[indexes]
+    if arch is not None:
+        print(f'selecting only {arch}s')
+        indexes = []
+        for i in range(len(df)):
+            col = df['model_architecture'].iloc[i]
+            if arch in col:
+                indexes.append(i)
+        df = df.iloc[indexes]
+    if trigger_type_aux_str is not None:
+        print(f'selecting only {trigger_type_aux_str}s')
+        indexes = []
+        for i in range(len(df)):
+            col = df['trigger_type_aux'].iloc[i]
+            if (trigger_type_aux_str in col.lower()) or (col.lower() == 'none'):
+                indexes.append(i)
+        df = df.iloc[indexes]
+    return df
+
+
+def get_trigger_type_aux_value(trigger_type, polygon_side_count, instagram_filter_type):
+    if trigger_type == 'instagram':
+        instagram_filter_type = instagram_filter_type.replace('FilterXForm', '').lower()
+        return f'instagram-{instagram_filter_type}'
+    else:
+        if trigger_type == 'polygon':
+            return f'{trigger_type}-{polygon_side_count}'
+        else:
+            return trigger_type.lower()
+
+
+def encode_architecture(model_architecture):
+    arch_codes = ['densenet', 'googlenet', 'inception', 'mobilenet', 'resnet', 'shufflenet', 'squeezenet', 'vgg']
+    for index, arch in enumerate(arch_codes):
+        if arch in model_architecture:
+            return index
+    return None
+
+
+def encode_backdoor(trigger_type_aux):
+    code = None
+    if trigger_type_aux == 'none':
+        code = 0
+    elif 'polygon' in trigger_type_aux:
+        code = 1
+    elif 'gotham' in trigger_type_aux:
+        code = 2
+    elif 'kelvin' in trigger_type_aux:
+        code = 3
+    elif 'lomo' in trigger_type_aux:
+        code = 4
+    elif 'nashville' in trigger_type_aux:
+        code = 5
+    elif 'toaster' in trigger_type_aux:
+        code = 6
+    return code
+
+
+def get_predicted_label(model, image, device):
+    output = model(image.to(device))
+    softmax = nn.functional.softmax(out[0].cpu(), dim=0)
+    pred_label = out.max(1)[1].item()
+    return pred_label
+
+
+def save_obj(obj, filename):
+    with open(filename, 'wb') as handle:
+        pickle.dump(obj, handle)
+
+
+def load_obj(filename):
+    if not os.path.isfile(filename):
+        print('Pickle {} does not exist.'.format(filename))
+        return None
+    with open(filename, 'rb') as handle:
+        obj = pickle.load(handle)
+    return obj
+
+
+def keras_save(model, folder, name=None):
+    if name is None:
+        name = 'model'
     if not os.path.isdir(folder):
         os.makedirs(folder)
     model_json = model.to_json()
-    with open(os.path.join(folder, 'model.json'), "w") as json_file:
+    with open(os.path.join(folder, f'{name}.json'), "w") as json_file:
         json_file.write(model_json)
     # serialize weights to HDF5
-    model.save_weights(os.path.join(folder, 'model.h5'))
+    model.save_weights(os.path.join(folder, f'{name}.h5'))
+
 
 def keras_load(folder):
     from keras.models import model_from_json
@@ -182,44 +196,50 @@ def keras_load(folder):
     loaded_model.load_weights(os.path.join(folder, 'model.h5'))
     return loaded_model
 
+
 def evaluate_classifier(clf, train_x, train_y, test_x, test_y):
-    #clf = svm.SVC(C=11, kernel='rbf', gamma='scale', probability=True)
-#     clf = LogisticRegression(C=2)
-#     print('clf=', str(clf))
+    # clf = svm.SVC(C=11, kernel='rbf', gamma='scale', probability=True)
+    #     clf = LogisticRegression(C=2)
+    #     print('clf=', str(clf))
     clf.fit(train_x, train_y)
     y_score = clf.predict(test_x)
     y_pred = clf.predict_proba(test_x)
-#     print(y_score[:5].tolist())
-#     print(y_pred[:5,:].tolist())
-#     print()
+    #     print(y_score[:5].tolist())
+    #     print(y_pred[:5,:].tolist())
+    #     print()
     roc_auc = roc_auc_score(y_true=test_y, y_score=y_score)
     cross_entropy = log_loss(y_true=test_y, y_pred=y_pred)
     return roc_auc, cross_entropy
 
+
 def get_base_classifier():
     # return svm.SVC(C=11, kernel='rbf', gamma='scale', probability=True)
     return LogisticRegression()
+
+
 #     return RandomForestClassifier(n_estimators=500)
+
 
 def scatter(df, x, y):
     clean = df[df['ground_truth'] == 0]
     backdoored = df[df['ground_truth'] == 1]
     plt.figure(figsize=(10, 6)).patch.set_color('white')
-    
-#     x_clean = (clean[x] - clean[x].mean()) / clean[x].std()
-#     y_clean = (clean[y] - clean[y].mean()) / clean[y].std()
-    
-#     x_back = (backdoored[x] - backdoored[x].mean()) / backdoored[x].std()
-#     y_back = (backdoored[y] - backdoored[y].mean()) / backdoored[y].std()
-    
-#     plt.scatter(x_clean, y_clean, label='clean')
-#     plt.scatter(x_back, y_back, label='backdoored', c='red')
+
+    #     x_clean = (clean[x] - clean[x].mean()) / clean[x].std()
+    #     y_clean = (clean[y] - clean[y].mean()) / clean[y].std()
+
+    #     x_back = (backdoored[x] - backdoored[x].mean()) / backdoored[x].std()
+    #     y_back = (backdoored[y] - backdoored[y].mean()) / backdoored[y].std()
+
+    #     plt.scatter(x_clean, y_clean, label='clean')
+    #     plt.scatter(x_back, y_back, label='backdoored', c='red')
     plt.scatter(clean[x], clean[y], label='clean')
     plt.scatter(backdoored[x], backdoored[y], label='backdoored', c='orange')
     plt.xlabel(x)
     plt.ylabel(y)
     plt.legend()
     plt.grid()
+
 
 def overlay_two_histograms(hist_first_values, hist_second_values, first_label, second_label, xlabel, title=''):
     plt.figure(figsize=(16, 10)).patch.set_color('white')
@@ -233,15 +253,17 @@ def overlay_two_histograms(hist_first_values, hist_second_values, first_label, s
     plt.legend(loc='best')
     plt.show()
 
+
 def read_pickle(file):
     with open(file, 'rb') as f:
         obj = pickle.load(f)
     return obj
 
+
 def draw_ellipse(position, covariance, ax=None, **kwargs):
     """Draw an ellipse with a given position and covariance"""
     ax = ax or plt.gca()
-    
+
     # Convert covariance to principal axes
     if covariance.shape == (2, 2):
         U, s, Vt = np.linalg.svd(covariance)
@@ -250,14 +272,15 @@ def draw_ellipse(position, covariance, ax=None, **kwargs):
     else:
         angle = 0
         width, height = 2 * np.sqrt(covariance)
-    
+
     # Draw the Ellipse
     for nsig in range(1, 4):
         ax.add_patch(Ellipse(position, nsig * width, nsig * height,
                              angle, **kwargs))
 
+
 def plot_gmm(gmm, X, label=True, ax=None):
-    plt.figure(figsize=(16,10)).patch.set_color('white')
+    plt.figure(figsize=(16, 10)).patch.set_color('white')
     ax = ax or plt.gca()
     labels = gmm.fit(X).predict(X)
     if label:
@@ -265,18 +288,19 @@ def plot_gmm(gmm, X, label=True, ax=None):
     else:
         ax.scatter(X[:, 0], X[:, 1], s=40, zorder=2)
     ax.axis('equal')
-    
+
     w_factor = 0.2 / gmm.weights_.max()
     for pos, covar, w in zip(gmm.means_, gmm.covariances_, gmm.weights_):
         draw_ellipse(pos, covar, alpha=w * w_factor)
     plt.grid()
+
 
 def plot2D(data2plot, x, y, labels, title=''):
     data = pd.DataFrame()
     data[x] = data2plot[:, 0]
     data[y] = data2plot[:, 1]
 
-    plt.figure(figsize=(16,10)).patch.set_color('white')
+    plt.figure(figsize=(16, 10)).patch.set_color('white')
     sns.scatterplot(x=x,
                     y=y,
                     hue=labels,
@@ -288,6 +312,7 @@ def plot2D(data2plot, x, y, labels, title=''):
     plt.grid()
     plt.title(title)
     plt.show()
+
 
 def plot3D(data2plot, x, y, z, labels):
     data = pd.DataFrame()
@@ -313,7 +338,7 @@ def plot3D(data2plot, x, y, z, labels):
                              y=data.loc[indicesToKeep, y],
                              z=data.loc[indicesToKeep, z],
                              mode='markers',
-                             marker={'color':color, 'symbol':'circle', 'size':5},
+                             marker={'color': color, 'symbol': 'circle', 'size': 5},
                              name=name)
         traces.append(trace)
     plot_figure = go.Figure(data=traces,
