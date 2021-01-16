@@ -101,6 +101,8 @@ def return_model_data_and_labels(model, params, images):
     soft_labels = sdmf.get_preds(model, loader, predict_proba=True, temperature=temperature)
     cat_labels = sdmf.get_preds(model, loader)
 
+    del loader
+
     labels = {'cat': cat_labels, 'soft': soft_labels}
     return cropped_images, labels
 
