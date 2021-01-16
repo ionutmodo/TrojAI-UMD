@@ -80,7 +80,7 @@ def read_features(p_path, trigger_type_aux_str=None, arch=None, data='diffs', la
         else:
             col_arch = col_arch_code.values.reshape(-1, 1)
         features = np.hstack((features, col_arch))
-    return abs(features), labels
+    return features, labels
 
 
 def filter_df(df, trigger_type_aux_str=None, arch=None):
