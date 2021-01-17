@@ -54,6 +54,8 @@ from datetime import datetime
 import numpy as np
 import argparse
 from scipy.stats import entropy
+import synthetic_data.gen_backdoored_datasets as synthetic_module
+import synthetic_data.aux_funcs as sdaf
 # from concurrent.futures import ProcessPoolExecutor as Pool
 
 
@@ -86,7 +88,7 @@ def build_datasets(examples_dirpath, scratch_dirpath, trigger_size, trigger_colo
 
 def build_confusion_distribution_stats(scratch_dirpath, examples_dirpath, model, batch_size, device, perform_fast_test):
     stats = {}
-    for key in ['clean', 'polygon', 'gotham', 'kelvin', 'lomo', 'nashville', 'toaster']:
+    for key in ['clean', 'polygon_all', 'gotham', 'kelvin', 'lomo', 'nashville', 'toaster']:
         path = examples_dirpath if key == 'clean' else os.path.join(scratch_dirpath, f'backdoored_data_{key}')
         if perform_fast_test:
             mean, mean_diff, std, std_diff = np.random.uniform(low=0.0, high=1.0, size=4)
@@ -98,6 +100,29 @@ def build_confusion_distribution_stats(scratch_dirpath, examples_dirpath, model,
                 mean_diff, std_diff = abs(mean - stats['mean_clean']), abs(std - stats['std_clean'])
                 stats[f'mean_diff_{key}'], stats[f'std_diff_{key}'] = mean_diff, std_diff
             del dataset, confusion
+        stats[f'mean_{key}'], stats[f'std_{key}'] = mean, std
+    return stats
+
+
+def build_confusion_distribution_stats_synthetic(synthetic_data, model, batch_size, device, perform_fast_test, use_abs=False):
+    def f(x): return abs(x) if use_abs else x
+    stats = {}
+    for key_synth_data in ['clean', 'polygon_all', 'gotham', 'kelvin', 'lomo', 'nashville', 'toaster']:
+        key = key_synth_data.replace('_all', '')
+        if perform_fast_test:
+            mean, mean_diff, std, std_diff = np.random.uniform(low=0.0, high=1.0, size=4)
+        else:
+            n_samples = synthetic_data[key_synth_data].shape[0]
+            # computing conf. distribution doesn't require labels (use some fake labels here: zeros)
+            data = sdaf.ManualData(sdaf.convert_to_pytorch_format(synthetic_data[key_synth_data]), np.zeros((n_samples, )))
+            synthetic_loader = torch.utils.data.DataLoader(data, batch_size=batch_size, shuffle=True, num_workers=4)
+
+            confusion = mf.compute_confusion(model, synthetic_loader, device)
+            mean, std = np.mean(confusion), np.std(confusion)
+            del confusion
+        if key != 'clean':
+            mean_diff, std_diff = f(mean - stats['mean_clean']), f(std - stats['std_clean'])
+            stats[f'mean_diff_{key}'], stats[f'std_diff_{key}'] = mean_diff, std_diff
         stats[f'mean_{key}'], stats[f'std_{key}'] = mean, std
     return stats
 
@@ -246,33 +271,35 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         7: (NETWORK_TYPE_RAW_CNN_NO_ADDITIONAL_TRAINING, STATISTIC_TYPE_H_KL),
     }
 
+    synthetic_data = np.load('synthetic_data/synthetic_data_1000_clean_polygon_instagram.npz')
     ################################################################################
     #################### EXPERIMENT SETTINGS
     ################################################################################
     print_messages = True
     fast_local_test = False
-    arch_wise_metamodel = True
+    arch_wise_metamodel = False # used to specify if we have one metamodel per architecture
+    use_abs_features = False # compute abs for diff features
 
-    add_arch_features = False # ALSO ADD ONE-HOT/RAW ARCH FEATURE
+    add_arch_features = True # ALSO ADD ONE-HOT/RAW ARCH FEATURE
     scenario_number = 1
     trigger_size = 30
     trigger_color = 'random' # 'random' or (127, 127, 127)
-    path_meta_model = 'metamodels/metamodel_16_fc_round3_data=diffs_square=30-random_scaler=std_clf=LR-1_arch-features=no_arch-wise-models=yes'
+    path_meta_model = 'metamodels/metamodel_17_fc_round4_data=synth-diffs_scaler=no_clf=NN_arch-features=yes_arch-wise-models=no'
 
     network_type, stats_type = SCENARIOS[scenario_number]
-
-    batch_size_experiment, batch_size_training = 1, 1 # to avoid some warnings in PyCharm
+    batch_size_training, batch_size_experiment = 1, 1 # to avoid some warnings in PyCharm
     if network_type == NETWORK_TYPE_SDN_WITH_SVM_ICS:
         batch_size_training, batch_size_experiment = 1, 1
     elif network_type == NETWORK_TYPE_SDN_WITH_FC_ICS:
-        batch_size_training, batch_size_experiment = (10, 1) if socket.gethostname() == 'windows10' else (20, 50)
+        batch_size_training, batch_size_experiment = (10, 5) if socket.gethostname() == 'windows10' else (20, 50)
     elif network_type == NETWORK_TYPE_RAW_CNN_NO_ADDITIONAL_TRAINING:
         batch_size_training, batch_size_experiment = (1, 1) if socket.gethostname() == 'windows10' else (20, 50) # batch_size_training is not used
 
     device = af.get_pytorch_device()
-    sdn_name = f'ics_train100_test0_bs{batch_size_training}' # only used in scenarios 1, 2, 3, 4
+    # sdn_name = f'ics_train100_test0_bs{batch_size_training}' # only used in scenarios 1, 2, 3, 4
+    sdn_name = 'ics_synthetic-1000_train100_test0_bs20'
 
-    # speedup for ES vs STS: print messages only for STS (models #0 and #1) and disable printing messages for other models (for ES)
+    # # speedup for ES vs STS: print messages only for STS (models #0 and #1) and disable printing messages for other models (for ES)
     current_model_name = model_filepath.split(os.path.sep)[-2]
     if current_model_name not in ['id-00000000', 'id-00000001']:
         print_messages = False
@@ -289,6 +316,18 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     #################### STEP 1: train SDN
     ##########################################################################################
     dataset_clean, sdn_type, model = read_model_directory(model_filepath, examples_dirpath, batch_size=batch_size_training, test_ratio=0, device=device)
+    # label synthetic dataset
+
+    if not fast_local_test:
+        synth_labeling_params = dict(model_img_size=244, temperature=3.0)
+        clean_images, clean_labels = synthetic_module.return_model_data_and_labels(model, synth_labeling_params, synthetic_data['clean'])
+        clean_data = sdaf.ManualData(sdaf.convert_to_pytorch_format(clean_images), clean_labels['soft'])
+
+        # trick: replace original train loader with the synthetic loader
+        synthetic_loader = torch.utils.data.DataLoader(clean_data, batch_size=batch_size_training, shuffle=True, num_workers=dataset_clean.num_workers)
+        dataset_clean.train_loader = synthetic_loader
+        dataset_clean.test_loader = synthetic_loader
+
     num_classes = dataset_clean.num_classes # will be used when we load the SDN model
     if network_type == NETWORK_TYPE_RAW_CNN_NO_ADDITIONAL_TRAINING:
         # don't perform any training because we use the raw neural network that we are provided in the model.pt file
@@ -310,11 +349,12 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     if print_messages:
         print('\n[info] STEP 2: create backdoored datasets')
 
-    if not fast_local_test:
-        build_datasets(examples_dirpath, scratch_dirpath, trigger_size, trigger_color, 0)
+    ## uncomment this when you use the provided data (not synthetic dataset)
+    # if not fast_local_test:
+    #     build_datasets(examples_dirpath, scratch_dirpath, trigger_size, trigger_color, 0)
 
     ##########################################################################################
-    #################### STEP 3: create backdoored datasets and compute feature statistics
+    #################### STEP 3: load neural network and compute feature statistics
     ##########################################################################################
     if print_messages:
         print(f'\n[info] STEP 3: computing confusion distribution for model {current_model_name}')
@@ -329,7 +369,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         raise RuntimeError('Invalid value for variable "network_type"')
 
     if (network_type in [NETWORK_TYPE_SDN_WITH_SVM_ICS, NETWORK_TYPE_SDN_WITH_FC_ICS]) and (stats_type in [STATISTIC_TYPE_RAW_MEAN_STD, STATISTIC_TYPE_DIFF_MEAN_STD]):
-        stats = build_confusion_distribution_stats(scratch_dirpath, examples_dirpath, model, batch_size_experiment, device, fast_local_test)
+        stats = build_confusion_distribution_stats_synthetic(scratch_dirpath, examples_dirpath, model, batch_size_experiment, device, fast_local_test, use_abs=use_abs_features)
     elif (network_type == NETWORK_TYPE_RAW_CNN_NO_ADDITIONAL_TRAINING) and (stats_type in [STATISTIC_TYPE_H, STATISTIC_TYPE_KL, STATISTIC_TYPE_H_KL]):
         stats = build_confusion_matrix_stats(scratch_dirpath, examples_dirpath, model, batch_size_experiment, device, fast_local_test)
     else:
@@ -372,7 +412,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     if add_arch_features:
         arch_one_hot = np.identity(len(available_architectures)).tolist()[arch_code]
         features = features[0].tolist()  # do this because features has size (1, N)
-        features = np.array(arch_one_hot + features).reshape(1, -1)
+        features = np.array(features + arch_one_hot).reshape(1, -1)
         print(f'[one-hot] arch: {available_architectures[sdn_type]}, one-hot: {arch_one_hot}')
         print(f'[feature] final features: {features.tolist()}')
 
@@ -386,7 +426,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         print(f'[info] predicted backdoor probability: {backd_proba}')
 
     ### write prediction to file
-    write_prediction(result_filepath, str(backd_proba))
+    write_prediction(result_filepath, str(backd_proba)) # try 1-backd_proba
     time_end = datetime.now()
     if print_messages:
         print(f'[info] script ended (elapsed {time_end - time_start})')

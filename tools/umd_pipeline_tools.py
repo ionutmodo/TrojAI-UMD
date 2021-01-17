@@ -108,5 +108,5 @@ def train_trojai_sdn_with_fc(dataset, trojai_model_w_ics, model_root_path, devic
     mf.train_layerwise_classifiers(ics, dataset, epochs, optimizer, scheduler, device)
     test_proc = int(dataset.test_ratio * 100)
     train_proc = 100 - test_proc
-    bs = dataset.batch_size
-    save_model(ics, params, model_root_path, f'ics_train{train_proc}_test{test_proc}_bs{bs}', epoch=-1)
+    ics_model_name = f'ics_synthetic-1000_train{train_proc}_test{test_proc}_bs{bs}'
+    save_model(ics, params, model_root_path, ics_model_name, epoch=-1)

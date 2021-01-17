@@ -58,6 +58,10 @@ def combine_foreground_trigger(foreground, raw_trigger, trigger_size_min, trigge
     rotate_angle = np.random.randint(360)
     trigger = rotate(trigger, rotate_angle)
 
+    if trigger_color == 'random':
+        available_colors = [[(0, 0, 200), (0, 200, 0), (200, 0, 0), (0, 200, 200), (200, 200, 0), (200, 0, 200)]]
+        trigger_color = available_colors[np.random.randint(low=0, high=len(available_colors))]
+
     # change color
     non_zero_idx = np.where(trigger[:, :, 3] != 0) 
     trigger[:, :, 0][non_zero_idx] = trigger_color[0] # R
@@ -172,7 +176,7 @@ def create_synthetic_dataset(params):
             suitable_triggers = fns if trigger_side_count == 'all' else [fn for fn in fns if 'trigger_{}'.format(trigger_side_count) in fn]
             
             trigger_size_min, trigger_size_max = params['trigger_size_min'], params['trigger_size_max'] # area ratio
-            trigger_color = params['trigger_color'] # [R, G, B]
+            trigger_color = params['trigger_color'] # [R, G, B] or 'random'
 
             for cur_img, (foreground_image_idx, background_image_idx) in enumerate(selected_indices):
                 # read a random trigger

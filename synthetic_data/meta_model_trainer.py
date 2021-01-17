@@ -218,7 +218,7 @@ if __name__ == "__main__":
     synthetic_data_path = f'../../TrojAI-SyntheticDataset'
 
     # Generate synthetic data and save it to the disk
-    trigger_types = ['polygon_all', 'gotham', 'kelvin', 'lomo', 'nashville', 'toaster']
+    trigger_types = ['polygon_all'] # , 'gotham', 'kelvin', 'lomo', 'nashville', 'toaster']
     backgrounds_path = os.path.join(synthetic_data_path, 'backgrounds')
     triggers_path = os.path.join(synthetic_data_path, 'triggers')
     foregrounds_path = os.path.join(synthetic_data_path, 'foregrounds')

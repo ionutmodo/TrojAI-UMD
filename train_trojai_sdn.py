@@ -43,16 +43,11 @@ def train_trojai_sdn(dataset, trojai_model_w_ics, model_root_path, device):
 
     optimizer, scheduler = af.get_optimizer(ics, lr_params, stepsize_params, optimizer='adam')
 
-    print(f'Training SDN version for model {os.path.basename(model_root_path)}')
-    sys.stdout.flush()
     mf.train_layerwise_classifiers(ics, dataset, epochs, optimizer, scheduler, device)
     test_proc = int(dataset.test_ratio * 100)
     train_proc = 100 - test_proc
     bs = dataset.batch_size
-
     ics_model_name = f'ics_synthetic-1000_train{train_proc}_test{test_proc}_bs{bs}'
-    print('Model name:', ics_model_name)
-
     arcs.save_model(ics, params, model_root_path, ics_model_name, epoch=-1)
 
 

@@ -6,6 +6,7 @@ From: pytorch/pytorch:latest
     mkdir /umd/
 
 %files
+    ./synthetic_data/ /umd/
     ./metamodels/ /umd/
     ./tools/ /umd/
     ./architectures/ /umd/
