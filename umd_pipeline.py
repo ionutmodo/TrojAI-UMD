@@ -56,6 +56,7 @@ import argparse
 from scipy.stats import entropy
 import synthetic_data.gen_backdoored_datasets as synthetic_module
 import synthetic_data.aux_funcs as sdaf
+from notebooks.methods import keras_load
 # from concurrent.futures import ProcessPoolExecutor as Pool
 
 
@@ -369,7 +370,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         raise RuntimeError('Invalid value for variable "network_type"')
 
     if (network_type in [NETWORK_TYPE_SDN_WITH_SVM_ICS, NETWORK_TYPE_SDN_WITH_FC_ICS]) and (stats_type in [STATISTIC_TYPE_RAW_MEAN_STD, STATISTIC_TYPE_DIFF_MEAN_STD]):
-        stats = build_confusion_distribution_stats_synthetic(scratch_dirpath, examples_dirpath, model, batch_size_experiment, device, fast_local_test, use_abs=use_abs_features)
+        stats = build_confusion_distribution_stats_synthetic(synthetic_data, model, batch_size_experiment, device, fast_local_test, use_abs=use_abs_features)
     elif (network_type == NETWORK_TYPE_RAW_CNN_NO_ADDITIONAL_TRAINING) and (stats_type in [STATISTIC_TYPE_H, STATISTIC_TYPE_KL, STATISTIC_TYPE_H_KL]):
         stats = build_confusion_matrix_stats(scratch_dirpath, examples_dirpath, model, batch_size_experiment, device, fast_local_test)
     else:
@@ -402,7 +403,8 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     if arch_wise_metamodel:
         suffix = f'-{available_architectures[arch_code]}' # let that dash there, such that the result would be, for example, model-vgg.pickle and scaler-vgg.pickle
 
-    meta_model = af.load_obj(filename=os.path.join(path_meta_model, f'model{suffix}.pickle'))
+    # meta_model = af.load_obj(filename=os.path.join(path_meta_model, f'model{suffix}.pickle'))
+    meta_model = keras_load(path_meta_model)
     scaler = af.load_obj(os.path.join(path_meta_model, f'scaler{suffix}.pickle'))
 
     if scaler is not None:
@@ -416,13 +418,17 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         print(f'[one-hot] arch: {available_architectures[sdn_type]}, one-hot: {arch_one_hot}')
         print(f'[feature] final features: {features.tolist()}')
 
-    positive_class_index = np.where(meta_model.classes_ == 1)[0][0]  # only for sklearn models
-    probabilities = meta_model.predict_proba(features)
-    backd_proba = probabilities[0][positive_class_index]
+    ## KERAS MODEL
+    backd_proba = meta_model.predict(features)[0][0]
+
+    ## SKLEARN MODEL
+    # positive_class_index = np.where(meta_model.classes_ == 1)[0][0]
+    # probabilities = meta_model.predict_proba(features)
+    # backd_proba = probabilities[0][positive_class_index]
 
     if print_messages:
         print(f'[info] model code is {arch_code}')
-        print(f'[info] probability distribution: {probabilities}')
+        # print(f'[info] probability distribution: {probabilities}')
         print(f'[info] predicted backdoor probability: {backd_proba}')
 
     ### write prediction to file
