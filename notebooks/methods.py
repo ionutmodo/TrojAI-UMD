@@ -1,13 +1,14 @@
+import os
+import ast
+import umap
+import pickle
+import numpy as np
+import pandas as pd
 from matplotlib.patches import Ellipse
 import matplotlib.pyplot as plt
 import seaborn as sns
-import pickle
-import os
-import numpy as np
-import pandas as pd
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
-import umap
 import plotly
 import plotly.graph_objs as go
 from sklearn import svm
@@ -53,6 +54,15 @@ def read_features(p_path, trigger_type_aux_str=None, arch=None, data='diffs', la
     if label_type.startswith('backdoor'): # choose backdoor_code (for round 3) or backdoor_code_0/1
         col_back_code = report[label_type].copy(deep=True)
 
+    if label_type == 'binary':
+        labels = np.array([int(col_model_label.iloc[i] == 'backdoor') for i in range(len(report))])
+    elif label_type in ['backdoor_code_0', 'backdoor_code_1']:
+        labels = np.array(report[label_type])
+    elif label_type == 'backdoor_code_2':
+        labels = [ast.literal_eval(c) for c in report[label_type]]
+    else:
+        print('Invalid value for label_type: should be binary or backdoor')
+
     for c in initial_columns:
         if check == 'end':
             if not c.endswith(check_str_1) and not c.endswith(check_str_2):
@@ -68,12 +78,6 @@ def read_features(p_path, trigger_type_aux_str=None, arch=None, data='diffs', la
                 if not c.startswith('kl'):
                     del report[c]
     features = report.values
-    if label_type == 'binary':
-        labels = np.array([int(col_model_label.iloc[i] == 'backdoor') for i in range(len(report))])
-    elif label_type.startswith('backdoor'):
-        labels = np.array(col_back_code)
-    else:
-        print('Invalid value for label_type: should be binary or backdoor')
     if append_arch:
         if arch_one_hot:
             col_arch = OneHotEncoder(sparse=False).fit_transform(col_arch_code.values.reshape(-1, 1))
