@@ -271,7 +271,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         7: (NETWORK_TYPE_RAW_CNN_NO_ADDITIONAL_TRAINING, STATISTIC_TYPE_H_KL),
     }
 
-    synthetic_data = np.load('synthetic_data/synthetic_data_1000_clean_polygon_instagram.npz', allow_pickle=True)
+    synthetic_data = np.load('synthetic_data/synthetic_data_1000_clean_polygon_instagram.npz')
     ################################################################################
     #################### EXPERIMENT SETTINGS
     ################################################################################
