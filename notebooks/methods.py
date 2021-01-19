@@ -18,6 +18,7 @@ from sklearn.metrics import roc_auc_score, log_loss
 from sklearn.model_selection import StratifiedKFold, RepeatedStratifiedKFold, cross_val_score
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, OneHotEncoder
 from sklearn.pipeline import Pipeline
+from keras.models import model_from_json
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.wrappers.scikit_learn import KerasClassifier
@@ -189,15 +190,15 @@ def keras_save(model, folder, name=None):
     model.save_weights(os.path.join(folder, f'{name}.h5'))
 
 
-def keras_load(folder):
-    from keras.models import model_from_json
-
-    json_file = open(os.path.join(folder, 'model.json'), 'r')
+def keras_load(folder, model_name=None):
+    if model_name is None:
+        model_name = 'model'
+    json_file = open(os.path.join(folder, f'{model_name}.json'), 'r')
     loaded_model_json = json_file.read()
     json_file.close()
     loaded_model = model_from_json(loaded_model_json)
     # load weights into new model
-    loaded_model.load_weights(os.path.join(folder, 'model.h5'))
+    loaded_model.load_weights(os.path.join(folder, f'{model_name}.h5'))
     return loaded_model
 
 
