@@ -1,0 +1,1 @@
+round4_neural_networks_bernoulli_backdoors/2021-01-19_11h49m55s_test-CE=0.467_input=20_train-count=1008_test-count=0

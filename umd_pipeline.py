@@ -285,7 +285,17 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     scenario_number = 1
     trigger_size = 30
     trigger_color = 'random' # 'random' or (127, 127, 127)
-    path_meta_model = 'metamodels/metamodel_17_fc_round4_data=synth-diffs_scaler=no_clf=NN_arch-features=yes_arch-wise-models=no'
+    path_meta_model = 'metamodels/metamodel_18_fc_round4_data=synth-diffs_scaler=no_clf=NN_arch-features=yes_arch-wise-models=no_out=bernoulli'
+
+    model_output_type = None
+    if 'out=binary' in path_meta_model:
+        model_output_type = 'binary'
+    elif 'out=bernoulli' in path_meta_model:
+        model_output_type = 'bernoulli'
+    elif 'out=2x-bernoulli' in path_meta_model:
+        model_output_type = '2x-bernoulli'
+    elif 'out=2x-softmax' in path_meta_model:
+        model_output_type = '2x-softmax'
 
     network_type, stats_type = SCENARIOS[scenario_number]
     batch_size_training, batch_size_experiment = 1, 1 # to avoid some warnings in PyCharm
@@ -419,7 +429,20 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         print(f'[feature] final features: {features.tolist()}')
 
     ## KERAS MODEL
-    backd_proba = meta_model.predict(features)[0][0]
+    if model_output_type == 'binary':
+        backd_proba = meta_model.predict(features)[0][0]
+    elif model_output_type == 'bernoulli':
+        prediction = meta_model.predict(features)[0]
+        pair_label_prediction = sorted(enumerate(prediction), key=lambda x: -x[1])
+        label, proba = pair_label_prediction[0]
+        if label == 0: # clean has max probability => predict 1 - proba
+            backd_proba = 1.0 - proba
+        else: # a backdoored class has max probability => predict proba
+            backd_proba = proba
+    elif model_output_type == '2x-bernoulli':
+        pass # not yet implemented
+    elif model_output_type == '2x-softmax':
+        pass # not yet implemented
 
     ## SKLEARN MODEL
     # positive_class_index = np.where(meta_model.classes_ == 1)[0][0]
