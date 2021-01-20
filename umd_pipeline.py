@@ -285,7 +285,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     scenario_number = 1
     trigger_size = 30
     trigger_color = 'random' # 'random' or (127, 127, 127)
-    path_meta_model = 'metamodels/metamodel_18_fc_round4_data=synth-diffs_scaler=no_clf=NN_arch-features=yes_arch-wise-models=no_out=bernoulli'
+    path_meta_model = 'metamodels/metamodel_18-2_fc_round4_data=synth-diffs_scaler=no_clf=NN_arch-features=yes_arch-wise-models=no_out=bernoulli'
 
     model_output_type = None
     if 'out=binary' in path_meta_model:
