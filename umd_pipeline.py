@@ -285,17 +285,20 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     scenario_number = 1
     trigger_size = 30
     trigger_color = 'random' # 'random' or (127, 127, 127)
-    path_meta_model = 'metamodels/metamodel_18-2_fc_round4_data=synth-diffs_scaler=no_clf=NN_arch-features=yes_arch-wise-models=no_out=bernoulli'
 
-    model_output_type = None
-    if 'out=binary' in path_meta_model:
-        model_output_type = 'binary'
-    elif 'out=bernoulli' in path_meta_model:
-        model_output_type = 'bernoulli'
-    elif 'out=2x-bernoulli' in path_meta_model:
-        model_output_type = '2x-bernoulli'
-    elif 'out=2x-softmax' in path_meta_model:
-        model_output_type = '2x-softmax'
+    path_meta_model_binary = 'metamodels/metamodel_17_fc_round4_data=synth-diffs_scaler=no_clf=NN_arch-features=yes_arch-wise-models=no_out=binary'
+    path_meta_model_bernoulli = 'metamodels/metamodel_18_fc_round4_data=synth-diffs_scaler=no_clf=NN_arch-features=yes_arch-wise-models=no_out=bernoulli'
+
+    # path_meta_model = 'metamodels/metamodel_18-2_fc_round4_data=synth-diffs_scaler=no_clf=NN_arch-features=yes_arch-wise-models=no_out=bernoulli'
+    # model_output_type = None
+    # if 'out=binary' in path_meta_model:
+    #     model_output_type = 'binary'
+    # elif 'out=bernoulli' in path_meta_model:
+    #     model_output_type = 'bernoulli'
+    # elif 'out=2x-bernoulli' in path_meta_model:
+    #     model_output_type = '2x-bernoulli'
+    # elif 'out=2x-softmax' in path_meta_model:
+    #     model_output_type = '2x-softmax'
 
     network_type, stats_type = SCENARIOS[scenario_number]
     batch_size_training, batch_size_experiment = 1, 1 # to avoid some warnings in PyCharm
@@ -414,8 +417,8 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         suffix = f'-{available_architectures[arch_code]}' # let that dash there, such that the result would be, for example, model-vgg.pickle and scaler-vgg.pickle
 
     # meta_model = af.load_obj(filename=os.path.join(path_meta_model, f'model{suffix}.pickle'))
-    meta_model = keras_load(path_meta_model)
-    scaler = af.load_obj(os.path.join(path_meta_model, f'scaler{suffix}.pickle'))
+    # meta_model = keras_load(path_meta_model)
+    scaler = None # af.load_obj(os.path.join(path_meta_model, f'scaler{suffix}.pickle'))
 
     if scaler is not None:
         features = scaler.transform(features)
@@ -429,20 +432,48 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         print(f'[feature] final features: {features.tolist()}')
 
     ## KERAS MODEL
-    if model_output_type == 'binary':
-        backd_proba = meta_model.predict(features)[0][0]
-    elif model_output_type == 'bernoulli':
-        prediction = meta_model.predict(features)[0]
-        pair_label_prediction = sorted(enumerate(prediction), key=lambda x: -x[1])
-        label, proba = pair_label_prediction[0]
-        if label == 0: # clean has max probability => predict 1 - proba
-            backd_proba = 1.0 - proba
-        else: # a backdoored class has max probability => predict proba
-            backd_proba = proba
-    elif model_output_type == '2x-bernoulli':
-        pass # not yet implemented
-    elif model_output_type == '2x-softmax':
-        pass # not yet implemented
+    meta_model_binary = keras_load(path_meta_model_binary)
+    meta_model_bernoulli = keras_load(path_meta_model_bernoulli)
+
+    proba_binary = meta_model_binary.predict(features)[0][0]
+    label_binary = 0 if proba_binary < 0.5 else 1
+
+    prediction = meta_model_bernoulli.predict(features)[0]
+    pair_label_prediction = sorted(enumerate(prediction), key=lambda x: -x[1]) # sort descending due to minus sign
+    label_bernoulli, proba_bernoulli = pair_label_prediction[0]
+
+    if label_bernoulli == 0: # clean has max probability => predict 1 - p
+        proba_bernoulli = 1.0 - proba_bernoulli
+
+    if print_messages:
+        print(f'binary   : label = {label_binary}, proba = {proba_binary:.4f}')
+        print(f'bernoulli: label = {label_bernoulli}, proba = {proba_bernoulli:.4f}')
+
+    if label_binary == 0:
+        if label_bernoulli == 0: # both predicted 'clean'
+            backd_proba = (proba_binary + proba_bernoulli) / 2.0
+        else: # binary predicted clean, bernoulli predicted backdoored
+            backd_proba = 0.5
+    else: # label_binary == 1
+        if label_bernoulli == 0: # binary predicted backdoored, bernoulli predicted clean
+            backd_proba = 0.5
+        else: # both predicted backdoored
+            backd_proba = (proba_binary + proba_bernoulli) / 2.0
+
+    # if model_output_type == 'binary':
+    #     backd_proba = meta_model.predict(features)[0][0]
+    # elif model_output_type == 'bernoulli':
+    #     prediction = meta_model.predict(features)[0]
+    #     pair_label_prediction = sorted(enumerate(prediction), key=lambda x: -x[1])
+    #     label, proba = pair_label_prediction[0]
+    #     if label == 0: # clean has max probability => predict 1 - proba
+    #         backd_proba = 1.0 - proba
+    #     else: # a backdoored class has max probability => predict proba
+    #         backd_proba = proba
+    # elif model_output_type == '2x-bernoulli':
+    #     pass # not yet implemented
+    # elif model_output_type == '2x-softmax':
+    #     pass # not yet implemented
 
     ## SKLEARN MODEL
     # positive_class_index = np.where(meta_model.classes_ == 1)[0][0]
