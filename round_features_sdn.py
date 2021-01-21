@@ -199,7 +199,7 @@ def main():
                     data = sdaf.ManualData(sdaf.convert_to_pytorch_format(images), labels['cat'])
 
                     # trick: replace original train loader with the synthetic loader
-                    synthetic_loader = torch.utils.data.DataLoader(data, batch_size=batch_size, shuffle=True, num_workers=4)
+                    synthetic_loader = torch.utils.data.DataLoader(data, batch_size=batch_size, shuffle=False, num_workers=4)
 
                     Logger.log(f'computing confusion for {dataset_name}...', end='')
                     # dict_dataset_confusion[dataset_name] = mf.compute_confusion(sdn_light, synthetic_loader, _device)
