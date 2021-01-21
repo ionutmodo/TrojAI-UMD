@@ -127,7 +127,7 @@ def compute_confusion(model, loader, device='cpu'):
 def compute_confusion_distribution_and_matrix(model, loader, num_classes, device, stats_save_path):
     model.eval().to(device)
 
-    main_dict = {'logit_net_out': np.zeros((0, num_classes))}
+    main_dict = {'logit_net_out': np.zeros((0, num_classes)), 'num_ics': np.array(model.num_ics)}
     for i in range(model.num_ics):
         main_dict[f'logit_ic_{i}'] = np.zeros((0, num_classes))
         main_dict[f'conf_mat_ic{i}'] = np.zeros((num_classes, num_classes), dtype=np.int64)
