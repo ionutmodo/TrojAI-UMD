@@ -23,6 +23,7 @@ def metric(softmax_clean, softmax_triggered):
     return 0 # fill in your desired metric (CrossEntropy)
 
 
+# change the path accordingly
 synthetic_stats_root = '/fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round4-train-dataset/synthetic_stats'
 metadata_root = '/fs/sdsatumd/ionmodo/TrojAI/TrojAI-data/round4-train-dataset/METADATA.csv'
 
@@ -40,15 +41,18 @@ for model_id in range(1008): # loop through all models
 
     num_ic = stats_clean['num_ics']
     for index_image in range(1000): # we have 1000 synthetic images
-        for index_ic in range(num_ic): # loop through ICs
+        for index_ic in range(num_ic): # loop through ICs and work for image i
             # compute clean softmax for IC[index_ic] on image index_image
             logit_clean = stats_clean[f'logit_ic_{index_ic}'][index_image]
             softmax_clean = torch.nn.functional.softmax(logit_clean, dim=1)
+
+            max_diff = 0.0
             for trigger_name in ['polygon_all', 'gotham', 'kelvin', 'lomo', 'nashville', 'toaster']:
                 # compute trigger softmax for IC[index_ic] on image index_image
                 logit_triggered = stats_triggered[f'logit_ic_{index_ic}'][index_image]
                 softmax_triggered = torch.nn.functional.softmax(logit_triggered, dim=1)
 
                 diff = metric(softmax_clean, softmax_triggered)
-
+                if diff > max_diff:
+                    max_diff = diff
                 # do whatever you want with this diff...
