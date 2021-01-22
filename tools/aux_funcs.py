@@ -334,15 +334,19 @@ def get_task_num_classes(task):
         return 200
 
 
-def save_obj(obj, filename):
-    with open(filename, 'wb') as handle:
+def save_obj(obj, folder, name):
+    if name is None:
+        name = 'model'
+    if not os.path.isdir(folder):
+        os.makedirs(folder)
+    with open(os.path.join(folder, f'{name}.pkl'), 'wb') as handle:
         pickle.dump(obj, handle)
 
 
 def load_obj(filename):
-    if not pickle_exists(filename):
+    if not os.path.isfile(filename):
+        print('Pickle {} does not exist.'.format(filename))
         return None
-        
     with open(filename, 'rb') as handle:
         obj = pickle.load(handle)
     return obj

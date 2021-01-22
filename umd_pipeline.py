@@ -286,8 +286,8 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     trigger_size = 30
     trigger_color = 'random' # 'random' or (127, 127, 127)
 
-    path_meta_model_binary = 'metamodels/metamodel_17_fc_round4_data=synth-diffs_scaler=no_clf=NN_arch-features=yes_arch-wise-models=no_out=binary'
-    path_meta_model_bernoulli = 'metamodels/metamodel_18_fc_round4_data=synth-diffs_scaler=no_clf=NN_arch-features=yes_arch-wise-models=no_out=bernoulli'
+    path_meta_model_binary = 'metamodels/metamodel_19_fc_round4_data=synth-diffs_scaler=std_clf=NN_arch-features=yes_arch-wise-models=no_out=binary'
+    path_meta_model_bernoulli = 'metamodels/metamodel_20_fc_round4_data=synth-diffs_scaler=std_clf=NN_arch-features=yes_arch-wise-models=no_out=bernoulli'
 
     # path_meta_model = 'metamodels/metamodel_18-2_fc_round4_data=synth-diffs_scaler=no_clf=NN_arch-features=yes_arch-wise-models=no_out=bernoulli'
     # model_output_type = None
@@ -418,27 +418,50 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
 
     # meta_model = af.load_obj(filename=os.path.join(path_meta_model, f'model{suffix}.pickle'))
     # meta_model = keras_load(path_meta_model)
-    scaler = None # af.load_obj(os.path.join(path_meta_model, f'scaler{suffix}.pickle'))
+    # scaler = None #af.load_obj(os.path.join(path_meta_model, f'scaler{suffix}.pickle'))
 
-    if scaler is not None:
-        features = scaler.transform(features)
-        print('[feature] scaled features:', features.tolist())
+    scaler_binary = af.load_obj(os.path.join(path_meta_model_binary, 'scaler.pkl'))
+    scaler_bernoulli = af.load_obj(os.path.join(path_meta_model_bernoulli, 'scaler.pkl'))
+
+    # if scaler is not None:
+    #     features = scaler.transform(features)
+    #     print('[feature] scaled features:', features.tolist())
+
+    features_binary = np.copy(features)
+    features_bernoulli = np.copy(features)
+    if scaler_binary is not None:
+        features_binary = scaler_binary.transform(features_binary)
+
+    if scaler_bernoulli is not None:
+        features_bernoulli = scaler_bernoulli.transform(features_bernoulli)
 
     if add_arch_features:
         arch_one_hot = np.identity(len(available_architectures)).tolist()[arch_code]
-        features = features[0].tolist()  # do this because features has size (1, N)
-        features = np.array(features + arch_one_hot).reshape(1, -1)
+
+        features_binary = features_binary[0].tolist()
+        features_binary = np.array(features_binary + arch_one_hot).reshape(1, -1)
+
+        features_bernoulli = features_bernoulli[0].tolist()
+        features_bernoulli = np.array(features_bernoulli + arch_one_hot).reshape(1, -1)
+
+        # features = features[0].tolist()  # do this because features has size (1, N)
+        # features = np.array(features + arch_one_hot).reshape(1, -1)
         print(f'[one-hot] arch: {available_architectures[sdn_type]}, one-hot: {arch_one_hot}')
-        print(f'[feature] final features: {features.tolist()}')
+        print(f'[feature] final features binary: {features_binary.tolist()}')
+        print(f'[feature] final features bernoulli: {features_bernoulli.tolist()}')
+        # print(f'[feature] final features: {features.tolist()}')
 
     ## KERAS MODEL
     meta_model_binary = keras_load(path_meta_model_binary)
     meta_model_bernoulli = keras_load(path_meta_model_bernoulli)
 
-    proba_binary = meta_model_binary.predict(features)[0][0]
+    # if scaler_binary is not None:
+    #     features_binary = scaler_binary.transform(features)
+
+    proba_binary = meta_model_binary.predict(features_binary)[0][0]
     label_binary = 0 if proba_binary < 0.5 else 1
 
-    prediction = meta_model_bernoulli.predict(features)[0]
+    prediction = meta_model_bernoulli.predict(features_bernoulli)[0]
     pair_label_prediction = sorted(enumerate(prediction), key=lambda x: -x[1]) # sort descending due to minus sign
     label_bernoulli, proba_bernoulli = pair_label_prediction[0]
 
@@ -449,6 +472,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         print(f'binary   : label = {label_binary}, proba = {proba_binary:.4f}')
         print(f'bernoulli: label = {label_bernoulli}, proba = {proba_bernoulli:.4f}')
 
+    # average both predictions when they agree
     if label_binary == 0:
         if label_bernoulli == 0: # both predicted 'clean'
             backd_proba = (proba_binary + proba_bernoulli) / 2.0
@@ -457,7 +481,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     else: # label_binary == 1
         if label_bernoulli == 0: # binary predicted backdoored, bernoulli predicted clean
             backd_proba = 0.5
-        else: # both predicted backdoored
+        else: # both predicted backdoored: binary predicted 1 and bernoulli predicted >= 1
             backd_proba = (proba_binary + proba_bernoulli) / 2.0
 
     # if model_output_type == 'binary':

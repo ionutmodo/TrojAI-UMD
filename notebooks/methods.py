@@ -164,8 +164,12 @@ def get_predicted_label(model, image, device):
     return pred_label
 
 
-def save_obj(obj, filename):
-    with open(filename, 'wb') as handle:
+def save_obj(obj, folder, name):
+    if name is None:
+        name = 'model'
+    if not os.path.isdir(folder):
+        os.makedirs(folder)
+    with open(os.path.join(folder, f'{name}.pkl'), 'wb') as handle:
         pickle.dump(obj, handle)
 
 
