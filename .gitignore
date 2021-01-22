@@ -17,3 +17,4 @@ credentials.json
 *.simg
 containers/
 notebooks/data_contour_detection
+test.py
