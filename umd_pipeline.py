@@ -59,6 +59,17 @@ import synthetic_data.aux_funcs as sdaf
 from notebooks.methods import keras_load
 # from concurrent.futures import ProcessPoolExecutor as Pool
 
+# you SHALL NOT change the values in this dictionary!
+available_architectures = {
+    SDNConfig.DenseNet_blocks: 'densenet',
+    SDNConfig.GoogLeNet: 'googlenet',
+    SDNConfig.Inception3: 'inception',
+    SDNConfig.MobileNet2: 'mobilenet',
+    SDNConfig.ResNet: 'resnet',
+    SDNConfig.ShuffleNet: 'shufflenet',
+    SDNConfig.SqueezeNet: 'squeezenet',
+    SDNConfig.VGG: 'vgg'
+}
 
 def write_prediction(filepath, backd_proba):
     with open(filepath, 'w') as w:
@@ -258,6 +269,97 @@ def get_features_from_stats(stats, network_type, stats_type, print_messages):
     return features
 
 
+def add_arch_to_features(features, add_arch_features, arch_code):
+    if add_arch_features:
+        arch_one_hot = np.identity(len(available_architectures)).tolist()[arch_code]
+        features = features[0].tolist()  # do this because features has size (1, N)
+        features = np.array(features + arch_one_hot).reshape(1, -1)
+    return features
+
+
+def prediction_single_model_sklearn(path_meta_model, add_arch_features, arch_code, features, suffix):
+    meta_model = af.load_obj(os.path.join(path_meta_model, f'model{suffix}.pkl'))
+    scaler = af.load_obj(os.path.join(path_meta_model, f'scaler.pkl'))
+
+    if scaler is not None:
+        features = scaler.transform(features)
+        # print('[feature] scaled features:', features.tolist())
+
+    features = add_arch_to_features(features, add_arch_features, arch_code)
+
+    positive_class_index = np.where(meta_model.classes_ == 1)[0][0]
+    probabilities = meta_model.predict_proba(features)
+    backd_proba = probabilities[0][positive_class_index]
+
+    return backd_proba
+
+
+def prediction_single_model_keras(path_meta_model, add_arch_features, arch_code, features):
+    meta_model = keras_load(path_meta_model)
+    scaler = af.load_obj(os.path.join(path_meta_model, f'scaler.pkl'))
+
+    if scaler is not None:
+        features = scaler.transform(features)
+        # print('[feature] scaled features:', features.tolist())
+
+    features = add_arch_to_features(features, add_arch_features, arch_code)
+
+    backd_proba = 0.5
+    if 'out=binary' in path_meta_model:
+        backd_proba = meta_model.predict(features)[0][0]
+    elif 'out=bernoulli' in path_meta_model:
+        prediction = meta_model.predict(features)[0]
+        pair_label_prediction = sorted(enumerate(prediction), key=lambda x: -x[1])
+        label, proba = pair_label_prediction[0]
+        if label == 0:  # clean has max probability => predict 1 - proba
+            backd_proba = 1.0 - proba
+        else:  # a backdoored class has max probability => predict proba
+            backd_proba = proba
+    elif 'out=2x-bernoulli' in path_meta_model:
+        pass
+    elif 'out=2x-softmax' in path_meta_model:
+        pass
+    return backd_proba
+
+
+def prediction_binary_bernoulli_models(path_meta_model_binary, path_meta_model_bernoulli, add_arch_features, arch_code, features):
+    meta_model_binary = keras_load(path_meta_model_binary)
+    scaler_binary = af.load_obj(os.path.join(path_meta_model_binary, 'scaler.pkl'))
+
+    meta_model_bernoulli = keras_load(path_meta_model_bernoulli)
+    scaler_bernoulli = af.load_obj(os.path.join(path_meta_model_bernoulli, 'scaler.pkl'))
+
+    if scaler_binary is not None:
+        features_binary = scaler_binary.transform(np.copy(features))
+
+    if scaler_bernoulli is not None:
+        features_bernoulli = scaler_bernoulli.transform(np.copy(features))
+
+    proba_binary = meta_model_binary.predict(features_binary)[0][0]
+    label_binary = 0 if proba_binary < 0.5 else 1
+
+    prediction = meta_model_bernoulli.predict(features_bernoulli)[0]
+    pair_label_prediction = sorted(enumerate(prediction), key=lambda x: -x[1]) # sort descending due to minus sign
+    label_bernoulli, proba_bernoulli = pair_label_prediction[0]
+
+    if label_bernoulli == 0: # clean has max probability => predict 1 - p
+        proba_bernoulli = 1.0 - proba_bernoulli
+
+    # average both predictions when they agree (logic for 2 models)
+    # backd_proba = 0.5
+    if label_binary == 0:
+        if label_bernoulli == 0: # both predicted 'clean'
+            backd_proba = (proba_binary + proba_bernoulli) / 2.0
+        else: # binary predicted clean, bernoulli predicted backdoored
+            backd_proba = 0.5
+    else: # label_binary == 1
+        if label_bernoulli == 0: # binary predicted backdoored, bernoulli predicted clean
+            backd_proba = 0.5
+        else: # both predicted backdoored: binary predicted 1 and bernoulli predicted >= 1
+            backd_proba = (proba_binary + proba_bernoulli) / 2.0
+    return backd_proba
+
+
 def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, examples_dirpath):
     time_start = datetime.now()
     SCENARIOS = {
@@ -287,18 +389,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     trigger_color = 'random' # 'random' or (127, 127, 127)
 
     path_meta_model_binary = 'metamodels/metamodel_19_fc_round4_data=synth-diffs_scaler=std_clf=NN_arch-features=yes_arch-wise-models=no_out=binary'
-    path_meta_model_bernoulli = 'metamodels/metamodel_20_fc_round4_data=synth-diffs_scaler=std_clf=NN_arch-features=yes_arch-wise-models=no_out=bernoulli'
-
-    # path_meta_model = 'metamodels/metamodel_18-2_fc_round4_data=synth-diffs_scaler=no_clf=NN_arch-features=yes_arch-wise-models=no_out=bernoulli'
-    # model_output_type = None
-    # if 'out=binary' in path_meta_model:
-    #     model_output_type = 'binary'
-    # elif 'out=bernoulli' in path_meta_model:
-    #     model_output_type = 'bernoulli'
-    # elif 'out=2x-bernoulli' in path_meta_model:
-    #     model_output_type = '2x-bernoulli'
-    # elif 'out=2x-softmax' in path_meta_model:
-    #     model_output_type = '2x-softmax'
+    # path_meta_model_bernoulli = 'metamodels/metamodel_20_fc_round4_data=synth-diffs_scaler=std_clf=NN_arch-features=yes_arch-wise-models=no_out=bernoulli'
 
     network_type, stats_type = SCENARIOS[scenario_number]
     batch_size_training, batch_size_experiment = 1, 1 # to avoid some warnings in PyCharm
@@ -395,17 +486,6 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     #################### STEP 4: predict backdoor probability
     ##########################################################################################
 
-    # do not change the values in this dictionary!
-    available_architectures = {
-        SDNConfig.DenseNet_blocks: 'densenet',
-        SDNConfig.GoogLeNet: 'googlenet',
-        SDNConfig.Inception3: 'inception',
-        SDNConfig.MobileNet2: 'mobilenet',
-        SDNConfig.ResNet: 'resnet',
-        SDNConfig.ShuffleNet: 'shufflenet',
-        SDNConfig.SqueezeNet: 'squeezenet',
-        SDNConfig.VGG: 'vgg'
-    }
     arch_code = pipeline_tools.encode_architecture(available_architectures[sdn_type])
 
     if print_messages:
@@ -416,103 +496,16 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     if arch_wise_metamodel:
         suffix = f'-{available_architectures[arch_code]}' # let that dash there, such that the result would be, for example, model-vgg.pickle and scaler-vgg.pickle
 
-    # meta_model = af.load_obj(filename=os.path.join(path_meta_model, f'model{suffix}.pickle'))
-    # meta_model = keras_load(path_meta_model)
-    # scaler = None #af.load_obj(os.path.join(path_meta_model, f'scaler{suffix}.pickle'))
-
-    scaler_binary = af.load_obj(os.path.join(path_meta_model_binary, 'scaler.pkl'))
-    scaler_bernoulli = af.load_obj(os.path.join(path_meta_model_bernoulli, 'scaler.pkl'))
-
-    # if scaler is not None:
-    #     features = scaler.transform(features)
-    #     print('[feature] scaled features:', features.tolist())
-
-    features_binary = np.copy(features)
-    features_bernoulli = np.copy(features)
-    if scaler_binary is not None:
-        features_binary = scaler_binary.transform(features_binary)
-
-    if scaler_bernoulli is not None:
-        features_bernoulli = scaler_bernoulli.transform(features_bernoulli)
-
-    if add_arch_features:
-        arch_one_hot = np.identity(len(available_architectures)).tolist()[arch_code]
-
-        features_binary = features_binary[0].tolist()
-        features_binary = np.array(features_binary + arch_one_hot).reshape(1, -1)
-
-        features_bernoulli = features_bernoulli[0].tolist()
-        features_bernoulli = np.array(features_bernoulli + arch_one_hot).reshape(1, -1)
-
-        # features = features[0].tolist()  # do this because features has size (1, N)
-        # features = np.array(features + arch_one_hot).reshape(1, -1)
-        print(f'[one-hot] arch: {available_architectures[sdn_type]}, one-hot: {arch_one_hot}')
-        print(f'[feature] final features binary: {features_binary.tolist()}')
-        print(f'[feature] final features bernoulli: {features_bernoulli.tolist()}')
-        # print(f'[feature] final features: {features.tolist()}')
-
-    ## KERAS MODEL
-    meta_model_binary = keras_load(path_meta_model_binary)
-    meta_model_bernoulli = keras_load(path_meta_model_bernoulli)
-
-    # if scaler_binary is not None:
-    #     features_binary = scaler_binary.transform(features)
-
-    proba_binary = meta_model_binary.predict(features_binary)[0][0]
-    label_binary = 0 if proba_binary < 0.5 else 1
-
-    prediction = meta_model_bernoulli.predict(features_bernoulli)[0]
-    pair_label_prediction = sorted(enumerate(prediction), key=lambda x: -x[1]) # sort descending due to minus sign
-    label_bernoulli, proba_bernoulli = pair_label_prediction[0]
-
-    if label_bernoulli == 0: # clean has max probability => predict 1 - p
-        proba_bernoulli = 1.0 - proba_bernoulli
-
-    if print_messages:
-        print(f'binary   : label = {label_binary}, proba = {proba_binary:.4f}')
-        print(f'bernoulli: label = {label_bernoulli}, proba = {proba_bernoulli:.4f}')
-
-    # average both predictions when they agree
-    if label_binary == 0:
-        if label_bernoulli == 0: # both predicted 'clean'
-            backd_proba = (proba_binary + proba_bernoulli) / 2.0
-        else: # binary predicted clean, bernoulli predicted backdoored
-            backd_proba = 0.5
-    else: # label_binary == 1
-        if label_bernoulli == 0: # binary predicted backdoored, bernoulli predicted clean
-            backd_proba = 0.5
-        else: # both predicted backdoored: binary predicted 1 and bernoulli predicted >= 1
-            backd_proba = (proba_binary + proba_bernoulli) / 2.0
-
-    # if model_output_type == 'binary':
-    #     backd_proba = meta_model.predict(features)[0][0]
-    # elif model_output_type == 'bernoulli':
-    #     prediction = meta_model.predict(features)[0]
-    #     pair_label_prediction = sorted(enumerate(prediction), key=lambda x: -x[1])
-    #     label, proba = pair_label_prediction[0]
-    #     if label == 0: # clean has max probability => predict 1 - proba
-    #         backd_proba = 1.0 - proba
-    #     else: # a backdoored class has max probability => predict proba
-    #         backd_proba = proba
-    # elif model_output_type == '2x-bernoulli':
-    #     pass # not yet implemented
-    # elif model_output_type == '2x-softmax':
-    #     pass # not yet implemented
-
-    ## SKLEARN MODEL
-    # positive_class_index = np.where(meta_model.classes_ == 1)[0][0]
-    # probabilities = meta_model.predict_proba(features)
-    # backd_proba = probabilities[0][positive_class_index]
-
-    if print_messages:
-        print(f'[info] model code is {arch_code}')
-        # print(f'[info] probability distribution: {probabilities}')
-        print(f'[info] predicted backdoor probability: {backd_proba}')
+    backd_proba = prediction_single_model_keras(path_meta_model_binary, add_arch_features, arch_code, features)
+    # backd_proba = prediction_single_model_sklearn(path_meta_model_binary, add_arch_features, arch_code, features, suffix)
+    # backd_proba = prediction_single_model(path_meta_model_bernoulli, add_arch_features, arch_code, features)
+    # backd_proba = prediction_binary_bernoulli_models(path_meta_model_binary, path_meta_model_bernoulli, add_arch_features, arch_code, features)
 
     ### write prediction to file
     write_prediction(result_filepath, str(backd_proba)) # try 1-backd_proba
     time_end = datetime.now()
     if print_messages:
+        print(f'[info] predicted backdoor probability: {backd_proba}')
         print(f'[info] script ended (elapsed {time_end - time_start})')
 
 
