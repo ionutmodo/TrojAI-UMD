@@ -388,8 +388,8 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     trigger_size = 30
     trigger_color = 'random' # 'random' or (127, 127, 127)
 
-    path_meta_model_binary = 'metamodels/metamodel_19_fc_round4_data=synth-diffs_scaler=std_clf=NN_arch-features=yes_arch-wise-models=no_out=binary'
-    # path_meta_model_bernoulli = 'metamodels/metamodel_20_fc_round4_data=synth-diffs_scaler=std_clf=NN_arch-features=yes_arch-wise-models=no_out=bernoulli'
+    # path_meta_model_binary = 'metamodels/metamodel_19_fc_round4_data=synth-diffs_scaler=std_clf=NN_arch-features=yes_arch-wise-models=no_out=binary'
+    path_meta_model_bernoulli = 'metamodels/metamodel_20_fc_round4_data=synth-diffs_scaler=std_clf=NN_arch-features=yes_arch-wise-models=no_out=bernoulli'
 
     network_type, stats_type = SCENARIOS[scenario_number]
     batch_size_training, batch_size_experiment = 1, 1 # to avoid some warnings in PyCharm
@@ -496,7 +496,8 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     if arch_wise_metamodel:
         suffix = f'-{available_architectures[arch_code]}' # let that dash there, such that the result would be, for example, model-vgg.pickle and scaler-vgg.pickle
 
-    backd_proba = prediction_single_model_keras(path_meta_model_binary, add_arch_features, arch_code, features)
+    # backd_proba = prediction_single_model_keras(path_meta_model_binary, add_arch_features, arch_code, features)
+    backd_proba = prediction_single_model_keras(path_meta_model_bernoulli, add_arch_features, arch_code, features)
     # backd_proba = prediction_single_model_sklearn(path_meta_model_binary, add_arch_features, arch_code, features, suffix)
     # backd_proba = prediction_single_model(path_meta_model_bernoulli, add_arch_features, arch_code, features)
     # backd_proba = prediction_binary_bernoulli_models(path_meta_model_binary, path_meta_model_bernoulli, add_arch_features, arch_code, features)
