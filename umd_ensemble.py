@@ -1,10 +1,20 @@
 from notebooks.methods import keras_load, load_obj
+import numpy as np
 
 
 class UMDModelScaler(object):
     def __init__(self, model, scaler):
         self.model = model
         self.scaler = scaler
+
+
+def predict_binary_single_input(model, scaler, features: list, arch: list):
+    if scaler is not None:
+        features = scaler.transform(features)
+    f = np.array(features + arch).reshape(1, -1)
+    backd_proba = model.predict(f)[0][0]
+    return backd_proba
+
 
 
 class UMDEnsemble(object):
@@ -45,3 +55,4 @@ class UMDEnsemble(object):
 
     def predict(self):
         pass
+
