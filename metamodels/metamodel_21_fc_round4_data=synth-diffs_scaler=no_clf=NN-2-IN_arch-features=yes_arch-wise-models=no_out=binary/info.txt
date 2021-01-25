@@ -1,0 +1,1 @@
+round4_neural_networks_two_inputs_binary/2021-01-24_13h56m51s_test-CE=0.448_input=20_train-count=907_test-count=101
