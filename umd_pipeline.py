@@ -360,6 +360,40 @@ def prediction_binary_bernoulli_models(path_meta_model_binary, path_meta_model_b
     return backd_proba
 
 
+def prediction_single_model_two_inputs_keras(path_meta_model, add_arch_features, arch_code, features):
+    meta_model = keras_load(path_meta_model)
+    scaler = af.load_obj(os.path.join(path_meta_model, f'scaler.pkl'))
+
+    if scaler is not None:
+        features = scaler.transform(features)
+        # print('[feature] scaled features:', features.tolist())
+
+    if not add_arch_features:
+        raise RuntimeError('Canot use two inputs model without enabling arch features!')
+
+    arch_one_hot = np.identity(len(available_architectures))[arch_code].reshape(1, -1)
+    features = features.reshape(1, -1)
+
+    features = [features, arch_one_hot]
+
+    backd_proba = 0.5
+    if 'out=binary' in path_meta_model:
+        backd_proba = meta_model.predict(features)[0][0]
+    elif 'out=bernoulli' in path_meta_model:
+        prediction = meta_model.predict(features)[0]
+        pair_label_prediction = sorted(enumerate(prediction), key=lambda x: -x[1])
+        label, proba = pair_label_prediction[0]
+        if label == 0:  # clean has max probability => predict 1 - proba
+            backd_proba = 1.0 - proba
+        else:  # a backdoored class has max probability => predict proba
+            backd_proba = proba
+    elif 'out=2x-bernoulli' in path_meta_model:
+        pass
+    elif 'out=2x-softmax' in path_meta_model:
+        pass
+    return backd_proba
+
+
 def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, examples_dirpath):
     time_start = datetime.now()
     SCENARIOS = {
@@ -388,8 +422,9 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     trigger_size = 30
     trigger_color = 'random' # 'random' or (127, 127, 127)
 
+    path_meta_model_binary = 'metamodels/metamodel_21_fc_round4_data=synth-diffs_scaler=no_clf=NN-2-IN_arch-features=yes_arch-wise-models=no_out=binary'
     # path_meta_model_binary = 'metamodels/metamodel_19_fc_round4_data=synth-diffs_scaler=std_clf=NN_arch-features=yes_arch-wise-models=no_out=binary'
-    path_meta_model_bernoulli = 'metamodels/metamodel_20_fc_round4_data=synth-diffs_scaler=std_clf=NN_arch-features=yes_arch-wise-models=no_out=bernoulli'
+    # path_meta_model_bernoulli = 'metamodels/metamodel_20_fc_round4_data=synth-diffs_scaler=std_clf=NN_arch-features=yes_arch-wise-models=no_out=bernoulli'
 
     network_type, stats_type = SCENARIOS[scenario_number]
     batch_size_training, batch_size_experiment = 1, 1 # to avoid some warnings in PyCharm
@@ -497,7 +532,8 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         suffix = f'-{available_architectures[arch_code]}' # let that dash there, such that the result would be, for example, model-vgg.pickle and scaler-vgg.pickle
 
     # backd_proba = prediction_single_model_keras(path_meta_model_binary, add_arch_features, arch_code, features)
-    backd_proba = prediction_single_model_keras(path_meta_model_bernoulli, add_arch_features, arch_code, features)
+    # backd_proba = prediction_single_model_keras(path_meta_model_bernoulli, add_arch_features, arch_code, features)
+    backd_proba = prediction_single_model_two_inputs_keras(path_meta_model_binary, add_arch_features, arch_code, features)
     # backd_proba = prediction_single_model_sklearn(path_meta_model_binary, add_arch_features, arch_code, features, suffix)
     # backd_proba = prediction_single_model(path_meta_model_bernoulli, add_arch_features, arch_code, features)
     # backd_proba = prediction_binary_bernoulli_models(path_meta_model_binary, path_meta_model_bernoulli, add_arch_features, arch_code, features)
