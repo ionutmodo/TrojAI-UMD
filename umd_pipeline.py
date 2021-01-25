@@ -56,7 +56,7 @@ import argparse
 from scipy.stats import entropy
 import synthetic_data.gen_backdoored_datasets as synthetic_module
 import synthetic_data.aux_funcs as sdaf
-from notebooks.methods import keras_load
+from notebooks.methods import keras_load, load_obj
 # from concurrent.futures import ProcessPoolExecutor as Pool
 
 # you SHALL NOT change the values in this dictionary!
@@ -278,8 +278,8 @@ def add_arch_to_features(features, add_arch_features, arch_code):
 
 
 def prediction_single_model_sklearn(path_meta_model, add_arch_features, arch_code, features, suffix):
-    meta_model = af.load_obj(os.path.join(path_meta_model, f'model{suffix}.pkl'))
-    scaler = af.load_obj(os.path.join(path_meta_model, f'scaler.pkl'))
+    meta_model = load_obj(os.path.join(path_meta_model, f'model{suffix}.pkl'))
+    scaler = load_obj(os.path.join(path_meta_model, f'scaler.pkl'))
 
     if scaler is not None:
         features = scaler.transform(features)
@@ -296,7 +296,7 @@ def prediction_single_model_sklearn(path_meta_model, add_arch_features, arch_cod
 
 def prediction_single_model_keras(path_meta_model, add_arch_features, arch_code, features):
     meta_model = keras_load(path_meta_model)
-    scaler = af.load_obj(os.path.join(path_meta_model, f'scaler.pkl'))
+    scaler = load_obj(os.path.join(path_meta_model, f'scaler.pkl'))
 
     if scaler is not None:
         features = scaler.transform(features)
@@ -324,10 +324,10 @@ def prediction_single_model_keras(path_meta_model, add_arch_features, arch_code,
 
 def prediction_binary_bernoulli_models(path_meta_model_binary, path_meta_model_bernoulli, add_arch_features, arch_code, features):
     meta_model_binary = keras_load(path_meta_model_binary)
-    scaler_binary = af.load_obj(os.path.join(path_meta_model_binary, 'scaler.pkl'))
+    scaler_binary = load_obj(os.path.join(path_meta_model_binary, 'scaler.pkl'))
 
     meta_model_bernoulli = keras_load(path_meta_model_bernoulli)
-    scaler_bernoulli = af.load_obj(os.path.join(path_meta_model_bernoulli, 'scaler.pkl'))
+    scaler_bernoulli = load_obj(os.path.join(path_meta_model_bernoulli, 'scaler.pkl'))
 
     if scaler_binary is not None:
         features_binary = scaler_binary.transform(np.copy(features))
@@ -362,7 +362,7 @@ def prediction_binary_bernoulli_models(path_meta_model_binary, path_meta_model_b
 
 def prediction_single_model_two_inputs_keras(path_meta_model, add_arch_features, arch_code, features):
     meta_model = keras_load(path_meta_model)
-    scaler = af.load_obj(os.path.join(path_meta_model, f'scaler.pkl'))
+    scaler = load_obj(os.path.join(path_meta_model, f'scaler.pkl'))
 
     if scaler is not None:
         features = scaler.transform(features)
