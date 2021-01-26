@@ -57,6 +57,7 @@ from scipy.stats import entropy
 import synthetic_data.gen_backdoored_datasets as synthetic_module
 import synthetic_data.aux_funcs as sdaf
 from notebooks.methods import keras_load, load_obj
+from umd_ensemble import UMDEnsemble
 # from concurrent.futures import ProcessPoolExecutor as Pool
 
 # you SHALL NOT change the values in this dictionary!
@@ -306,9 +307,9 @@ def prediction_single_model_keras(path_meta_model, add_arch_features, arch_code,
 
     backd_proba = 0.5
     if 'out=binary' in path_meta_model:
-        backd_proba = meta_model.predict(features)[0][0]
+        backd_proba = meta_model.general_predict(features)[0][0]
     elif 'out=bernoulli' in path_meta_model:
-        prediction = meta_model.predict(features)[0]
+        prediction = meta_model.general_predict(features)[0]
         pair_label_prediction = sorted(enumerate(prediction), key=lambda x: -x[1])
         label, proba = pair_label_prediction[0]
         if label == 0:  # clean has max probability => predict 1 - proba
@@ -335,10 +336,10 @@ def prediction_binary_bernoulli_models(path_meta_model_binary, path_meta_model_b
     if scaler_bernoulli is not None:
         features_bernoulli = scaler_bernoulli.transform(np.copy(features))
 
-    proba_binary = meta_model_binary.predict(features_binary)[0][0]
+    proba_binary = meta_model_binary.general_predict(features_binary)[0][0]
     label_binary = 0 if proba_binary < 0.5 else 1
 
-    prediction = meta_model_bernoulli.predict(features_bernoulli)[0]
+    prediction = meta_model_bernoulli.general_predict(features_bernoulli)[0]
     pair_label_prediction = sorted(enumerate(prediction), key=lambda x: -x[1]) # sort descending due to minus sign
     label_bernoulli, proba_bernoulli = pair_label_prediction[0]
 
@@ -378,9 +379,9 @@ def prediction_single_model_two_inputs_keras(path_meta_model, add_arch_features,
 
     backd_proba = 0.5
     if 'out=binary' in path_meta_model:
-        backd_proba = meta_model.predict(features)[0][0]
+        backd_proba = meta_model.general_predict(features)[0][0]
     elif 'out=bernoulli' in path_meta_model:
-        prediction = meta_model.predict(features)[0]
+        prediction = meta_model.general_predict(features)[0]
         pair_label_prediction = sorted(enumerate(prediction), key=lambda x: -x[1])
         label, proba = pair_label_prediction[0]
         if label == 0:  # clean has max probability => predict 1 - proba
@@ -422,7 +423,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     trigger_size = 30
     trigger_color = 'random' # 'random' or (127, 127, 127)
 
-    path_meta_model_binary = 'metamodels/metamodel_21_fc_round4_data=synth-diffs_scaler=no_clf=NN-2-IN_arch-features=yes_arch-wise-models=no_out=binary'
+    # path_meta_model_binary = 'metamodels/metamodel_21_fc_round4_data=synth-diffs_scaler=no_clf=NN-2-IN_arch-features=yes_arch-wise-models=no_out=binary'
     # path_meta_model_binary = 'metamodels/metamodel_19_fc_round4_data=synth-diffs_scaler=std_clf=NN_arch-features=yes_arch-wise-models=no_out=binary'
     # path_meta_model_bernoulli = 'metamodels/metamodel_20_fc_round4_data=synth-diffs_scaler=std_clf=NN_arch-features=yes_arch-wise-models=no_out=bernoulli'
 
@@ -516,12 +517,14 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         raise RuntimeError('Invalid combination for variables "network_type" and "stats_type"')
 
     features = get_features_from_stats(stats, network_type, stats_type, print_messages)
+    features = features[0].tolist()
 
+    arch_code = pipeline_tools.encode_architecture(available_architectures[sdn_type])
+    arch_one_hot = np.identity(len(available_architectures)).tolist()[arch_code]
     ##########################################################################################
     #################### STEP 4: predict backdoor probability
     ##########################################################################################
 
-    arch_code = pipeline_tools.encode_architecture(available_architectures[sdn_type])
 
     if print_messages:
         print('\n[info] STEP 4: predicting backd proba')
@@ -531,9 +534,12 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     if arch_wise_metamodel:
         suffix = f'-{available_architectures[arch_code]}' # let that dash there, such that the result would be, for example, model-vgg.pickle and scaler-vgg.pickle
 
+    ensemble = UMDEnsemble()
+    backd_proba = ensemble.predict(features, arch_one_hot)
+
     # backd_proba = prediction_single_model_keras(path_meta_model_binary, add_arch_features, arch_code, features)
     # backd_proba = prediction_single_model_keras(path_meta_model_bernoulli, add_arch_features, arch_code, features)
-    backd_proba = prediction_single_model_two_inputs_keras(path_meta_model_binary, add_arch_features, arch_code, features)
+    # backd_proba = prediction_single_model_two_inputs_keras(path_meta_model_binary, add_arch_features, arch_code, features)
     # backd_proba = prediction_single_model_sklearn(path_meta_model_binary, add_arch_features, arch_code, features, suffix)
     # backd_proba = prediction_single_model(path_meta_model_bernoulli, add_arch_features, arch_code, features)
     # backd_proba = prediction_binary_bernoulli_models(path_meta_model_binary, path_meta_model_bernoulli, add_arch_features, arch_code, features)

@@ -175,7 +175,7 @@ def save_obj(obj, folder, name):
 
 def load_obj(filename):
     if not os.path.isfile(filename):
-        print('Pickle {} does not exist.'.format(filename))
+        # print('Pickle {} does not exist.'.format(filename))
         return None
     with open(filename, 'rb') as handle:
         obj = pickle.load(handle)
@@ -211,7 +211,7 @@ def evaluate_classifier(clf, train_x, train_y, test_x, test_y):
     #     clf = LogisticRegression(C=2)
     #     print('clf=', str(clf))
     clf.fit(train_x, train_y)
-    y_score = clf.predict(test_x)
+    y_score = clf.general_predict(test_x)
     y_pred = clf.predict_proba(test_x)
     #     print(y_score[:5].tolist())
     #     print(y_pred[:5,:].tolist())
@@ -291,7 +291,7 @@ def draw_ellipse(position, covariance, ax=None, **kwargs):
 def plot_gmm(gmm, X, label=True, ax=None):
     plt.figure(figsize=(16, 10)).patch.set_color('white')
     ax = ax or plt.gca()
-    labels = gmm.fit(X).predict(X)
+    labels = gmm.fit(X).general_predict(X)
     if label:
         ax.scatter(X[:, 0], X[:, 1], c=labels, s=40, cmap='viridis', zorder=2)
     else:
