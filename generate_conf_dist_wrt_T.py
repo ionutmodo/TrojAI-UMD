@@ -5,6 +5,7 @@ import pandas as pd
 from datetime import datetime
 import torch.nn.functional as F
 
+import tools.aux_funcs as af
 from tools.logger import Logger
 from tools.logistics import *
 from round_features_sdn import get_trigger_type_aux_value
@@ -28,6 +29,7 @@ Available keys for npz files when num_ics = 4:
 
 def main():
     T = 0.5
+    device = af.get_pytorch_device()
 
     list_limits = {
         'windows10': (0, 1007),
@@ -117,10 +119,10 @@ def main():
                 for index_image in range(1000): # we have 1000 synthetic images
                     score_all, score_T, count_ics_T = 0.0, 0.0, 0
 
-                    logit_net_out = torch.tensor(stats['logit_net_out'][index_image]).unsqueeze(0)
+                    logit_net_out = torch.tensor(stats['logit_net_out'][index_image], device=device).unsqueeze(0)
                     softmax_net_out = F.softmax(logit_net_out)
                     for index_ic in range(num_ics):
-                        logit_ic = torch.tensor(stats[f'logit_ic_{index_ic}'][index_image]).unsqueeze(0)
+                        logit_ic = torch.tensor(stats[f'logit_ic_{index_ic}'][index_image], device=device).unsqueeze(0)
                         softmax_ic = F.softmax(logit_ic)
 
                         dist = F.pairwise_distance(softmax_ic, softmax_net_out, p=1).item()
