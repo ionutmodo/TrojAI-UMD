@@ -1,16 +1,16 @@
-import os
+# import os
 import sys
 import time
 import numpy as np
 import pandas as pd
 from datetime import datetime
-import torch.nn.functional as F
+# import torch.nn.functional as F
 
-import tools.aux_funcs as af
+# import tools.aux_funcs as af
 from tools.logger import Logger
 from tools.logistics import *
-from round_features_sdn import get_trigger_type_aux_value
-from notebooks.methods import encode_architecture
+# from round_features_sdn import get_trigger_type_aux_value
+# from notebooks.methods import encode_architecture
 
 """
 Available keys for npz files when num_ics = 4:
@@ -26,6 +26,59 @@ Available keys for npz files when num_ics = 4:
     'conf_mat_ic3', # if num_ics=3, then this key won't exist
     'conf_dist_original'
 """
+
+
+# this method can also be found in notebooks/methods
+def encode_architecture(model_architecture):
+    arch_codes = ['densenet', 'googlenet', 'inception', 'mobilenet', 'resnet', 'shufflenet', 'squeezenet', 'vgg']
+    for index, arch in enumerate(arch_codes):
+        if arch in model_architecture:
+            return index
+    return None
+
+
+# this method can also be found in notebooks/methods
+def encode_backdoor(trigger_type_aux):
+    code = None
+    if trigger_type_aux == 'none':
+        code = 0
+    elif 'polygon' in trigger_type_aux:
+        code = 1
+    elif 'gotham' in trigger_type_aux:
+        code = 2
+    elif 'kelvin' in trigger_type_aux:
+        code = 3
+    elif 'lomo' in trigger_type_aux:
+        code = 4
+    elif 'nashville' in trigger_type_aux:
+        code = 5
+    elif 'toaster' in trigger_type_aux:
+        code = 6
+    return code
+
+
+# this method can also be found in round_features_sdn
+def get_trigger_type_aux_value(triggers_0_type, triggers_0_instagram_filter_type, triggers_1_type, triggers_1_instagram_filter_type):
+    triggers_0_type = triggers_0_type.lower()
+    triggers_1_type = triggers_1_type.lower()
+    triggers_0_instagram_filter_type = triggers_0_instagram_filter_type.lower().replace('filter', '').replace('xform', '')
+    triggers_1_instagram_filter_type = triggers_1_instagram_filter_type.lower().replace('filter', '').replace('xform', '')
+
+    if triggers_0_type == 'instagram':
+        backd_0_str = f'instagram-{triggers_0_instagram_filter_type}'
+        backd_0_code = encode_backdoor(triggers_0_instagram_filter_type)
+    else:
+        backd_0_str = triggers_0_type
+        backd_0_code = encode_backdoor(triggers_0_type)
+
+    if triggers_1_type == 'instagram':
+        backd_1_str = f'instagram-{triggers_1_instagram_filter_type}'
+        backd_1_code = encode_backdoor(triggers_1_instagram_filter_type)
+    else:
+        backd_1_str = triggers_1_type
+        backd_1_code = encode_backdoor(triggers_1_type)
+
+    return f'{backd_0_str}_{backd_1_str}', backd_0_code, backd_1_code
 
 
 def main():
