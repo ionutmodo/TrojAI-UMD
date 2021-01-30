@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import numpy as np
 import pandas as pd
 from datetime import datetime
@@ -99,6 +100,20 @@ def main():
         start_time = datetime.now()
         model_name = row['model_name']
         model_id = int(model_name[3:])
+
+        # wait for the round_features_sdn process to create the npz files for each model
+        lookup_folder = os.path.join(synthetic_stats_root, model_name)
+        while True:
+            if not os.path.isdir(lookup_folder):
+                Logger.log(f'Waiting for folder synthetic_stats/{model_name} to be created...')
+                time.sleep(60)
+                continue
+            files_count = len(os.listdir(lookup_folder))
+            if files_count == 7:
+                break
+            Logger.log(f'Waiting for folder synthetic_stats/{model_name} to have 7 files...')
+            time.sleep(60)
+
         if lim_left <= model_id <= lim_right and ((last_model_name_in_report_conf_dist is None) or (last_model_name_in_report_conf_dist is not None and model_name > last_model_name_in_report_conf_dist)):
             backd_str, backd_0_code, backd_1_code = get_trigger_type_aux_value(row['triggers_0_type'], row['triggers_0_instagram_filter_type'], row['triggers_1_type'], row['triggers_1_instagram_filter_type'])
             model_label = 'backdoor' if row['poisoned'] else 'clean'
