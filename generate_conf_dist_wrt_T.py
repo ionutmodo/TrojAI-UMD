@@ -34,6 +34,7 @@ def main():
 
     list_limits = {
         'windows10': (0, 1007),
+        'opensub03.umiacs.umd.edu': (0, 1007),
         'openlab08.umiacs.umd.edu': (0, 1007),
         # 'openlab30.umiacs.umd.edu': (0, 249),
         # 'openlab31.umiacs.umd.edu': (250, 499),
