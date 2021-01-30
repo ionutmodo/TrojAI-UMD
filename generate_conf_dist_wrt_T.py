@@ -165,6 +165,7 @@ def main():
                     continue
                 files_count = len(os.listdir(lookup_folder))
                 if files_count == 7:
+                    time.sleep(10)
                     break
                 Logger.log(f'Waiting for folder synthetic_stats/{model_name} to have 7 files...')
                 time.sleep(60)
