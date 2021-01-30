@@ -211,8 +211,7 @@ def get_confusion_scores(outputs, normalize=None, device='cpu'):
     p = 1
     confusion_scores = torch.zeros(outputs[0].size(0))
     confusion_scores = confusion_scores.to(device)
-    # for output, use in zip(outputs, SDNConfig.DenseNet_Mask):
-    #     if use:
+    
     for output in outputs:
         cur_disagreement = torch.nn.functional.pairwise_distance(outputs[-1], output, p=p)
         cur_disagreement = cur_disagreement.to(device)
