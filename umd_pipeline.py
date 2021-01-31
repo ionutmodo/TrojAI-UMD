@@ -416,7 +416,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     ################################################################################
     T = 0.5
     print_messages = True
-    fast_local_test = True
+    fast_local_test = False
     arch_wise_metamodel = False # used to specify if we have one metamodel per architecture
     use_abs_features = False # always keep it set to False
 
