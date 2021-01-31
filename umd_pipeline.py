@@ -72,6 +72,7 @@ available_architectures = {
     SDNConfig.VGG: 'vgg'
 }
 
+
 def write_prediction(filepath, backd_proba):
     with open(filepath, 'w') as w:
         w.write(backd_proba)
@@ -117,7 +118,7 @@ def build_confusion_distribution_stats(scratch_dirpath, examples_dirpath, model,
     return stats
 
 
-def build_confusion_distribution_stats_synthetic(synthetic_data, model, batch_size, device, perform_fast_test, use_abs=False):
+def build_confusion_distribution_stats_synthetic(synthetic_data, model, batch_size, device, perform_fast_test, T, use_abs=False):
     def f(x): return abs(x) if use_abs else x
     stats = {}
     for key_synth_data in ['clean', 'polygon_all', 'gotham', 'kelvin', 'lomo', 'nashville', 'toaster']:
@@ -130,7 +131,7 @@ def build_confusion_distribution_stats_synthetic(synthetic_data, model, batch_si
             data = sdaf.ManualData(sdaf.convert_to_pytorch_format(synthetic_data[key_synth_data]), np.zeros((n_samples, )))
             synthetic_loader = torch.utils.data.DataLoader(data, batch_size=batch_size, shuffle=True, num_workers=4)
 
-            confusion = mf.compute_confusion(model, synthetic_loader, device)
+            confusion = mf.compute_confusion(model, synthetic_loader, device, T)
             mean, std = np.mean(confusion), np.std(confusion)
             del confusion
         if key != 'clean':
@@ -413,10 +414,11 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     ################################################################################
     #################### EXPERIMENT SETTINGS
     ################################################################################
+    T = 0.5
     print_messages = True
-    fast_local_test = False
+    fast_local_test = True
     arch_wise_metamodel = False # used to specify if we have one metamodel per architecture
-    use_abs_features = False # compute abs for diff features
+    use_abs_features = False # always keep it set to False
 
     add_arch_features = True # ALSO ADD ONE-HOT/RAW ARCH FEATURE
     scenario_number = 1
@@ -510,7 +512,7 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
         raise RuntimeError('Invalid value for variable "network_type"')
 
     if (network_type in [NETWORK_TYPE_SDN_WITH_SVM_ICS, NETWORK_TYPE_SDN_WITH_FC_ICS]) and (stats_type in [STATISTIC_TYPE_RAW_MEAN_STD, STATISTIC_TYPE_DIFF_MEAN_STD]):
-        stats = build_confusion_distribution_stats_synthetic(synthetic_data, model, batch_size_experiment, device, fast_local_test, use_abs=use_abs_features)
+        stats = build_confusion_distribution_stats_synthetic(synthetic_data, model, batch_size_experiment, device, fast_local_test, T, use_abs=use_abs_features)
     elif (network_type == NETWORK_TYPE_RAW_CNN_NO_ADDITIONAL_TRAINING) and (stats_type in [STATISTIC_TYPE_H, STATISTIC_TYPE_KL, STATISTIC_TYPE_H_KL]):
         stats = build_confusion_matrix_stats(scratch_dirpath, examples_dirpath, model, batch_size_experiment, device, fast_local_test)
     else:
@@ -524,7 +526,6 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     ##########################################################################################
     #################### STEP 4: predict backdoor probability
     ##########################################################################################
-
 
     if print_messages:
         print('\n[info] STEP 4: predicting backd proba')

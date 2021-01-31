@@ -81,7 +81,7 @@ def compute_confusion_for_light_sdn(model, loader, device='cpu'):
     return confusion_scores
 
 
-def compute_confusion(model, loader, device='cpu'):
+def compute_confusion(model, loader, device='cpu', T=0.0):
     model.eval().to(device)
 
     if isinstance(model, LightSDN): # SVM version
@@ -93,7 +93,7 @@ def compute_confusion(model, loader, device='cpu'):
             b_x = batch[0].to(device)
             output = model(b_x, include_cnn_out=True)
             output = [torch.nn.functional.softmax(out, dim=1) for out in output]
-            cur_confusion = get_confusion_scores(output, None, device)
+            cur_confusion = get_confusion_scores(output, False, device, T)
             for index in range(len(b_x)):
                 confusion_scores.append(cur_confusion[index].cpu().numpy())
 
@@ -206,14 +206,13 @@ def sdn_get_confusion(model, loader, confusion_stats, device='cpu'):
 
     return layer_correct, layer_wrong, instance_confusion
 
-
-def get_confusion_scores(outputs, normalize=None, device='cpu'):
+def get_confusion_scores_original_version(outputs, normalize=None, device='cpu'):
     p = 1
-    confusion_scores = torch.zeros(outputs[0].size(0))
-    confusion_scores = confusion_scores.to(device)
-    
+    n_batch, n_features = outputs[0].size()
+    confusion_scores = torch.zeros(n_batch).to(device)
+
     for output in outputs:
-        cur_disagreement = torch.nn.functional.pairwise_distance(outputs[-1], output, p=p)
+        cur_disagreement = torch.nn.functional.pairwise_distance(outputs[-1], output, p=p) # HERE IS A BUG
         cur_disagreement = cur_disagreement.to(device)
         for instance_id in range(outputs[0].size(0)):
             confusion_scores[instance_id] += cur_disagreement[instance_id]
@@ -224,6 +223,27 @@ def get_confusion_scores(outputs, normalize=None, device='cpu'):
             cur_confusion_score = cur_confusion_score - normalize[0]  # subtract mean
             cur_confusion_score = cur_confusion_score / normalize[1]  # divide by the standard deviation
             confusion_scores[instance_id] = cur_confusion_score
+
+    return confusion_scores
+
+
+def get_confusion_scores(outputs, normalize=False, device='cpu', T=0.0):
+    p = 1
+    n_batch, n_features = outputs[0].size()
+    confusion_scores = torch.zeros(n_batch).to(device)
+
+    for batch_index, output in enumerate(outputs):
+        softmax_net_out = output[-1]
+        count_ics_added = 0
+        for softmax_ic in output[:-1]:
+            max_confidence = softmax_ic.max(0)[0].item()
+            if max_confidence > T:
+                count_ics_added += 1
+                dist = torch.nn.functional.pairwise_distance(softmax_ic.unsqueeze(0), softmax_net_out.unsqueeze(0), p=p)
+                confusion_scores[batch_index] += dist.item()
+        if normalize and count_ics_added > 0:
+            # confusion_scores[batch_index] /= (n_features * count_ics_added)
+            confusion_scores[batch_index] /= n_features
 
     return confusion_scores
 

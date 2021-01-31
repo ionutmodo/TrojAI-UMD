@@ -51,7 +51,7 @@ class UMDEnsemble(object):
             \--- scaler.pkl (optional)
     """
 
-    DEFAULT_PATH = os.path.join('metamodels', 'ensemble')
+    DEFAULT_PATH = os.path.join('metamodels', 'ensemble_T=0.5')
 
     """
         The binary threshold is used to decide if the label is 0 or 1 in the case of binary models.
