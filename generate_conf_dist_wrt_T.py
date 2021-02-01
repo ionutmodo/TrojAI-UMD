@@ -100,7 +100,7 @@ def main():
         lim_left, lim_right = int(sys.argv[1]), int(sys.argv[2])
 
     print(f'lim_left={lim_left}, lim_right={lim_right}')
-    experiment_name = f'fc_synthetic_polygon-all-gray_filters_T=0.5_{lim_left}-{lim_right}'
+    experiment_name = f'fc_synthetic_polygon-all-gray_filters_T={T:.1f}_{lim_left}-{lim_right}'
 
     path_root_project = get_project_root_path()
     path_root = os.path.join(path_root_project, 'TrojAI-data', 'round4-train-dataset')
