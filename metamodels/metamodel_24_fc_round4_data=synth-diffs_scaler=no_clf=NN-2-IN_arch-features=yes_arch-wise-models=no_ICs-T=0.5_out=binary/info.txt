@@ -1,0 +1,1 @@
+round4_neural_networks_binary-2_T=0.5\2021-02-01_22h04m59s_test-CE=0.515_input=20_train-count=907_test-count=101
