@@ -82,7 +82,7 @@ def get_trigger_type_aux_value(triggers_0_type, triggers_0_instagram_filter_type
 
 
 def main():
-    T = 0.5
+    T = 0.0
     device = af.get_pytorch_device()
 
     list_limits = {
