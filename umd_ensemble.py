@@ -51,12 +51,13 @@ class UMDEnsemble(object):
             \--- scaler.pkl (optional)
     """
 
-    DEFAULT_PATH = os.path.join('metamodels', 'ensemble_T=0.5')
+    DEFAULT_PATH = os.path.join('metamodels', 'ensemble_T=0.0')
 
     """
         The binary threshold is used to decide if the label is 0 or 1 in the case of binary models.
         Basically, if the probability p <= BINARY_THRESHOLD, then the label would be 0, otherwise 1.
-        This is useful when I add the probability to specific class bucket (clean, backdoored). 
+        This is useful when I add the probability to specific class bucket (clean, backdoored).
+        It is used in method general_predict/get_prediction above
     """
     BINARY_THRESHOLD = 0.5
 
