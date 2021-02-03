@@ -543,6 +543,8 @@ def trojan_detector_umd(model_filepath, result_filepath, scratch_dirpath, exampl
     # backd_proba = prediction_single_model(path_meta_model_bernoulli, add_arch_features, arch_code, features)
     # backd_proba = prediction_binary_bernoulli_models(path_meta_model_binary, path_meta_model_bernoulli, add_arch_features, arch_code, features)
 
+    backd_proba = min(0.95, max(0.05, backd_proba))
+
     ### write prediction to file
     write_prediction(result_filepath, str(backd_proba)) # try 1-backd_proba
     time_end = datetime.now()
